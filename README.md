@@ -11,7 +11,7 @@
 **Oniria** es una **aplicación web interactiva** que permite registrar, analizar e interpretar sueños mediante inteligencia artificial.  
 La interfaz combina un diseño inmersivo en 3D con **React** y **React Three Fiber (R3F)**, y se conecta a la **API de Oniria** para gestión de usuarios y almacenamiento de datos.
 
-Podes acceder a ella desde: 👉 [oniria-app](https://oniria-api.vercel.app/)
+Podes acceder a ella desde: 👉 [oniria-app](https://oniria-app.vercel.app/)
 
 ## 📖 Documentación
 
