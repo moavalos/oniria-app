@@ -33,6 +33,7 @@ La documentación técnica y de diseño está disponible en la Wiki del proyecto
 ```bash
 # 1. Clonar el repositorio
 git clone git@github.com:org/oniria-app.git
+cd oniria-app
 
 # 2. Instalar dependencias
 npm install
