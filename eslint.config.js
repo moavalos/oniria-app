@@ -15,13 +15,17 @@ export default defineConfig([
       tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
       reactRefresh.configs.vite,
+      reactThree.configs.recommended,
     ],
     plugins: {
-      "@react-three": reactThree.configs.recommended,
+      "@react-three": reactThree,
     },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      "lines-between-class-members": ["error", "always"],
     },
   },
 ]);

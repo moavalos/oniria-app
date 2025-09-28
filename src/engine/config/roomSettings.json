@@ -1,0 +1,15 @@
+{
+  "default": {
+    "lighting": {
+      "color": "#ffffff"
+    },
+    "text": {
+      "fontSize": 14,
+      "fontColor": "#000000",
+      "fontFamily": "Arial"
+    },
+    "emissive": {
+      "color": "#ff00ff"
+    }
+  }
+}
