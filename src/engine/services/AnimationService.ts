@@ -7,11 +7,9 @@ export type AnimationConfig = {
 };
 
 export class AnimationService {
-
     private animation: AnimationConfig | null = null;
 
     constructor(public scene: THREE.Group | THREE.Scene) {
-
         this.scene = scene;
     }
 
@@ -20,4 +18,4 @@ export class AnimationService {
     }
 
     // Aquí puedes agregar métodos y propiedades relacionados con la animación
-}   
+}

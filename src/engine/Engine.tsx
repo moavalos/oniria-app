@@ -1,8 +1,8 @@
+import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import type { EngineSettings } from "@engine/types/engine.types";
 import EngineProvider from "@/engine/context/EngineProvider";
 import SceneManager from "./systems/SceneManager";
-import * as THREE from "three";
 import LoaderSystem from "./systems/LoaderSystem";
 
 interface EngineProps {

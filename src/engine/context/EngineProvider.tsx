@@ -6,7 +6,6 @@ import {
   useMemo,
 } from "react";
 import { type EngineAPI } from "@engine/types/engine.types";
-import { AnimationService } from "@engine/services/AnimationService";
 import { useThree } from "@react-three/fiber";
 import { type EngineSettings } from "../types/engine.types";
 import { useEngineStore } from "../store/engineStore";
@@ -21,7 +20,6 @@ export default function EngineProvider({
   children,
   settings,
 }: EngineProviderProps) {
-  const { scene } = useThree();
   const { setActiveRoom, setSkin } = useEngineStore((s) => s);
   const aRoom = useEngineStore((s) => s.activeRoom);
   const aSkin = useEngineStore((s) => s.activeSkin);
@@ -35,7 +33,6 @@ export default function EngineProvider({
 
   const services = useMemo(
     () => ({
-      animationService: new AnimationService(scene),
       activeRoom: aRoom ?? settings.activeRoom,
       activeSkin: aSkin ?? settings.activeSkin,
       setActiveRoom,

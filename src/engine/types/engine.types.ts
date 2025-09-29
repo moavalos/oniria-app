@@ -1,6 +1,7 @@
 import { Room } from "@engine/entities/Room";
 import { Skin } from "@engine/entities/Skin";
-import { AnimationService } from '../services/AnimationService';
+
+
 
 export type EngineSettings = {
     activeRoom: Room;
@@ -8,9 +9,8 @@ export type EngineSettings = {
 }
 
 export type EngineAPI = {
-    animationService: AnimationService | null;
-    activeRoom: Room | null;
+    activeRoom: Room;
     setActiveRoom: (room: Room) => void;
-    activeSkin: Skin | null;
+    activeSkin: Skin;
     setSkin: (skin: Skin) => void;
 }

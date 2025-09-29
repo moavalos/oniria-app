@@ -6,7 +6,6 @@ import type { Skin } from "@engine/entities/Skin";
 type EngineState = {
     activeRoom: Room | null;
     setActiveRoom: (room: Room) => void;
-
     activeSkin: Skin | null;
     setSkin: (skin: Skin) => void;
 };

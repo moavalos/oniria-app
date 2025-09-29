@@ -1,8 +1,14 @@
-import { useFrame } from "@react-three/fiber";
-import { useEngineAPI } from "@engine/context/EngineProvider";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useMemo } from "react";
+import { AnimationService } from "@engine/services";
 
 export default function AnimationSystem() {
-  const { animationService } = useEngineAPI();
+  const { scene } = useThree();
+
+  const animationService = useMemo(() => {
+    if (!scene) return null;
+    return new AnimationService(scene);
+  }, [scene]);
 
   useFrame((_, delta) => {
     if (!animationService) return;
