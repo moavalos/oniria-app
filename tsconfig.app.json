@@ -9,6 +9,7 @@
      "paths": {
       "@/*": ["./src/*"],
       "@pages/*": ["./src/app/pages/*"],
+      "@features/*": ["./src/app/features/*"],
       "@assets/*": ["./src/assets/*"],
       "@shared/*": ["./src/shared/*"],
       "@config/*": ["./src/config/*"],

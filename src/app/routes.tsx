@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import Home from "@pages/Home";
-import Login from "@pages/Login";
+import Login from "@/app/pages/Login";
 import NotFound from "@pages/NotFound";
 
 export const routes = createBrowserRouter([

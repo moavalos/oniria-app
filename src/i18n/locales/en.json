@@ -5,10 +5,16 @@
     "description": "Explore the world of dreams with Oniria."
   },
   "login": {
-    "link": "Login",
-    "title": "Login",
-    "username": "Username",
-    "password": "Password"
+    "link": "Log In",
+    "subtitle": "Log in to your account",
+    "email": "Email",
+    "password": "Password",
+    "button": "Log In",
+    "forgot": "I forgot my password",
+    "or": "or",
+    "google": "Continue with Google",
+    "register": "Don't have an account? <1>Register</1>",
+    "error": "Invalid credentials"
   },
   "notFound": {
     "message": "Page not found"
