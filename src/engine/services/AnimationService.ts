@@ -1,7 +1,7 @@
 import gsap from "gsap";
 import * as THREE from "three";
 import type { AnimationConfig } from "../types";
-import { rotate } from "three/tsl";
+
 
 type AnimationHandler = (
     target: THREE.Object3D,
