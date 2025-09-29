@@ -1,49 +1,74 @@
 import * as THREE from "three";
-import type { RoomSettings } from "@engine/config/roomSettings.type";
+import type { RoomSettings } from "../types";
+
 
 export class MaterialService {
-    private materialMap: Record<string, THREE.Material>;
+    private scene: THREE.Scene | THREE.Group;
+    private materialMap: Record<string, THREE.Material> = {};
 
-    constructor(oTex: THREE.Texture, eTex: THREE.Texture, settings?: RoomSettings) {
+    constructor(scene: THREE.Scene | THREE.Group) {
+        this.scene = scene;
+    }
+
+    /** Aplica materiales básicos con texturas */
+    applyMaterials(oTex: THREE.Texture, eTex: THREE.Texture, settings?: RoomSettings) {
+        const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
+
+        // función para obtener o crear materiales de color
+        // y almacenarlos en un mapa para reutilización
+        const getColorMaterial = (hex: string) => {
+            if (!colorMaterials.has(hex)) {
+                colorMaterials.set(hex, new THREE.MeshBasicMaterial({ color: new THREE.Color(hex) }));
+            }
+            return colorMaterials.get(hex)!;
+        };
+
         this.materialMap = {
             objects: new THREE.MeshBasicMaterial({ map: oTex }),
             walls: new THREE.MeshBasicMaterial({ map: eTex }),
-            light: new THREE.MeshBasicMaterial({
-                color: settings?.lighting.color || 0xffffff,
-            }),
-            emissive: new THREE.MeshBasicMaterial({
-                color: settings?.emissive?.color || 0xffffff,
-            }),
         };
+
+        if (settings?.light) {
+            for (const [name, { color }] of Object.entries(settings.light)) {
+                this.materialMap[name] = getColorMaterial(color);
+            }
+        }
+
+
+
+        this.applyToScene();
     }
 
-    /** Aplica los materiales configurados al scene */
-    applyToScene(scene: THREE.Group | THREE.Scene) {
-        scene.traverse((child) => {
+
+
+    /** Recorre la escena y asigna materiales */
+    private applyToScene() {
+        this.scene.traverse((child) => {
+
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
-
-                for (const key in this.materialMap) {
-                    if (mesh.name.toLowerCase().includes(key.toLowerCase())) {
-                        mesh.material = this.materialMap[key];
-                    }
+                if (this.materialMap[mesh.name]) {
+                    mesh.material = this.materialMap[mesh.name];
+                } else if (this.materialMap.objects) {
+                    // fallback a material por defecto
+                    mesh.material = this.materialMap.objects;
                 }
+                return;
             }
 
-            if ((child as THREE.Object3D).isObject3D && child.name.includes("handler")) {
-                const handlerMesh = child.children[0] as THREE.Mesh;
-                handlerMesh.material = this.materialMap["objects"] ?? handlerMesh.material;
+            // handlers
+            if (child.name.includes("handler")) {
+                child.children.forEach((sub) => {
+                    if ((sub as THREE.Mesh).isMesh) {
+                        const subMesh = sub as THREE.Mesh;
+                        if (this.materialMap[subMesh.name]) {
+                            subMesh.material = this.materialMap[subMesh.name];
+                        } else if (this.materialMap.objects) {
+                            subMesh.material = this.materialMap.objects;
+                        }
+                    }
+                });
             }
         });
-    }
-
-    /** Devuelve un material en caso de que quieras reutilizarlo */
-    getMaterial(name: string): THREE.Material | undefined {
-        return this.materialMap[name];
-    }
-
-    /** Limpia memoria cuando ya no se usa */
-    dispose() {
-        Object.values(this.materialMap).forEach((mat) => mat.dispose());
     }
 }

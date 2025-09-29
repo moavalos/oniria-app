@@ -26,6 +26,7 @@ export default defineConfig([
     },
     rules: {
       "lines-between-class-members": ["error", "always"],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
   },
 ]);

@@ -1,20 +1,25 @@
-import useLoader from "@engine/hooks/useLoader";
 import { useMemo } from "react";
-import { MaterialService } from "../services/MaterialService";
-import { useEngineAPI } from "../context/EngineProvider";
+import useLoader from "@engine/hooks/useLoader";
+import { MaterialService } from "@engine/services";
+import { useEngineAPI } from "@engine/context/EngineProvider";
 
 export default function RendererSystem() {
   const { activeRoom, activeSkin } = useEngineAPI();
   const { scene, oTex, eTex } = useLoader({ activeRoom, activeSkin });
+  if (!scene) return null;
+  // aplicar materiales
+  // obtener settings de la room
   const settings = activeRoom?.getSettings();
+  const materialService = useMemo(
+    () => (scene ? new MaterialService(scene) : null),
+    [scene, settings]
+  );
 
   //console.log(scene);
   useMemo(() => {
-    if (scene && oTex && eTex) {
-      const materialService = new MaterialService(oTex, eTex, settings);
-      materialService.applyToScene(scene);
-    }
-  }, [scene, oTex, eTex]);
+    if (!materialService || !scene || !oTex || !eTex) return;
+    materialService.applyMaterials(oTex, eTex, settings);
+  }, [scene, materialService, oTex, eTex, settings]);
 
   return scene && <primitive object={scene} />;
 }

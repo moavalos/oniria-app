@@ -5,41 +5,45 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { type EngineAPI } from "@engine/types/engine.types";
 import { useThree } from "@react-three/fiber";
-import { type EngineSettings } from "../types/engine.types";
-import { useEngineStore } from "../store/engineStore";
+import { type EngineAPI, type UserSettings } from "@engine/types";
+import { useEngineStore } from "@engine/store/engineStore";
+import { AnimationService, LoopService } from "@engine/services";
 
 export const EngineContext = createContext<EngineAPI | null>(null);
 
 interface EngineProviderProps extends PropsWithChildren {
-  settings: EngineSettings;
+  settings?: UserSettings;
 }
 
 export default function EngineProvider({
   children,
   settings,
 }: EngineProviderProps) {
+  const { scene, camera, gl } = useThree();
   const { setActiveRoom, setSkin } = useEngineStore((s) => s);
   const aRoom = useEngineStore((s) => s.activeRoom);
   const aSkin = useEngineStore((s) => s.activeSkin);
 
+  // hidratar store desde settings
   useEffect(() => {
-    if (settings.activeRoom && aRoom !== settings.activeRoom)
-      setActiveRoom(settings.activeRoom);
-    if (settings.activeSkin && aSkin !== settings.activeSkin)
-      setSkin(settings.activeSkin);
+    if (settings?.activeRoom) setActiveRoom(settings.activeRoom);
+    if (settings?.activeSkin) setSkin(settings.activeSkin);
   }, [settings]);
 
-  const services = useMemo(
-    () => ({
-      activeRoom: aRoom ?? settings.activeRoom,
-      activeSkin: aSkin ?? settings.activeSkin,
-      setActiveRoom,
-      setSkin,
-    }),
-    [aRoom, aSkin, settings, setActiveRoom, setSkin]
-  );
+  // inicializar servicios core una sola vez
+  const loopService = useMemo(() => new LoopService(), []);
+
+  const services: EngineAPI = {
+    loopService,
+    scene,
+    camera,
+    gl,
+    activeRoom: aRoom ?? settings?.activeRoom ?? null,
+    activeSkin: aSkin ?? settings?.activeSkin ?? null,
+    setActiveRoom,
+    setSkin,
+  };
 
   return (
     <EngineContext.Provider value={services}>{children}</EngineContext.Provider>
@@ -48,6 +52,7 @@ export default function EngineProvider({
 
 export function useEngineAPI() {
   const ctx = useContext(EngineContext);
-  if (!ctx) throw new Error("useEngineAPI must be used inside EngineProvider");
+  if (!ctx)
+    throw new Error("useEngineAPI debe usarse dentro de EngineProvider");
   return ctx;
 }

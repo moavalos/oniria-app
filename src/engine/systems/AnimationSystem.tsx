@@ -1,19 +1,21 @@
-import { useFrame, useThree } from "@react-three/fiber";
-import { useMemo } from "react";
-import { AnimationService } from "@engine/services";
+import { useEffect, useMemo } from "react";
+import { useEngineAPI } from "@engine/context/EngineProvider";
+import { AnimationService } from "../services";
 
 export default function AnimationSystem() {
-  const { scene } = useThree();
+  const { activeRoom, scene } = useEngineAPI();
+  if (!scene) return null;
 
-  const animationService = useMemo(() => {
-    if (!scene) return null;
-    return new AnimationService(scene);
-  }, [scene]);
+  const animationSettings = activeRoom?.getSettings().animation || [];
+  const animationService = useMemo(() => new AnimationService(scene), [scene]);
 
-  useFrame((_, delta) => {
+  useEffect(() => {
     if (!animationService) return;
-    animationService.update(delta);
-  });
+    animationSettings.forEach((config) => {
+      animationService.play(config);
+    });
+    return () => animationService.stopAll();
+  }, [animationService]);
 
-  return <div>AnimationSystem</div>;
+  return null;
 }
