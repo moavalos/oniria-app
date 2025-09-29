@@ -1,18 +1,17 @@
 import { Canvas } from "@react-three/fiber";
-import type { engineSettings } from "@engine/types/engine.types";
-import EngineProvider from "@engine/providers/EngineProvider";
-import RendererSystem from "@engine/systems/RendererSystem";
-import LoaderSystem from "@engine/systems/LoaderSystem";
-import CameraSystem from "@engine/systems/CameraSystem";
+import type { EngineSettings } from "@engine/types/engine.types";
+import EngineProvider from "@/engine/context/EngineProvider";
+import SceneManager from "./systems/SceneManager";
 import * as THREE from "three";
+import LoaderSystem from "./systems/LoaderSystem";
 
 interface EngineProps {
-  settings: engineSettings;
+  settings: EngineSettings;
 }
 
 export default function Engine({ settings }: EngineProps) {
   return (
-    <EngineProvider settings={settings}>
+    <>
       <LoaderSystem />
       <Canvas
         className="canvas-webgl"
@@ -22,9 +21,10 @@ export default function Engine({ settings }: EngineProps) {
         }}
         camera={{ fov: 45, position: [-5, 2, 4] }}
       >
-        <CameraSystem />
-        <RendererSystem />
+        <EngineProvider settings={settings}>
+          <SceneManager />
+        </EngineProvider>
       </Canvas>
-    </EngineProvider>
+    </>
   );
 }

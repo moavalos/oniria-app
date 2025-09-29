@@ -1,11 +1,11 @@
 import useLoader from "@engine/hooks/useLoader";
 import { useMemo } from "react";
-import { useEngine } from "../hooks/useEngine";
 import { MaterialService } from "../services/MaterialService";
+import { useEngineAPI } from "../context/EngineProvider";
 
 export default function RendererSystem() {
-  const { scene, oTex, eTex } = useLoader();
-  const { activeRoom } = useEngine();
+  const { activeRoom, activeSkin } = useEngineAPI();
+  const { scene, oTex, eTex } = useLoader({ activeRoom, activeSkin });
   const settings = activeRoom?.getSettings();
 
   //console.log(scene);
@@ -16,5 +16,5 @@ export default function RendererSystem() {
     }
   }, [scene, oTex, eTex]);
 
-  return <primitive object={scene} />;
+  return scene && <primitive object={scene} />;
 }
