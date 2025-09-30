@@ -19,5 +19,17 @@
   "notFound": {
     "link": "404",
     "message": "Página no encontrada"
+  },
+  "historial": {
+    "title": "Explora tus Nodos",
+    "description": "Selecciona entre las plantillas que más te gusten",
+    "oniriaPro": "Probá Oniria PRO",
+    "visibility": "Visibilidad",
+    "public": "Público",
+    "insignia": "Insignias",
+    "emocion": "Emoción",
+    "soporte": "Soporte",
+    "atajos": "Atajos",
+    "salir": "Salir"
   }
 }

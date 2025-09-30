@@ -18,5 +18,17 @@
   },
   "notFound": {
     "message": "Page not found"
+  },
+  "historial": {
+    "title": "Explore your Nodes",
+    "description": "Select from the templates you like best",
+    "oniriaPro": "Try Oniria PRO",
+    "visibility": "Visibility",
+    "public": "Public",
+    "insignia": "Badges",
+    "emocion": "Emotion",
+    "soporte": "Support",
+    "atajos": "Shortcuts",
+    "salir": "Exit"
   }
 }
