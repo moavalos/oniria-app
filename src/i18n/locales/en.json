@@ -7,8 +7,20 @@
   "login": {
     "link": "Login",
     "title": "Login",
-    "username": "Username",
-    "password": "Password"
+    "email": "Email",
+    "password": "Password",
+    "button": "Login",
+    "google": "Continue with Google"
+  },
+  "register": {
+    "link": "Register",
+    "title": "Create Account",
+    "fullName": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "dateOfBirth": "Date of Birth",
+    "button": "Register",
+    "success": "Check your email to confirm your account!"
   },
   "notFound": {
     "message": "Page not found"
