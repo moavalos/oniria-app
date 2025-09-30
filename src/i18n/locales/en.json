@@ -13,8 +13,21 @@
     "forgot": "I forgot my password",
     "or": "or",
     "google": "Continue with Google",
-    "register": "Don't have an account? <1>Register</1>",
+    "text": "Don't have an account?",
+    "textLink": "Sign Up",
     "error": "Invalid credentials"
+  },
+  "register": {
+    "link": "Sign Up",
+    "subtitle": "Create your account",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "button": "Sign Up",
+    "errorPasswordMatch": "Passwords do not match",
+    "text": "Already have an account?",
+    "textLink": "Log In"
   },
   "notFound": {
     "message": "Page not found"

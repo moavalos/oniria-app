@@ -1,12 +1,11 @@
 import Card from "../../shared/components/Card";
 import AuthTitle from "../features/auth/components/AuthTitle";
-import LoginForm from "../features/auth/login/LoginForm";
-import GoogleButton from "../features/auth/components/GoogleButton";
+import RegisterForm from "../features/auth/register/RegisterForm";
 import AuthLinks from "../features/auth/components/AuthLinks";
 import bgImage from "../../assets/images/Screenshot_1.png";
 import { useTranslation } from "react-i18next";
 
-export default function Login() {
+export default function Register() {
     const { t } = useTranslation();
 
     return (
@@ -18,15 +17,9 @@ export default function Login() {
             />
 
             <Card>
-                <AuthTitle title="Oniria" subtitle={t("login.subtitle")} />
-                <LoginForm />
-                <div className="flex items-center gap-2 my-4 text-gray-400">
-                    <div className="flex-1 h-px bg-gray-600" />
-                    <span>{t("login.or")}</span>
-                    <div className="flex-1 h-px bg-gray-600" />
-                </div>
-                <GoogleButton />
-                <AuthLinks href="/register" section="login"/>
+                <AuthTitle title="Oniria" subtitle={t("register.subtitle")} />
+                <RegisterForm />
+                <AuthLinks href="/register" section="register" />
             </Card>
         </div>
     );
