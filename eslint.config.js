@@ -28,5 +28,20 @@ export default defineConfig([
       "lines-between-class-members": ["error", "always"],
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
     },
+  }, // Configuración específica para archivos de test y mock
+  {
+    files: [
+      "**/*.test.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "**/*mock*.{ts,tsx}",
+      "**/*Mock*.{ts,tsx}",
+      "**/__mocks__/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
 ]);

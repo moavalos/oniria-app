@@ -112,14 +112,14 @@ void main(){
   // Color base
 //   vec4  color   = hsv2rgb(vec3(uHue, uSaturation, 0.8)) * vec4(2.0);
   vec4  color   = vec4(palette(4.1, 
-                   vec3(0.5,0.4,0.6),   // base gris
-                   vec3(0.5,0.0,0.9),   // amplitud
-                   vec3(.2,0.8,max(uSaturation, 0.5)),   // frecuencia
-                   vec3(0.0,0.13,1.57)),uPortalAlpha);// offsets RGB
+                   vec3(0.5,0.4,0.6),   
+                   vec3(0.5,0.0,0.9),   
+                   vec3(.2,0.8,max(uSaturation, 0.5)),   
+                   vec3(0.0,0.13,1.57)),uPortalAlpha);
 
    vec4 portalCol = vec4(1.0);
    if (distance(uv, center) > uRadius) {
-        portalCol = vec4(0.0);
+        portalCol = vec4(1.0);
     }
   
   float d = distance(uv, center);
@@ -128,7 +128,7 @@ void main(){
 
   portalCol = portalEffect(color, uDensity, uTime, uRadius, uAngle, uv, center) * distGain * portalCol;
 
-  vec4  atmosphere = vec4(uv.y) / 2.0;
+  vec4  atmosphere = vec4(1.0);
    
   float value = 1.0 - ((portalCol.r + portalCol.g + portalCol.b + portalCol.a) / 5.0);
 

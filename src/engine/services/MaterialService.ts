@@ -13,7 +13,7 @@ export class MaterialService {
     }
 
     /** Aplica materiales básicos con texturas */
-    async applyMaterialsToRoom(room: Room) {
+    applyMaterialsToRoom(room: Room) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.getScene()!;
 
@@ -31,9 +31,10 @@ export class MaterialService {
             walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
         };
 
-        const roomConfig = await room.getConfig();
+        const roomConfig = room.getConfig();
 
-        if (roomConfig.objects) {
+
+        if (roomConfig && roomConfig.objects) {
             for (const [name, { color }] of Object.entries(roomConfig.objects || {})) {
                 if (color) this.materialMap[name] = getColorMaterial(color);
             }
@@ -49,9 +50,11 @@ export class MaterialService {
             uniforms,
             vertexShader: portalVertexShader,
             fragmentShader: portalFragmentShader,
-            side: THREE.DoubleSide,
             transparent: false,
             depthWrite: false,
+            colorWrite: true,
+            blending: THREE.MultiplyBlending,
+
         });
         console.log("Portal material applied", (portal as THREE.Mesh).material);
 
@@ -65,7 +68,7 @@ export class MaterialService {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
                 // console.log(mesh)
-                if (mesh.name === "portal") return; // skip portal
+                // if (mesh.name === "portal") return; // skip portal
 
                 if (this.materialMap[mesh.name]) {
 

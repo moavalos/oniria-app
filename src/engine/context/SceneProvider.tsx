@@ -1,4 +1,3 @@
-// engine/context/EngineSceneProvider.tsx
 import { createContext, useContext, useMemo } from "react";
 import { useThree } from "@react-three/fiber";
 import { useEngineCore } from "./EngineCoreProvider";
