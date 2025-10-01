@@ -1,16 +1,13 @@
 import * as THREE from "three";
-import type { Room } from "../entities/Room";
+import type { Room } from "@engine/entities/Room";
 import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
 import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
-
 
 export class MaterialService {
     private scene: THREE.Scene | THREE.Group = null as any;
     private materialMap: Record<string, THREE.Material> = {};
 
-
-    constructor() {
-    }
+    constructor() { }
 
     /** Aplica materiales básicos con texturas */
     applyMaterialsToRoom(room: Room) {
@@ -21,7 +18,10 @@ export class MaterialService {
         // y almacenarlos en un mapa para reutilización
         const getColorMaterial = (hex: string) => {
             if (!colorMaterials.has(hex)) {
-                colorMaterials.set(hex, new THREE.MeshBasicMaterial({ color: new THREE.Color(hex) }));
+                colorMaterials.set(
+                    hex,
+                    new THREE.MeshBasicMaterial({ color: new THREE.Color(hex) })
+                );
             }
             return colorMaterials.get(hex)!;
         };
@@ -33,9 +33,10 @@ export class MaterialService {
 
         const roomConfig = room.getConfig();
 
-
         if (roomConfig && roomConfig.objects) {
-            for (const [name, { color }] of Object.entries(roomConfig.objects || {})) {
+            for (const [name, { color }] of Object.entries(
+                roomConfig.objects || {}
+            )) {
                 if (color) this.materialMap[name] = getColorMaterial(color);
             }
             //console.log(this.materialMap);
@@ -53,25 +54,20 @@ export class MaterialService {
             transparent: false,
             depthWrite: false,
             colorWrite: true,
-            blending: THREE.MultiplyBlending,
-
         });
+
         console.log("Portal material applied", (portal as THREE.Mesh).material);
-
     }
-
 
     /** Recorre la escena y asigna materiales */
     private applyToScene() {
         this.scene.traverse((child) => {
-
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
                 // console.log(mesh)
                 // if (mesh.name === "portal") return; // skip portal
 
                 if (this.materialMap[mesh.name]) {
-
                     mesh.material = this.materialMap[mesh.name];
                 } else if (this.materialMap.objects) {
                     // fallback a material por defecto

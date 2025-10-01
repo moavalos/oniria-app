@@ -1,9 +1,9 @@
-import { useThree } from "@react-three/fiber";
+import { useEngineAPI } from "../context/SceneProvider";
 import { useEngineStore } from "../store/engineStore";
 
 export function useEngine() {
     const { roomId, skinId } = useEngineStore();
-    const { scene } = useThree();
+    const { activeRoom } = useEngineAPI();
 
-    return { roomId, skinId, scene, };
+    return { roomId, skinId, activeRoom };
 }

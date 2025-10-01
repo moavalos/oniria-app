@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import type { EngineSettings } from "@engine/types/engine.types";
-import SceneManager from "./systems/SceneManager";
 import LoaderSystem from "./systems/LoaderSystem";
 import { SceneProvider } from "./context/SceneProvider";
 import { EngineCoreProvider } from "./context/EngineCoreProvider";
+import type { PropsWithChildren } from "react";
 
-interface EngineProps {
+interface EngineProps extends PropsWithChildren {
   engineSettings: EngineSettings;
 }
 
@@ -14,6 +14,7 @@ export default function Engine({
   engineSettings = {
     backgroundColor: "#000000",
   },
+  children,
 }: EngineProps) {
   return (
     <EngineCoreProvider>
@@ -30,9 +31,7 @@ export default function Engine({
         }}
         onContextMenu={(e) => e.preventDefault()}
       >
-        <SceneProvider>
-          <SceneManager />
-        </SceneProvider>
+        <SceneProvider>{children}</SceneProvider>
 
         <color attach="background" args={[engineSettings.backgroundColor]} />
       </Canvas>
