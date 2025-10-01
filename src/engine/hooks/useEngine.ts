@@ -5,5 +5,5 @@ export function useEngine() {
     const { activeRoom, activeSkin } = useEngineStore();
     const { scene } = useThree();
 
-    return { activeRoom, activeSkin, scene };
+    return { activeRoom, activeSkin, scene, };
 }

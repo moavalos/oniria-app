@@ -1,23 +1,22 @@
-import { type UserSettings } from "../../engine/types/engine.types";
-import { Room } from "@/engine/entities/Room";
-import { Skin } from "../../engine/entities/Skin";
 import Engine from "@/engine/Engine";
+import { useEngineStore } from "@/engine/store/engineStore";
+import { useEffect } from "react";
 
 export default function Home() {
-  const skin = new Skin("33b", "default", "object_bake.ktx2", "wall_bake.ktx2");
-  const room = new Room("1a", "default", "room.gltf", skin);
+  const { setRoomId, setSkinId, roomId, skinId } = useEngineStore();
 
-  const userSettings: UserSettings = {
-    activeRoom: room,
-    activeSkin: skin,
-  };
-
+  useEffect(() => {
+    // Supongamos que el backend devuelve esto:
+    console.log("Home render");
+    const backendSettings = { roomId: "oniria", skinId: "oniria" };
+    setRoomId(backendSettings.roomId);
+    setSkinId(backendSettings.skinId);
+  }, []);
   return (
-    <div className="flex flex-col gap-3 justify-center items-center h-screen">
-      <Engine
-        userSettings={userSettings}
-        engineSettings={{ backgroundColor: "#000000" }}
-      />
+    <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
+      {roomId && skinId && (
+        <Engine engineSettings={{ backgroundColor: "#000000" }} />
+      )}
     </div>
   );
 }

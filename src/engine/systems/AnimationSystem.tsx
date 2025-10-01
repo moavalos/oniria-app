@@ -1,21 +1,29 @@
-import { useEffect, useMemo } from "react";
-import { useEngineAPI } from "@engine/context/EngineProvider";
-import { AnimationService } from "../services";
+import { useEffect, useState } from "react";
+import { useEngineAPI } from "@/engine/context/SceneProvider";
+import type { AnimationAction } from "../config/room.type";
 
 export default function AnimationSystem() {
-  const { activeRoom, scene } = useEngineAPI();
-  if (!scene) return null;
-
-  const animationSettings = activeRoom?.getSettings().animation || [];
-  const animationService = useMemo(() => new AnimationService(scene), [scene]);
+  const { activeRoom, animationService } = useEngineAPI();
+  const [animatables, setAnimatables] = useState<
+    Record<string, AnimationAction>
+  >({});
 
   useEffect(() => {
-    if (!animationService) return;
-    animationSettings.forEach((config) => {
+    const ao = activeRoom?.getAnimatableObjects();
+    setAnimatables(ao ?? {});
+  }, [activeRoom]);
+
+  // ejecutar animaciones
+  useEffect(() => {
+    if (!animationService || !activeRoom?.getScene()) return;
+    Object.values(animatables).forEach((config) => {
       animationService.play(config);
     });
-    return () => animationService.stopAll();
-  }, [animationService]);
+
+    return () => {
+      animationService.stopAll();
+    };
+  }, [animationService, animatables, activeRoom]);
 
   return null;
 }

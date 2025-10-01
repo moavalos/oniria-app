@@ -1,18 +1,21 @@
 import * as THREE from "three";
-import type { RoomSettings } from "../types";
+import type { Room } from "../entities/Room";
+import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
+import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
 
 
 export class MaterialService {
-    private scene: THREE.Scene | THREE.Group;
+    private scene: THREE.Scene | THREE.Group = null as any;
     private materialMap: Record<string, THREE.Material> = {};
 
-    constructor(scene: THREE.Scene | THREE.Group) {
-        this.scene = scene;
+
+    constructor() {
     }
 
     /** Aplica materiales básicos con texturas */
-    applyMaterials(oTex: THREE.Texture, eTex: THREE.Texture, settings?: RoomSettings) {
+    async applyMaterialsToRoom(room: Room) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
+        this.scene = room.getScene()!;
 
         // función para obtener o crear materiales de color
         // y almacenarlos en un mapa para reutilización
@@ -24,21 +27,35 @@ export class MaterialService {
         };
 
         this.materialMap = {
-            objects: new THREE.MeshBasicMaterial({ map: oTex }),
-            walls: new THREE.MeshBasicMaterial({ map: eTex }),
+            objects: new THREE.MeshBasicMaterial({ map: room.getObjectTexture() }),
+            walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
         };
 
-        if (settings?.light) {
-            for (const [name, { color }] of Object.entries(settings.light)) {
-                this.materialMap[name] = getColorMaterial(color);
+        const roomConfig = await room.getConfig();
+
+        if (roomConfig.objects) {
+            for (const [name, { color }] of Object.entries(roomConfig.objects || {})) {
+                if (color) this.materialMap[name] = getColorMaterial(color);
             }
+            //console.log(this.materialMap);
         }
-
-
 
         this.applyToScene();
     }
 
+    applyMaterialsToPortal(portal: THREE.Object3D | undefined, uniforms = {}) {
+        if (!portal) return;
+        (portal as THREE.Mesh).material = new THREE.ShaderMaterial({
+            uniforms,
+            vertexShader: portalVertexShader,
+            fragmentShader: portalFragmentShader,
+            side: THREE.DoubleSide,
+            transparent: false,
+            depthWrite: false,
+        });
+        console.log("Portal material applied", (portal as THREE.Mesh).material);
+
+    }
 
 
     /** Recorre la escena y asigna materiales */
@@ -47,7 +64,11 @@ export class MaterialService {
 
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
+                // console.log(mesh)
+                if (mesh.name === "portal") return; // skip portal
+
                 if (this.materialMap[mesh.name]) {
+
                     mesh.material = this.materialMap[mesh.name];
                 } else if (this.materialMap.objects) {
                     // fallback a material por defecto

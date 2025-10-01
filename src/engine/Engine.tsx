@@ -1,12 +1,12 @@
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import type { EngineSettings, UserSettings } from "@engine/types/engine.types";
-import EngineProvider from "@/engine/context/EngineProvider";
+import type { EngineSettings } from "@engine/types/engine.types";
 import SceneManager from "./systems/SceneManager";
 import LoaderSystem from "./systems/LoaderSystem";
+import { SceneProvider } from "./context/SceneProvider";
+import { EngineCoreProvider } from "./context/EngineCoreProvider";
 
 interface EngineProps {
-  userSettings?: UserSettings;
   engineSettings: EngineSettings;
 }
 
@@ -14,10 +14,9 @@ export default function Engine({
   engineSettings = {
     backgroundColor: "#000000",
   },
-  userSettings,
 }: EngineProps) {
   return (
-    <>
+    <EngineCoreProvider>
       <LoaderSystem />
       <Canvas
         className="canvas-webgl"
@@ -25,14 +24,18 @@ export default function Engine({
           outputColorSpace: THREE.SRGBColorSpace, // Importante
           toneMapping: THREE.NoToneMapping, // Para ver el bake 1:1]
         }}
-        camera={{ fov: 45, position: [-5, 2, 4] }}
+        camera={{
+          fov: 45,
+          position: [-5, 4, 4],
+        }}
+        onContextMenu={(e) => e.preventDefault()}
       >
-        <EngineProvider settings={userSettings ?? undefined}>
+        <SceneProvider>
           <SceneManager />
-        </EngineProvider>
+        </SceneProvider>
 
         <color attach="background" args={[engineSettings.backgroundColor]} />
       </Canvas>
-    </>
+    </EngineCoreProvider>
   );
 }
