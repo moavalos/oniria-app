@@ -99,6 +99,19 @@ export class CameraService {
         this.controls.restThreshold = threshold;
     }
 
+    // Métodos para obtener información actual de la cámara
+    getPosition(): THREE.Vector3 {
+        return this.controls.camera.position.clone();
+    }
+
+    getTarget(): THREE.Vector3 {
+        return this.controls.getTarget(new THREE.Vector3());
+    }
+
+    getDistance(): number {
+        return this.controls.distance;
+    }
+
 
 
 

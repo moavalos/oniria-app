@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { useCallback } from 'react';
-import { useEngineAPI } from '../context/EngineApiProvider';
+import { useEngineCore } from '../Engine';
 
 
 export function useTransitions() {
-    const { cameraService, activeRoom } = useEngineAPI();
+    const core = useEngineCore();
+    const cameraService = core.getCameraService();
+    const { activeRoom } = core;
 
 
 

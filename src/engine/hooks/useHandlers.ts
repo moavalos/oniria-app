@@ -1,9 +1,10 @@
 import { useCallback } from "react";
-import { useEngineAPI } from "../context/EngineApiProvider";
+import { useEngineCore } from "../Engine";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 
 export function useHandlers() {
-    const { animationService } = useEngineAPI();
+    const core = useEngineCore();
+    const animationService = core.getAnimationService();
 
     const onEnter = useCallback((event: ObjectEventArray) => {
         event.forEach((element: ObjectEvent) => {

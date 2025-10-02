@@ -1,19 +1,19 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import { MaterialService } from "@/engine/core";
-import { useEngineCore } from "../../Engine";
+import { useEngineCore } from "@engine/Engine";
 import { useLoader } from "@engine/hooks/useLoader";
 
 export default function RoomRenderer() {
   const core = useEngineCore();
+  const { loopService } = core;
   const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
 
   // Solo usar useLoader si hay una room activa en el core
   const { room } = useLoader({
     activeRoom: core.activeRoom,
   });
-  console.log(room);
 
+  //Configuracion de uniforms del Portal
   const portalUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -30,12 +30,13 @@ export default function RoomRenderer() {
     []
   );
 
+  // Carga de materiales y configuración del portal
   useEffect(() => {
     if (!room || !room.hasScene()) return;
 
     const applyMaterials = async () => {
       try {
-        const materialService = new MaterialService();
+        const materialService = core.getMaterialService();
         await materialService.applyMaterialsToRoom(room);
 
         const portal = room.getPortal();
@@ -55,10 +56,8 @@ export default function RoomRenderer() {
     applyMaterials();
   }, [room, portalUniforms]);
 
-  // Comentado por ahora - se puede reactivar cuando LoopService esté disponible
+  // Animación del portal
   useEffect(() => {
-    const loopService = core.getLoopService();
-    console.log(loopService);
     if (!loopService) return;
     const cb = (_: unknown, dt: number) => {
       if (!portalMaterialRef.current) return;

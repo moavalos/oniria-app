@@ -32,7 +32,6 @@ type EngineCoreAPI = {
   registerSkin: (skinId: string) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;
-  getLoopService: () => LoopService;
   getInteractionService: () => InteractionService;
   getMaterialService: () => MaterialService;
 };
@@ -180,10 +179,6 @@ export function EngineCore({ children }: EngineCoreProps) {
     return services["cameraService"] as CameraService;
   }, [services, camera, gl, registerService]);
 
-  const getLoopService = useCallback(() => {
-    return loopService;
-  }, [loopService]);
-
   const getInteractionService = useCallback(() => {
     if (!services["interactionService"]) {
       if (!camera || !gl) throw new Error("Scene/Camera/GL no inicializados");
@@ -220,7 +215,6 @@ export function EngineCore({ children }: EngineCoreProps) {
       registerSkin,
       getAnimationService,
       getCameraService,
-      getLoopService,
       getInteractionService,
       getMaterialService,
     }),
@@ -237,7 +231,6 @@ export function EngineCore({ children }: EngineCoreProps) {
       registerSkin,
       getAnimationService,
       getCameraService,
-      getLoopService,
       getInteractionService,
       getMaterialService,
     ]

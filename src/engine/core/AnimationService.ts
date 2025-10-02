@@ -2,15 +2,19 @@ import gsap from "gsap";
 import * as THREE from "three";
 import type { AnimationAction } from "../config/room.type";
 
-
-
 type AnimationHandler = (
     target: THREE.Object3D,
     config: AnimationAction
 ) => gsap.core.Timeline | void;
 
+type AnimationCallback = (targetName: string, animationType: string) => void;
+type AnimationUpdateCallback = (targetName: string, progress: number) => void;
+
 export class AnimationService {
     private animations: Record<string, gsap.core.Timeline> = {};
+    private onAnimationStart?: AnimationCallback;
+    private onAnimationComplete?: AnimationCallback;
+    private onAnimationUpdate?: AnimationUpdateCallback;
 
     //Animaciones disponibles
     private handlers: Record<string, AnimationHandler> = {
@@ -152,9 +156,24 @@ export class AnimationService {
             return;
         }
 
-
         const tl = handler(target, config);
-        if (tl) this.animations[config.target] = tl;
+        if (tl) {
+            // Configurar callbacks de la timeline
+            tl.eventCallback("onStart", () => {
+                this.onAnimationStart?.(config.target, config.type);
+            });
+            
+            tl.eventCallback("onComplete", () => {
+                this.onAnimationComplete?.(config.target, config.type);
+            });
+            
+            tl.eventCallback("onUpdate", () => {
+                const progress = tl.progress();
+                this.onAnimationUpdate?.(config.target, progress);
+            });
+            
+            this.animations[config.target] = tl;
+        }
     }
 
     /** Detener animación en un target */
@@ -170,6 +189,51 @@ export class AnimationService {
     stopAll() {
         Object.values(this.animations).forEach((tl) => tl.kill());
         this.animations = {};
+    }
+
+    // Métodos para configurar callbacks
+    setOnAnimationStart(callback?: AnimationCallback) {
+        this.onAnimationStart = callback;
+    }
+
+    setOnAnimationComplete(callback?: AnimationCallback) {
+        this.onAnimationComplete = callback;
+    }
+
+    setOnAnimationUpdate(callback?: AnimationUpdateCallback) {
+        this.onAnimationUpdate = callback;
+    }
+
+    // Métodos para obtener información de animaciones
+    getActiveAnimations(): string[] {
+        return Object.keys(this.animations);
+    }
+
+    isAnimating(targetName: string): boolean {
+        return targetName in this.animations;
+    }
+
+    getAnimationProgress(targetName: string): number {
+        const tl = this.animations[targetName];
+        return tl ? tl.progress() : 0;
+    }
+
+    pauseAnimation(targetName: string) {
+        const tl = this.animations[targetName];
+        if (tl) tl.pause();
+    }
+
+    resumeAnimation(targetName: string) {
+        const tl = this.animations[targetName];
+        if (tl) tl.resume();
+    }
+
+    pauseAll() {
+        Object.values(this.animations).forEach((tl) => tl.pause());
+    }
+
+    resumeAll() {
+        Object.values(this.animations).forEach((tl) => tl.resume());
     }
 
 }

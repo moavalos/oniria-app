@@ -1,4 +1,10 @@
-import { Engine, useEngine, RoomScene, LoaderSystem } from "@/engine";
+import {
+  Engine,
+  useEngine,
+  RoomScene,
+  LoaderSystem,
+  CameraSystem,
+} from "@/engine";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -21,6 +27,7 @@ export default function Home() {
           <LoaderSystem />
           <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
             <Engine.Core>
+              <CameraSystem />
               <RoomScene />
             </Engine.Core>
           </Engine.Canvas>
