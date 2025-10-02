@@ -7,12 +7,14 @@ El `AnimationSystem` y `AnimationService` han sido refactorizados siguiendo el p
 ## Características Principales
 
 ### AnimationSystem Configurable
+
 - **Props-based Configuration**: Se puede configurar desde la UI mediante props
 - **Event Callbacks**: Callbacks para eventos de animación (start, complete, update)
 - **Autoconfiguración**: Carga automática de animaciones desde la habitación
 - **Control Granular**: Habilitar/deshabilitar animaciones, autoplay, etc.
 
 ### AnimationService Mejorado
+
 - **Event Callbacks**: Soporte para callbacks de eventos de animación
 - **Control de Animaciones**: Pausar, reanudar, obtener progreso
 - **Información de Estado**: Verificar qué animaciones están activas
@@ -21,46 +23,50 @@ El `AnimationSystem` y `AnimationService` han sido refactorizados siguiendo el p
 ## Uso desde la UI
 
 ### Básico
+
 ```tsx
 <AnimationSystem
   config={{
     animations: {
-      'my_object': {
-        target: 'my_object',
-        type: 'rotate',
+      my_object: {
+        target: "my_object",
+        type: "rotate",
         loop: true,
-        params: { axis: [0, 1, 0], to: 360, duration: 3 }
-      }
+        params: { axis: [0, 1, 0], to: 360, duration: 3 },
+      },
     },
-    autoPlay: true
+    autoPlay: true,
   }}
-  onAnimationStart={(target, type) => console.log('Started:', target, type)}
-  onAnimationComplete={(target, type) => console.log('Completed:', target, type)}
+  onAnimationStart={(target, type) => console.log("Started:", target, type)}
+  onAnimationComplete={(target, type) =>
+    console.log("Completed:", target, type)
+  }
   enableAnimations={true}
   autoConfigureForRoom={true}
 />
 ```
 
 ### Avanzado
+
 ```tsx
 // Control manual de animaciones
 const animationService = core.getAnimationService();
 
 // Verificar estado
-if (animationService.isAnimating('my_object')) {
-  const progress = animationService.getAnimationProgress('my_object');
+if (animationService.isAnimating("my_object")) {
+  const progress = animationService.getAnimationProgress("my_object");
   console.log(`Progreso: ${progress * 100}%`);
 }
 
 // Control de reproducción
-animationService.pauseAnimation('my_object');
-animationService.resumeAnimation('my_object');
+animationService.pauseAnimation("my_object");
+animationService.resumeAnimation("my_object");
 animationService.pauseAll();
 animationService.resumeAll();
 
 // Obtener animaciones activas
 const activeAnimations = animationService.getActiveAnimations();
-console.log('Animaciones activas:', activeAnimations);
+console.log("Animaciones activas:", activeAnimations);
 ```
 
 ## Interfaces Exportadas
@@ -94,13 +100,15 @@ export interface AnimationSystemProps {
 ## Migración desde Versión Anterior
 
 **Antes:**
+
 ```tsx
 <AnimationSystem />
 ```
 
 **Ahora:**
+
 ```tsx
-<AnimationSystem 
+<AnimationSystem
   autoConfigureForRoom={true} // Comportamiento anterior
   enableAnimations={true}
 />

@@ -162,16 +162,16 @@ export class AnimationService {
             tl.eventCallback("onStart", () => {
                 this.onAnimationStart?.(config.target, config.type);
             });
-            
+
             tl.eventCallback("onComplete", () => {
                 this.onAnimationComplete?.(config.target, config.type);
             });
-            
+
             tl.eventCallback("onUpdate", () => {
                 const progress = tl.progress();
                 this.onAnimationUpdate?.(config.target, progress);
             });
-            
+
             this.animations[config.target] = tl;
         }
     }

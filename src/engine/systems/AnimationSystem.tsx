@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import type { AnimationAction } from "../config/room.type";
 import { useEngineCore } from "@engine/Engine";
 
-export interface AnimationConfig {
+export type AnimationConfig = {
   animations?: Record<string, AnimationAction>;
   autoPlay?: boolean;
   playOnMount?: boolean;
-}
+};
 
 export interface AnimationSystemProps {
   config?: AnimationConfig;
@@ -23,14 +23,16 @@ export default function AnimationSystem({
   onAnimationComplete,
   onAnimationUpdate,
   enableAnimations = true,
-  autoConfigureForRoom = true
+  autoConfigureForRoom = true,
 }: AnimationSystemProps) {
   const core = useEngineCore();
   const { activeRoom } = core;
   const animationService = core.getAnimationService();
-  
+
   // Estado local para objetos animatables
-  const [animatables, setAnimatables] = useState<Record<string, AnimationAction>>({});
+  const [animatables, setAnimatables] = useState<
+    Record<string, AnimationAction>
+  >({});
 
   // Configurar objetos animatables desde la habitación o props
   useEffect(() => {
@@ -77,15 +79,22 @@ export default function AnimationSystem({
       animationService.setOnAnimationComplete(undefined);
       animationService.setOnAnimationUpdate(undefined);
     };
-  }, [animationService, onAnimationStart, onAnimationComplete, onAnimationUpdate]);
+  }, [
+    animationService,
+    onAnimationStart,
+    onAnimationComplete,
+    onAnimationUpdate,
+  ]);
 
   // Ejecutar animaciones
   useEffect(() => {
-    if (!animationService || !activeRoom?.getScene() || !enableAnimations) return;
-    
+    if (!animationService || !activeRoom?.getScene() || !enableAnimations)
+      return;
+
     // Reproducir animaciones automáticamente o según configuración
-    const shouldAutoPlay = config.autoPlay !== false && config.playOnMount !== false;
-    
+    const shouldAutoPlay =
+      config.autoPlay !== false && config.playOnMount !== false;
+
     if (shouldAutoPlay) {
       Object.values(animatables).forEach((animationConfig) => {
         animationService.play(animationConfig);
@@ -95,7 +104,14 @@ export default function AnimationSystem({
     return () => {
       animationService.stopAll();
     };
-  }, [animationService, animatables, activeRoom, enableAnimations, config.autoPlay, config.playOnMount]);
+  }, [
+    animationService,
+    animatables,
+    activeRoom,
+    enableAnimations,
+    config.autoPlay,
+    config.playOnMount,
+  ]);
 
   return null;
 }

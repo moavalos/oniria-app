@@ -158,47 +158,58 @@ export function EngineCore({ children }: EngineCoreProps) {
     [activeRoom]
   );
 
-  // Factories internas 👇
+  // Factories internas 👇 - Híbrido: lazy creation pero controlado
   const getAnimationService = useCallback(() => {
-    if (!services["animationService"]) {
+    let service = services["animationService"] as AnimationService;
+    if (!service) {
       if (!scene) throw new Error("Scene no inicializada");
-      const service = new AnimationService(scene as any);
-      registerService("animationService", service);
+      service = new AnimationService(scene as any);
+      // Usar setTimeout para evitar actualización durante render
+      setTimeout(() => {
+        registerService("animationService", service);
+      }, 0);
+      // Retornar el servicio inmediatamente para uso
       return service;
     }
-    return services["animationService"] as AnimationService;
+    return service;
   }, [services, scene, registerService]);
 
   const getCameraService = useCallback(() => {
-    if (!services["cameraService"]) {
+    let service = services["cameraService"] as CameraService;
+    if (!service) {
       if (!camera || !gl) throw new Error("Camera/GL no inicializados");
-      const service = new CameraService(camera as any, gl.domElement);
-      registerService("cameraService", service);
+      service = new CameraService(camera as any, gl.domElement);
+      setTimeout(() => {
+        registerService("cameraService", service);
+      }, 0);
       return service;
     }
-    return services["cameraService"] as CameraService;
+    return service;
   }, [services, camera, gl, registerService]);
 
   const getInteractionService = useCallback(() => {
-    if (!services["interactionService"]) {
+    let service = services["interactionService"] as InteractionService;
+    if (!service) {
       if (!camera || !gl) throw new Error("Scene/Camera/GL no inicializados");
-      const service = new InteractionService(
-        camera as THREE.Camera,
-        gl.domElement
-      );
-      registerService("interactionService", service);
+      service = new InteractionService(camera as THREE.Camera, gl.domElement);
+      setTimeout(() => {
+        registerService("interactionService", service);
+      }, 0);
       return service;
     }
-    return services["interactionService"] as InteractionService;
+    return service;
   }, [services, camera, gl, registerService]);
 
   const getMaterialService = useCallback(() => {
-    if (!services["materialService"]) {
-      const service = new MaterialService();
-      registerService("materialService", service);
+    let service = services["materialService"] as MaterialService;
+    if (!service) {
+      service = new MaterialService();
+      setTimeout(() => {
+        registerService("materialService", service);
+      }, 0);
       return service;
     }
-    return services["materialService"] as MaterialService;
+    return service;
   }, [services, registerService]);
 
   const value = useMemo(

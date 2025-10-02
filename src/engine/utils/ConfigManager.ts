@@ -141,13 +141,25 @@ export class ConfigManager {
     private extractInteractableObjects(config: RoomConfig, scene: THREE.Group<THREE.Object3DEventMap>): Record<string, ObjectEventArray> {
         const interactables: Record<string, ObjectEventArray> = {};
 
+        console.log("🔍 [ConfigManager] Extracting interactables from config:", config.objects);
+
         for (const [name, obj] of Object.entries(config.objects)) {
             if (obj.interceptable && obj.event) {
-                interactables[name] = Array.isArray(obj.event) ? obj.event : [obj.event];
+                console.log(`✅ [ConfigManager] Found interceptable: ${name}`, obj);
+                // Asegurar que event es siempre un array
+                const eventArray = Array.isArray(obj.event) ? obj.event : [obj.event];
+                console.log(`🔄 [ConfigManager] Normalized event for ${name}:`, eventArray);
+                interactables[name] = eventArray;
+            } else {
+                console.log(`⏭️ [ConfigManager] Skipping ${name}, interceptable: ${obj.interceptable}, event: ${!!obj.event}`);
             }
         }
 
-        return this.mapHandlersToChildObjects(scene, interactables);
+        console.log("🔍 [ConfigManager] Raw interactables before mapping:", interactables);
+        const mapped = this.mapHandlersToChildObjects(scene, interactables);
+        console.log("🔍 [ConfigManager] Final mapped interactables:", mapped);
+
+        return mapped;
     }
 
     private extractColorableObjects(config: RoomConfig): Record<string, string> {
@@ -168,13 +180,20 @@ export class ConfigManager {
     ): Record<string, ObjectEventArray> {
         const mapped: Record<string, ObjectEventArray> = {};
 
+        console.log("🗺️ [ConfigManager] Mapping handlers to child objects:", handlers);
+
         Object.entries(handlers).forEach(([name, event]) => {
             if (this.isHandlerObject(name)) {
+                console.log(`🔄 [ConfigManager] ${name} is a handler object, looking for child...`);
                 const childName = this.getChildObjectName(scene, name);
                 if (childName) {
+                    console.log(`✅ [ConfigManager] Mapped ${name} -> ${childName}`);
                     mapped[childName] = event;
+                } else {
+                    console.log(`❌ [ConfigManager] No child found for handler ${name}`);
                 }
             } else {
+                console.log(`➡️ [ConfigManager] ${name} is not a handler, keeping as-is`);
                 mapped[name] = event;
             }
         });
@@ -188,7 +207,16 @@ export class ConfigManager {
 
     private getChildObjectName(scene: THREE.Group<THREE.Object3DEventMap>, handlerName: string): string | null {
         const handler = scene.getObjectByName(handlerName);
-        const child = handler?.children[0]; // el primer mesh hijo
-        return child?.name || null;
+        console.log(`🔍 [ConfigManager] Looking for handler "${handlerName}" in scene...`, !!handler);
+        
+        if (handler) {
+            const child = handler.children[0]; // el primer mesh hijo
+            console.log(`🔍 [ConfigManager] Handler children:`, handler.children.map(c => c.name));
+            const childName = child?.name || null;
+            console.log(`🔍 [ConfigManager] Child name:`, childName);
+            return childName;
+        }
+        
+        return null;
     }
 }

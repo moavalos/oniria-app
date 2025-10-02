@@ -4,7 +4,10 @@ import {
   RoomScene,
   LoaderSystem,
   CameraSystem,
+  AnimationSystem,
+  InteractionSystem,
 } from "@/engine";
+
 import { useEffect } from "react";
 
 export default function Home() {
@@ -27,6 +30,8 @@ export default function Home() {
           <LoaderSystem />
           <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
             <Engine.Core>
+              <InteractionSystem autoConfigureForRoom={true} />
+              <AnimationSystem />
               <CameraSystem />
               <RoomScene />
             </Engine.Core>
