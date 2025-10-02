@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useEngineAPI } from "@/engine/context/SceneProvider";
+import { useEngineAPI } from "@/engine/context/EngineApiProvider";
 import type { AnimationAction } from "../config/room.type";
 
 export default function AnimationSystem() {

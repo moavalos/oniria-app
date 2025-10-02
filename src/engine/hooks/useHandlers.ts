@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useEngineAPI } from "../context/SceneProvider";
+import { useEngineAPI } from "../context/EngineApiProvider";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 
 export function useHandlers() {

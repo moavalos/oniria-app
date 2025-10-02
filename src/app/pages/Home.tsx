@@ -1,26 +1,28 @@
-import { RoomScene, Engine, useEngine } from "@/engine";
-import { useEngineStore } from "@/engine/store/engineStore";
+import { Engine, useEngine, RoomScene } from "@/engine";
+
 import { useEffect } from "react";
 
 export default function Home() {
-  const { setRoomId, setSkinId, roomId, skinId } = useEngineStore();
-  const { roomId: engineRoomId, activeRoom } = useEngine();
-
-  console.log({ engineRoomId, activeRoom });
+  const engine = useEngine();
+  //algo asi seria la respuesta del backend
+  //y se lo pasariamos al engine
+  //para setear la room y skin
+  //por ahora hardcodeado
+  const backendSettings = { roomId: "oniria", skinId: "oniria" };
+  const { roomId, skinId } = backendSettings;
 
   useEffect(() => {
-    // Supongamos que el backend devuelve esto:
-    console.log("Home render");
-    const backendSettings = { roomId: "oniria", skinId: "oniria" };
-    setRoomId(backendSettings.roomId);
-    setSkinId(backendSettings.skinId);
+    engine.setRoom(roomId, skinId);
   }, []);
+
   return (
     <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
       {roomId && skinId && (
-        <Engine engineSettings={{ backgroundColor: "#000000" }}>
-          <RoomScene />
-        </Engine>
+        <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
+          <Engine.Core>
+            <RoomScene />
+          </Engine.Core>
+        </Engine.Canvas>
       )}
     </div>
   );

@@ -1,9 +1,8 @@
-import { useEngineAPI } from "../context/SceneProvider";
-import { useEngineStore } from "../store/engineStore";
+import { useEngineAPI } from "../context/EngineApiProvider";
+
 
 export function useEngine() {
-    const { roomId, skinId } = useEngineStore();
-    const { activeRoom } = useEngineAPI();
+    const engineApi = useEngineAPI();
 
-    return { roomId, skinId, activeRoom };
+    return { ...engineApi };
 }

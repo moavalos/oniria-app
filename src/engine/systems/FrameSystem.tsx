@@ -1,5 +1,5 @@
 import { useFrame } from "@react-three/fiber";
-import { useEngineAPI } from "@/engine/context/SceneProvider";
+import { useEngineAPI } from "@/engine/context/EngineApiProvider";
 
 export default function FrameSystem() {
   const { loopService } = useEngineAPI();

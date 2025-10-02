@@ -6,7 +6,5 @@ import { routes } from "@/app/routes";
 import "@/i18n";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <RouterProvider router={routes} />
-  </StrictMode>
+  <RouterProvider router={routes} />
 );

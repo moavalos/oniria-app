@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import { useEngineAPI } from "../context/SceneProvider";
+import { useEngineAPI } from "../context/EngineApiProvider";
 import { useHandlers, useTransitions } from "../hooks";
 import { button, useControls } from "leva";
 

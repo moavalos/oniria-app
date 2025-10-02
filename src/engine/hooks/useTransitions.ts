@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { useCallback } from 'react';
-import { useEngineAPI } from '../context/SceneProvider';
+import { useEngineAPI } from '../context/EngineApiProvider';
 
 
 export function useTransitions() {

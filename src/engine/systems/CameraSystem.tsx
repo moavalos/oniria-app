@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useEffect } from "react";
-import { useEngineAPI } from "../context/SceneProvider";
+import { useEngineAPI } from "../context/EngineApiProvider";
 
 export default function CameraSystem() {
   const { loopService, cameraService, activeRoom } = useEngineAPI();

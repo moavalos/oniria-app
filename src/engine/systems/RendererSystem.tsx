@@ -1,16 +1,22 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
+import { MaterialService } from "@/engine/core";
+import { useEngineCore } from "../Engine";
 import { useLoader } from "@engine/hooks/useLoader";
-import { MaterialService } from "@engine/services";
-import { useEngineAPI } from "@/engine/context/SceneProvider";
 
 export default function RendererSystem() {
-  const { activeRoom, loopService } = useEngineAPI();
+  const core = useEngineCore();
   const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
-  // cargar room
-  const { room } = useLoader({ activeRoom });
+  
+  // Solo usar useLoader si hay una room activa en el core
+  const { room } = useLoader({ 
+    activeRoom: core.activeRoom 
+  });
 
-  if (!room) return null;
+  // Early return si no hay room cargada
+  if (!room || !core.activeRoom) {
+    return null;
+  }
 
   const portalUniforms = useMemo(
     () => ({
@@ -29,36 +35,35 @@ export default function RendererSystem() {
   );
 
   useEffect(() => {
-    if (!activeRoom) return;
+    if (!room || !room.hasScene()) return;
+    
     const materialService = new MaterialService();
     materialService.applyMaterialsToRoom(room);
-    materialService.applyMaterialsToPortal(room.getPortal(), portalUniforms);
-    const material = (room.getPortal() as THREE.Mesh)
-      ?.material as THREE.ShaderMaterial;
-    if (!material) return;
-    portalMaterialRef.current = material as THREE.ShaderMaterial;
+    
+    const portal = room.getPortal();
+    if (portal) {
+      materialService.applyMaterialsToPortal(portal, portalUniforms);
+      const material = (portal as THREE.Mesh)?.material as THREE.ShaderMaterial;
+      if (material) {
+        portalMaterialRef.current = material;
+      }
+    }
   }, [room, portalUniforms]);
 
-  useEffect(() => {
-    if (!loopService) return;
-
-    const cb = (_: unknown, dt: number) => {
-      if (!portalMaterialRef.current) return;
-      portalMaterialRef.current.uniforms.uTime.value += dt;
-    };
-    loopService.subscribe(cb);
-    return () => loopService.unsubscribe(cb);
-  }, [loopService]);
-
+  // Comentado por ahora - se puede reactivar cuando LoopService esté disponible
   // useEffect(() => {
-  //   if (!registerService || !room.getScene()) return;
-  //   registerService.registerScene(room.getScene()!);
-  //   return () => {
-  //     registerService.unregisterScene(room.getScene()!);
+  //   if (!loopService) return;
+  //   const cb = (_: unknown, dt: number) => {
+  //     if (!portalMaterialRef.current) return;
+  //     portalMaterialRef.current.uniforms.uTime.value += dt;
   //   };
-  // }, [registerService, room]);
+  //   loopService.subscribe(cb);
+  //   return () => loopService.unsubscribe(cb);
+  // }, [loopService]);
 
-  const scene = useMemo(() => room.getScene(), [room]);
+  const scene = useMemo(() => {
+    return room.getScene();
+  }, [room]);
 
-  return scene && <primitive object={scene} />;
+  return scene ? <primitive object={scene} /> : null;
 }

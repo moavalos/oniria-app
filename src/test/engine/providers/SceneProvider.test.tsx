@@ -1,7 +1,10 @@
 // engine/context/EngineSceneProvider.test.tsx
 import { render, renderHook, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { SceneProvider, useEngineAPI } from "@engine/context/SceneProvider";
+import {
+  SceneProvider,
+  useEngineAPI,
+} from "@/engine/context/EngineApiProvider";
 
 // Mock de useThree de @react-three/fiber
 vi.mock("@react-three/fiber", () => ({
