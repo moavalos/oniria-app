@@ -7,10 +7,10 @@ import { useLoader } from "@engine/hooks/useLoader";
 export default function RendererSystem() {
   const core = useEngineCore();
   const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
-  
+
   // Solo usar useLoader si hay una room activa en el core
-  const { room } = useLoader({ 
-    activeRoom: core.activeRoom 
+  const { room } = useLoader({
+    activeRoom: core.activeRoom,
   });
 
   // Early return si no hay room cargada
@@ -36,10 +36,10 @@ export default function RendererSystem() {
 
   useEffect(() => {
     if (!room || !room.hasScene()) return;
-    
+
     const materialService = new MaterialService();
     materialService.applyMaterialsToRoom(room);
-    
+
     const portal = room.getPortal();
     if (portal) {
       materialService.applyMaterialsToPortal(portal, portalUniforms);

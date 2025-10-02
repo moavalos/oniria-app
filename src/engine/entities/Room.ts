@@ -28,6 +28,28 @@ export class Room {
         this.configManager = ConfigManager.getInstance();
     }
 
+    // Factory method estático para crear Room con configuración precargada
+    static async create(id: string, skin: Skin): Promise<Room> {
+        if (!id?.trim()) {
+            throw new Error('Room ID cannot be empty');
+        }
+        if (!skin) {
+            throw new Error('Skin is required');
+        }
+
+        try {
+            // Precargar la configuración usando ConfigManager
+            const configManager = ConfigManager.getInstance();
+            await configManager.getConfig(id);
+            
+            // Crear la room (la configuración ya está en caché)
+            return new Room(id, skin);
+        } catch (error) {
+            console.error(`Failed to create room ${id}:`, error);
+            throw new Error(`Room could not be created: ${error}`);
+        }
+    }
+
     getMeshUrl(): string {
         return this.meshUrl;
     }
