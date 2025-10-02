@@ -9,8 +9,8 @@ export class MaterialService {
 
     constructor() { }
 
-    /** Aplica materiales básicos con texturas */
-    applyMaterialsToRoom(room: Room) {
+    /** Aplica materiales básicos con texturas - versión con carga bajo demanda */
+    async applyMaterialsToRoom(room: Room) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.getScene()!;
 
@@ -31,15 +31,48 @@ export class MaterialService {
             walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
         };
 
-        const roomConfig = room.getConfig();
+        // Cargar objetos coloreables bajo demanda
+        try {
+            const colorableObjects = await room.getColorableObjects();
 
-        if (roomConfig && roomConfig.objects) {
-            for (const [name, { color }] of Object.entries(
-                roomConfig.objects || {}
-            )) {
-                if (color) this.materialMap[name] = getColorMaterial(color);
+            for (const [name, color] of Object.entries(colorableObjects)) {
+                if (color) {
+                    this.materialMap[name] = getColorMaterial(color);
+                }
             }
-            //console.log(this.materialMap);
+        } catch (error) {
+            console.warn('Failed to load colorable objects for materials:', error);
+        }
+
+        this.applyToScene();
+    }
+
+    /** Aplica materiales cuando ya tienes los objetos coloreables cargados */
+    applyMaterialsWithColorables(room: Room, colorableObjects: Record<string, string>) {
+        const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
+        this.scene = room.getScene()!;
+
+        // función para obtener o crear materiales de color
+        const getColorMaterial = (hex: string) => {
+            if (!colorMaterials.has(hex)) {
+                colorMaterials.set(
+                    hex,
+                    new THREE.MeshBasicMaterial({ color: new THREE.Color(hex) })
+                );
+            }
+            return colorMaterials.get(hex)!;
+        };
+
+        this.materialMap = {
+            objects: new THREE.MeshBasicMaterial({ map: room.getObjectTexture() }),
+            walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
+        };
+
+        // Aplicar materiales de objetos coloreables
+        for (const [name, color] of Object.entries(colorableObjects)) {
+            if (color) {
+                this.materialMap[name] = getColorMaterial(color);
+            }
         }
 
         this.applyToScene();
@@ -57,6 +90,29 @@ export class MaterialService {
         });
 
         console.log("Portal material applied", (portal as THREE.Mesh).material);
+    }
+
+    /** Limpia todos los materiales cuando se cambia de habitación */
+    clearMaterials() {
+        // Disponer de materiales personalizados para liberar memoria
+        Object.values(this.materialMap).forEach(material => {
+            if (material && typeof material.dispose === 'function') {
+                material.dispose();
+            }
+        });
+
+        this.materialMap = {};
+        this.scene = null as any;
+    }
+
+    /** Obtiene un material específico por nombre */
+    getMaterial(name: string): THREE.Material | undefined {
+        return this.materialMap[name];
+    }
+
+    /** Verifica si tiene materiales cargados */
+    hasMaterials(): boolean {
+        return Object.keys(this.materialMap).length > 0;
     }
 
     /** Recorre la escena y asigna materiales */

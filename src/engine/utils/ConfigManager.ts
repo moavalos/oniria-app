@@ -13,14 +13,13 @@ export interface ProcessedRoomObjects {
 }
 
 /**
- * Gestor centralizado de configuraciones de habitaciones
- * Proporciona caché, carga asíncrona y procesamiento de objetos
+ * Gestor de configuraciones de habitaciones - carga bajo demanda
+ * Solo mantiene la configuración de la habitación activa
  */
 export class ConfigManager {
     private static instance: ConfigManager | null = null;
-    private configCache = new Map<string, RoomConfig>();
-    private processedObjectsCache = new Map<string, ProcessedRoomObjects>();
-    private loadingPromises = new Map<string, Promise<RoomConfig>>();
+    private currentConfig: RoomConfig | null = null;
+    private currentRoomId: string | null = null;
 
     private constructor() { }
 
@@ -32,30 +31,40 @@ export class ConfigManager {
     }
 
     /**
+     * Obtiene la configuración de una habitación
+     */
+    async getConfig(roomId: string): Promise<RoomConfig> {
+        if (!roomId?.trim()) {
+            throw new Error('Room ID cannot be empty');
+        }
+
+        // Si es la misma habitación que ya tenemos cargada, devolverla
+        if (this.currentRoomId === roomId && this.currentConfig) {
+            return this.currentConfig;
+        }
+
+        // Cargar nueva configuración
+        try {
+            this.currentConfig = await loadRoomConfig(roomId);
+            this.currentRoomId = roomId;
+            return this.currentConfig;
+        } catch (error) {
+            console.error(`Failed to load config for room ${roomId}:`, error);
+            throw error;
+        }
+    }
+
+    /**
      * Obtiene todos los objetos procesados para una habitación
      */
     async getProcessedObjects(roomId: string, scene?: THREE.Group<THREE.Object3DEventMap>): Promise<ProcessedRoomObjects> {
-        // Verificar si ya están procesados en caché
-        const cacheKey = roomId;
-        if (this.processedObjectsCache.has(cacheKey)) {
-            const cached = this.processedObjectsCache.get(cacheKey)!;
-            // Si necesitamos coordenadas de mundo y hay escena, recalcular lookAtables
-            if (scene && Object.keys(cached.lookAtable).length > 0) {
-                cached.lookAtable = this.extractLookAtableObjects(await this.getConfig(roomId), scene);
-            }
-            return cached;
-        }
-
         const config = await this.getConfig(roomId);
-        const processed: ProcessedRoomObjects = {
+        return {
             lookAtable: scene ? this.extractLookAtableObjects(config, scene) : {},
             animatable: this.extractAnimatableObjects(config),
             interactable: scene ? this.extractInteractableObjects(config, scene) : {},
             colorable: this.extractColorableObjects(config)
         };
-
-        this.processedObjectsCache.set(cacheKey, processed);
-        return processed;
     }
 
     /**
@@ -88,6 +97,14 @@ export class ConfigManager {
     async getColorableObjects(roomId: string): Promise<Record<string, string>> {
         const config = await this.getConfig(roomId);
         return this.extractColorableObjects(config);
+    }
+
+    /**
+     * Limpia la configuración actual (cuando se cambia de habitación)
+     */
+    clearCurrent(): void {
+        this.currentConfig = null;
+        this.currentRoomId = null;
     }
 
     // Métodos privados de extracción
@@ -173,100 +190,5 @@ export class ConfigManager {
         const handler = scene.getObjectByName(handlerName);
         const child = handler?.children[0]; // el primer mesh hijo
         return child?.name || null;
-    }
-    /**
-     * Obtiene la configuración de una habitación
-     * Usa caché si está disponible, sino la carga
-     */
-    async getConfig(roomId: string): Promise<RoomConfig> {
-        if (!roomId?.trim()) {
-            throw new Error('Room ID cannot be empty');
-        }
-
-        // Si está en caché, devolverla inmediatamente
-        if (this.configCache.has(roomId)) {
-            return this.configCache.get(roomId)!;
-        }
-
-        // Si ya se está cargando, devolver esa promesa
-        if (this.loadingPromises.has(roomId)) {
-            return this.loadingPromises.get(roomId)!;
-        }
-
-        // Cargar la configuración
-        const loadingPromise = this.loadConfig(roomId);
-        this.loadingPromises.set(roomId, loadingPromise);
-
-        try {
-            const config = await loadingPromise;
-            this.configCache.set(roomId, config);
-            return config;
-        } catch (error) {
-            console.error(`Failed to load config for room ${roomId}:`, error);
-            throw error;
-        } finally {
-            this.loadingPromises.delete(roomId);
-        }
-    }
-
-    private async loadConfig(roomId: string): Promise<RoomConfig> {
-        return loadRoomConfig(roomId);
-    }
-
-    /**
-     * Invalida la caché de objetos procesados para una habitación
-     */
-    invalidateProcessedObjects(roomId: string): void {
-        this.processedObjectsCache.delete(roomId);
-    }
-
-    /**
-     * Verifica si una configuración está en caché
-     */
-    isConfigCached(roomId: string): boolean {
-        return this.configCache.has(roomId);
-    }
-
-    /**
-     * Precarga configuraciones de múltiples habitaciones
-     */
-    async preloadConfigs(roomIds: string[]): Promise<void> {
-        const loadPromises = roomIds.map(id => this.getConfig(id));
-        await Promise.all(loadPromises);
-    }
-
-    /**
-     * Limpia la caché de configuraciones
-     */
-    clearCache(): void {
-        this.configCache.clear();
-        this.processedObjectsCache.clear();
-        this.loadingPromises.clear();
-    }
-
-    /**
-     * Elimina una configuración específica del caché
-     */
-    removeFromCache(roomId: string): void {
-        this.configCache.delete(roomId);
-        this.processedObjectsCache.delete(roomId);
-        this.loadingPromises.delete(roomId);
-    }
-
-    /**
-     * Obtiene estadísticas del caché
-     */
-    getCacheStats(): {
-        cachedConfigs: number;
-        processedObjects: number;
-        loadingConfigs: number;
-        cacheKeys: string[];
-    } {
-        return {
-            cachedConfigs: this.configCache.size,
-            processedObjects: this.processedObjectsCache.size,
-            loadingConfigs: this.loadingPromises.size,
-            cacheKeys: Array.from(this.configCache.keys())
-        };
     }
 }

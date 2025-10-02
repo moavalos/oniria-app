@@ -1,13 +1,19 @@
-import { RendererSystem } from "@engine/systems";
+import { RoomRenderer } from "@engine/systems";
 import { useEngineCore } from "../Engine";
 import { useEngineAPI } from "../context/EngineApiProvider";
 import { useEffect, useState } from "react";
 
-export default function RoomScene() {
+interface RoomSceneProps {
+  onError?: (error: string) => void;
+  onLoad?: () => void;
+}
+
+export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
   const core = useEngineCore();
   const { skinId, roomId } = useEngineAPI();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastRegistered, setLastRegistered] = useState<string>("");
 
   useEffect(() => {
     if (!roomId || !skinId) {
@@ -15,18 +21,26 @@ export default function RoomScene() {
       return;
     }
 
-    const registerRoomAndSkin = async () => {
+    // Solo registrar si es diferente a la última registrada
+    const currentKey = `${roomId}-${skinId}`;
+    if (currentKey === lastRegistered) {
+      return;
+    }
+
+    const registerRoomAndSkin = () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        // Usar el nuevo método registerRoom del EngineCore
-        // Esto internamente usa el ConfigManager para cargar la configuración
-        await core.registerRoom(roomId, skinId);
+        core.registerRoom(roomId, skinId);
+        setLastRegistered(currentKey);
 
         console.log(
           `Room '${roomId}' con skin '${skinId}' registrada exitosamente`
         );
+        if (onLoad) {
+          onLoad();
+        }
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -34,13 +48,16 @@ export default function RoomScene() {
             : "Error desconocido al cargar la room";
         setError(errorMessage);
         console.error("Error registrando room:", err);
+        if (onError) {
+          onError(errorMessage);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     registerRoomAndSkin();
-  }, [roomId, skinId, core]);
+  }, [roomId, skinId, lastRegistered]);
 
   // Mostrar estados de carga y error
   if (isLoading) {
@@ -65,5 +82,5 @@ export default function RoomScene() {
   }
 
   // Solo renderizar si hay una room activa registrada en el core
-  return core.activeRoom ? <RendererSystem /> : null;
+  return core.activeRoom ? <RoomRenderer /> : null;
 }

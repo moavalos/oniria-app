@@ -1,10 +1,11 @@
 import * as THREE from "three";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import {
   createContext,
   useContext,
   useMemo,
   useState,
+  useCallback,
   type PropsWithChildren,
 } from "react";
 import type { EngineSettings } from "@engine/types/engine.types";
@@ -24,9 +25,10 @@ type EngineCoreAPI = {
   gl: THREE.WebGLRenderer | null;
   activeRoom: Room | null;
   activeSkin: Skin | null;
+  loopService: LoopService;
   unregisterService: (name: string) => void;
   registerService: (name: string, service: unknown) => void;
-  registerRoom: (roomId: string, skinId: string) => Promise<void>;
+  registerRoom: (roomId: string, skinId: string) => void;
   registerSkin: (skinId: string) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;
@@ -81,23 +83,31 @@ export function EngineCore({ children }: EngineCoreProps) {
   const [activeSkin, setActiveSkin] = useState<Skin | null>(null);
   const { scene, camera, gl } = useThree();
 
-  const registerService = (name: string, service: unknown) => {
-    setServices((prev) => ({ ...prev, [name]: service }));
-  };
+  // LoopService se inicializa inmediatamente y vive durante toda la sesión
+  const loopService = useMemo(() => new LoopService(), []);
 
-  const unregisterService = (name: string) => {
-    setServices((prev) => {
-      const copy = { ...prev };
-      delete copy[name];
-      return copy;
-    });
-  };
+  // useFrame centralizado para todo el engine
+  useFrame((state, delta) => {
+    loopService.tick(state, delta);
+  });
+
+  const registerService = useCallback((name: string, service: unknown) => {
+    setServices((prev) => ({ ...prev, [name]: service }));
+  }, []);
+
+  const unregisterService = useCallback(
+    (name: string) => {
+      setServices((prev) => {
+        const copy = { ...prev };
+        delete copy[name];
+        return copy;
+      });
+    },
+    [services]
+  );
 
   // Registro de Room y Skin
-  const registerRoom = async (
-    roomId: string,
-    skinId: string
-  ): Promise<void> => {
+  const registerRoom = useCallback((roomId: string, skinId: string): void => {
     try {
       if (!roomId?.trim()) {
         throw new Error("Room ID cannot be empty");
@@ -110,8 +120,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       const skin = new Skin(skinId);
       setActiveSkin(skin);
 
-      // Crear room con configuración precargada
-      const room = await Room.create(roomId, skin);
+      // Crear room directamente (la configuración se cargará bajo demanda)
+      const room = new Room(roomId, skin);
       setActiveRoom(room);
 
       console.log(
@@ -123,31 +133,34 @@ export function EngineCore({ children }: EngineCoreProps) {
       setActiveSkin(null);
       throw error;
     }
-  };
+  }, []);
 
-  const registerSkin = (skinId: string): void => {
-    try {
-      if (!skinId?.trim()) {
-        throw new Error("Skin ID cannot be empty");
+  const registerSkin = useCallback(
+    (skinId: string): void => {
+      try {
+        if (!skinId?.trim()) {
+          throw new Error("Skin ID cannot be empty");
+        }
+
+        const skin = new Skin(skinId);
+        setActiveSkin(skin);
+
+        // Si hay una room activa, actualizar su skin
+        if (activeRoom) {
+          activeRoom.setSkin(skin);
+        }
+
+        console.log(`Skin '${skinId}' registered successfully`);
+      } catch (error) {
+        console.error("Failed to register skin:", error);
+        throw error;
       }
-
-      const skin = new Skin(skinId);
-      setActiveSkin(skin);
-
-      // Si hay una room activa, actualizar su skin
-      if (activeRoom) {
-        activeRoom.setSkin(skin);
-      }
-
-      console.log(`Skin '${skinId}' registered successfully`);
-    } catch (error) {
-      console.error("Failed to register skin:", error);
-      throw error;
-    }
-  };
+    },
+    [activeRoom]
+  );
 
   // Factories internas 👇
-  const getAnimationService = () => {
+  const getAnimationService = useCallback(() => {
     if (!services["animationService"]) {
       if (!scene) throw new Error("Scene no inicializada");
       const service = new AnimationService(scene as any);
@@ -155,9 +168,9 @@ export function EngineCore({ children }: EngineCoreProps) {
       return service;
     }
     return services["animationService"] as AnimationService;
-  };
+  }, [services, scene, registerService]);
 
-  const getCameraService = () => {
+  const getCameraService = useCallback(() => {
     if (!services["cameraService"]) {
       if (!camera || !gl) throw new Error("Camera/GL no inicializados");
       const service = new CameraService(camera as any, gl.domElement);
@@ -165,18 +178,13 @@ export function EngineCore({ children }: EngineCoreProps) {
       return service;
     }
     return services["cameraService"] as CameraService;
-  };
+  }, [services, camera, gl, registerService]);
 
-  const getLoopService = () => {
-    if (!services["loopService"]) {
-      const service = new LoopService();
-      registerService("loopService", service);
-      return service;
-    }
-    return services["loopService"] as LoopService;
-  };
+  const getLoopService = useCallback(() => {
+    return loopService;
+  }, [loopService]);
 
-  const getInteractionService = () => {
+  const getInteractionService = useCallback(() => {
     if (!services["interactionService"]) {
       if (!camera || !gl) throw new Error("Scene/Camera/GL no inicializados");
       const service = new InteractionService(
@@ -187,16 +195,16 @@ export function EngineCore({ children }: EngineCoreProps) {
       return service;
     }
     return services["interactionService"] as InteractionService;
-  };
+  }, [services, camera, gl, registerService]);
 
-  const getMaterialService = () => {
+  const getMaterialService = useCallback(() => {
     if (!services["materialService"]) {
       const service = new MaterialService();
       registerService("materialService", service);
       return service;
     }
     return services["materialService"] as MaterialService;
-  };
+  }, [services, registerService]);
 
   const value = useMemo(
     () => ({
@@ -205,6 +213,7 @@ export function EngineCore({ children }: EngineCoreProps) {
       gl,
       activeRoom,
       activeSkin,
+      loopService,
       unregisterService,
       registerService,
       registerRoom,
@@ -215,7 +224,23 @@ export function EngineCore({ children }: EngineCoreProps) {
       getInteractionService,
       getMaterialService,
     }),
-    [scene, camera, gl, activeRoom, activeSkin]
+    [
+      scene,
+      camera,
+      gl,
+      activeRoom,
+      activeSkin,
+      loopService,
+      unregisterService,
+      registerService,
+      registerRoom,
+      registerSkin,
+      getAnimationService,
+      getCameraService,
+      getLoopService,
+      getInteractionService,
+      getMaterialService,
+    ]
   );
 
   return (

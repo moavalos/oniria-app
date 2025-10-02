@@ -1,32 +1,23 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useEngineCore } from '../Engine';
-import type { ProcessedRoomObjects } from '../utils/ConfigManager';
+import { useState, useCallback } from 'react';
+import { useEngineCore } from '../Engine.tsx';
 
 /**
  * Hook personalizado para manejar el estado de Room en el contexto del Engine
- * Usa el nuevo sistema con ConfigManager y registerRoom del EngineCore
+ * Sistema simplificado que carga configuración bajo demanda
  */
 export function useRoomState() {
     const core = useEngineCore();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [roomObjects, setRoomObjects] = useState<ProcessedRoomObjects | null>(null);
 
     // Método para registrar una nueva room
-    const registerRoom = useCallback(async (roomId: string, skinId: string) => {
+    const registerRoom = useCallback((roomId: string, skinId: string) => {
         try {
             setIsLoading(true);
             setError(null);
-            setRoomObjects(null);
 
-            // Registrar en el core (esto maneja ConfigManager internamente)
-            await core.registerRoom(roomId, skinId);
-
-            // Si hay room activa, obtener sus objetos procesados
-            if (core.activeRoom) {
-                const objects = await core.activeRoom.getAllObjects();
-                setRoomObjects(objects);
-            }
+            // Registrar en el core (Room se crea inmediatamente)
+            core.registerRoom(roomId, skinId);
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Error al registrar room';
@@ -37,41 +28,15 @@ export function useRoomState() {
         }
     }, [core]);
 
-    // Método para actualizar objetos cuando la escena cambia
-    const updateRoomObjects = useCallback(async () => {
-        if (!core.activeRoom) {
-            setRoomObjects(null);
-            return;
-        }
-
-        try {
-            const objects = await core.activeRoom.getAllObjects();
-            setRoomObjects(objects);
-        } catch (err) {
-            console.error('Error actualizando objetos de room:', err);
-            setError('Error actualizando objetos de room');
-        }
-    }, [core.activeRoom]);
-
-    // Efecto para limpiar estado cuando no hay room activa
-    useEffect(() => {
-        if (!core.activeRoom) {
-            setRoomObjects(null);
-            setError(null);
-        }
-    }, [core.activeRoom]);
-
     return {
         // Estado
         activeRoom: core.activeRoom,
         activeSkin: core.activeSkin,
         isLoading,
         error,
-        roomObjects,
 
         // Acciones
         registerRoom,
-        updateRoomObjects,
         registerSkin: core.registerSkin,
 
         // Helpers
@@ -82,22 +47,85 @@ export function useRoomState() {
 }
 
 /**
- * Hook personalizado para acceder a objetos específicos de la room
+ * Hook personalizado para cargar objetos de la room bajo demanda
  */
 export function useRoomObjects() {
-    const { roomObjects } = useRoomState();
+    const { activeRoom } = useRoomState();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // Método para cargar objetos cuando sean necesarios
+    const loadObjects = useCallback(async () => {
+        if (!activeRoom) {
+            return null;
+        }
+
+        try {
+            setIsLoading(true);
+            setError(null);
+            return await activeRoom.getAllObjects();
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Error al cargar objetos';
+            setError(errorMessage);
+            console.error('Error en useRoomObjects:', err);
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [activeRoom]);
+
+    // Métodos específicos para cargar solo cierto tipo de objetos
+    const loadLookAtables = useCallback(async () => {
+        if (!activeRoom || !activeRoom.hasScene()) return {};
+        try {
+            return await activeRoom.getLookAtableObjects();
+        } catch (err) {
+            console.error('Error loading lookAtables:', err);
+            return {};
+        }
+    }, [activeRoom]);
+
+    const loadAnimatables = useCallback(async () => {
+        if (!activeRoom) return {};
+        try {
+            return await activeRoom.getAnimatableObjects();
+        } catch (err) {
+            console.error('Error loading animatables:', err);
+            return {};
+        }
+    }, [activeRoom]);
+
+    const loadInteractables = useCallback(async () => {
+        if (!activeRoom || !activeRoom.hasScene()) return {};
+        try {
+            return await activeRoom.getInteractableObjects();
+        } catch (err) {
+            console.error('Error loading interactables:', err);
+            return {};
+        }
+    }, [activeRoom]);
+
+    const loadColorables = useCallback(async () => {
+        if (!activeRoom) return {};
+        try {
+            return await activeRoom.getColorableObjects();
+        } catch (err) {
+            console.error('Error loading colorables:', err);
+            return {};
+        }
+    }, [activeRoom]);
 
     return {
-        lookAtables: roomObjects?.lookAtable ?? {},
-        animatables: roomObjects?.animatable ?? {},
-        interactables: roomObjects?.interactable ?? {},
-        colorables: roomObjects?.colorable ?? {},
-        hasObjects: !!roomObjects,
+        // Estado
+        isLoading,
+        error,
+        hasRoom: !!activeRoom,
 
-        // Helpers específicos
-        getObjectColor: (objectName: string) => roomObjects?.colorable[objectName],
-        isObjectAnimatable: (objectName: string) => objectName in (roomObjects?.animatable ?? {}),
-        isObjectInteractable: (objectName: string) => objectName in (roomObjects?.interactable ?? {}),
-        getLookAtPosition: (objectName: string) => roomObjects?.lookAtable[objectName],
+        // Métodos de carga bajo demanda
+        loadObjects,
+        loadLookAtables,
+        loadAnimatables,
+        loadInteractables,
+        loadColorables,
     };
 }

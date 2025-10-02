@@ -28,25 +28,13 @@ export class Room {
         this.configManager = ConfigManager.getInstance();
     }
 
-    // Factory method estático para crear Room con configuración precargada
-    static async create(id: string, skin: Skin): Promise<Room> {
-        if (!id?.trim()) {
-            throw new Error('Room ID cannot be empty');
-        }
-        if (!skin) {
-            throw new Error('Skin is required');
-        }
-
+    // Método para cargar la configuración cuando sea necesario
+    async loadConfig(): Promise<ProcessedRoomObjects> {
         try {
-            // Precargar la configuración usando ConfigManager
-            const configManager = ConfigManager.getInstance();
-            await configManager.getConfig(id);
-            
-            // Crear la room (la configuración ya está en caché)
-            return new Room(id, skin);
+            return await this.configManager.getProcessedObjects(this.id);
         } catch (error) {
-            console.error(`Failed to create room ${id}:`, error);
-            throw new Error(`Room could not be created: ${error}`);
+            console.error(`Failed to load config for room ${this.id}:`, error);
+            throw new Error(`Configuration could not be loaded: ${error}`);
         }
     }
 
@@ -67,9 +55,9 @@ export class Room {
         }
         this.scene = scene;
         this.portal = scene.getObjectByName("portal") || undefined;
+        console.log("scene Room:", this.scene)
 
-        // Invalidar caché de objetos procesados ya que la escena cambió
-        this.configManager.invalidateProcessedObjects(this.id);
+        // Ya no necesitamos invalidar caché porque cargamos bajo demanda
     }
 
     setSkin(skin: Skin): void {
@@ -169,8 +157,8 @@ export class Room {
         if (this.objectTexture) this.objectTexture.dispose();
         if (this.environmentTexture) this.environmentTexture.dispose();
 
-        // Limpiar caché relacionado con esta room
-        this.configManager.removeFromCache(this.id);
+        // Limpiar configuración actual si coincide con esta room
+        this.configManager.clearCurrent();
 
         this.scene = null;
         this.objectTexture = null;
