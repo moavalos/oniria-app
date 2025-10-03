@@ -22,13 +22,12 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
     const {
         startLoading,
         finishLoading,
+        setProgress,
         setItems,
         updateItem,
         addError,
         resetLoading
     } = useLoaderActions();
-
-
     const loadersRef = useRef<{
         gltf: GLTFLoader;
         texture: THREE.TextureLoader;
@@ -155,7 +154,21 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
 
                 const globalProgress = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
 
-                // Update store with global progress
+                // Update store with global progress directly
+                setProgress(globalProgress);
+
+                // Update individual item progress for detailed tracking only
+                const updatedItems = initialItems.map((item, idx) => {
+                    const assetProgress = assetProgressTracker.get(idx);
+                    if (assetProgress) {
+                        const itemProgress = assetProgress.total > 0 ?
+                            (assetProgress.loaded / assetProgress.total) * 100 : 0;
+                        return { ...item, progress: itemProgress };
+                    }
+                    return item;
+                });
+
+                setItems(updatedItems);
                 console.log(`📊 Progreso global: ${Math.round(globalProgress)}% (${totalLoaded}/${totalSize} bytes)`);
             };
 
@@ -208,9 +221,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                             url,
                             // onLoad
                             (data: any) => {
-                                console.log(`✅ Asset cargado: ${url}`);
 
-                                // Mark this asset as loaded (100% of its size)
                                 const currentProgress = assetProgressTracker.get(index);
                                 if (currentProgress) {
                                     assetProgressTracker.set(index, {
@@ -242,8 +253,6 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                             },
                             // onError
                             (err: any) => {
-                                console.error(`❌ Error cargando ${url}:`, err);
-
                                 // Update item with error
                                 updateItem(index, { error: err.message || 'Error desconocido' });
                                 addError(err.message || 'Error desconocido');
@@ -258,8 +267,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
 
                     return result;
                 } catch (error) {
-                    const errorMessage = `Error setting up loader for ${url}: ${error}`;
-                    console.error(`❌ ${errorMessage}`, error);
+                    const errorMessage = `Error al configurar el cargador para ${url}: ${error}`;
                     updateItem(index, { error: errorMessage });
                     addError(errorMessage);
                     throw error;
@@ -268,18 +276,18 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
 
             await Promise.all(loadPromises);
 
-            console.log('✅ All assets loaded successfully:', results);
+
             finishLoading();
 
             return results;
         } catch (error) {
-            const errorMessage = `Asset loading failed: ${error}`;
-            console.error(`❌ ${errorMessage}`, error);
+            const errorMessage = `Error al cargar assets: ${error}`;
+
             addError(errorMessage);
             finishLoading();
             throw error;
         }
-    }, [startLoading, finishLoading, setItems, updateItem, addError, initLoaders]);
+    }, [startLoading, finishLoading, setProgress, setItems, updateItem, addError, initLoaders]);
 
     return {
         loadAssets,

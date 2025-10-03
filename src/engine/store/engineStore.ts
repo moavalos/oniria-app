@@ -71,13 +71,8 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
 
     setItems: (items) => {
         set({ items });
-
-        // Calcular progreso global basado en items
-        if (items.length > 0) {
-            const totalProgress = items.reduce((sum, item) => sum + item.progress, 0);
-            const globalProgress = totalProgress / items.length;
-            get().setProgress(globalProgress);
-        }
+        // El progreso global se calcula y se establece directamente desde useThreeLoader
+        // No calculamos aquí para evitar promedios incorrectos
     },
 
     updateItem: (index, updates) => {

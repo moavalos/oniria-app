@@ -13,6 +13,7 @@ export class Room {
     private portal: THREE.Object3D | undefined = undefined;
     private readonly meshUrl: string;
     private configManager: ConfigManager;
+    private _version: number = 0;
 
     constructor(id: string, skin: Skin) {
         if (!id?.trim()) {
@@ -55,6 +56,8 @@ export class Room {
         }
         this.scene = scene;
         this.portal = scene.getObjectByName("portal") || undefined;
+        this._version++; // Incrementar versión cuando cambia la scene
+        console.log(`🏠 Room[${this.id}]: Scene actualizada - nueva versión: ${this._version}`);
     }
 
     setSkin(skin: Skin): void {
@@ -62,6 +65,7 @@ export class Room {
             throw new Error('Skin cannot be null');
         }
         this.skin = skin;
+        this._version++; // Incrementar versión cuando cambia el skin
     }
 
     setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture, environmentTexture: THREE.Texture }): void {
@@ -70,6 +74,11 @@ export class Room {
         }
         this.objectTexture = objectTexture;
         this.environmentTexture = environmentTexture;
+        this._version++; // Incrementar versión cuando cambian las texturas
+    }
+
+    getVersion(): number {
+        return this._version;
     }
 
     getObjectTexture(): THREE.Texture | null {

@@ -57,6 +57,7 @@ export default function RoomRenderer() {
 
   // Callback cuando los assets están cargados
   const handleAssetsLoaded = (assets: { [key: string]: any }) => {
+    console.log("✅ RoomRenderer: Assets cargados:", assets);
     if (!core.activeRoom) return;
 
     try {

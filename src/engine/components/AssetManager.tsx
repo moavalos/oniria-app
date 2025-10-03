@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import { useThreeLoader } from "../hooks/useThreeLoader";
 import { useProgress } from "../hooks/useProgress";
+import { useEngineCore } from "../Engine";
 
 export interface AssetManagerProps {
   /** Assets a cargar */
@@ -10,8 +11,13 @@ export interface AssetManagerProps {
     type: "gltf" | "texture" | "ktx2" | "audio" | "binary";
   }[];
 
-  /** Callback cuando todos los assets están cargados */
-  onLoaded?: (assets: { [key: string]: any }) => void;
+  /** Callback cuando los assets están organizados y listos para usar */
+  onLoaded?: (organizedAssets: {
+    scene?: THREE.Group;
+    objectTexture?: THREE.Texture;
+    environmentTexture?: THREE.Texture;
+    [key: string]: any;
+  }) => void;
 
   /** Callback de progreso de carga */
   onProgress?: (progress: number, items: any[]) => void;
@@ -28,7 +34,6 @@ export interface AssetManagerProps {
   /** Renderizado de fallback mientras carga */
   fallback?: React.ReactNode;
 }
-
 /**
  * AssetManager - Componente responsable únicamente de la carga de assets
  *
@@ -45,14 +50,15 @@ export interface AssetManagerProps {
  *     { url: "/models/room.gltf", type: "gltf" },
  *     { url: "/textures/wall.ktx2", type: "ktx2" }
  *   ]}
- *   onLoaded={(assets) => {
- *     // assets.room = GLTF model
- *     // assets.wall = KTX2 texture
- *     setLoadedAssets(assets);
+ *   onLoaded={(organizedAssets) => {
+ *     // organizedAssets.scene = extracted scene from GLTF
+ *     // organizedAssets.objectTexture = texture for objects
+ *     // organizedAssets.environmentTexture = texture for environment
+ *     const { scene, objectTexture, environmentTexture } = organizedAssets;
  *   }}
  *   onProgress={(progress) => console.log(`${progress}%`)}
  * >
- *   <primitive object={loadedRoom} />
+ *   <primitive object={scene} />
  * </AssetManager>
  * ```
  */
@@ -65,12 +71,11 @@ export default function AssetManager({
   children,
   fallback = null,
 }: AssetManagerProps) {
-  const { gl } = useThree();
-  const { loadAssets } = useThreeLoader(gl);
+  const { gl } = useEngineCore();
+  const { loadAssets } = useThreeLoader(gl!);
   const { active: isLoading, progress, errors, items } = useProgress();
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const [loadedAssets, setLoadedAssets] = useState<{ [key: string]: any }>({});
   const loadingRef = useRef(false);
 
   // Callback de progreso
@@ -86,6 +91,43 @@ export default function AssetManager({
       onError(errors[0]); // Primer error
     }
   }, [errors, onError]);
+
+  // Función para organizar assets cargados como lo hacía useLoader
+  const organizeAssets = useCallback((rawAssets: { [key: string]: any }) => {
+    const organized: {
+      scene?: THREE.Group;
+      objectTexture?: THREE.Texture;
+      environmentTexture?: THREE.Texture;
+      [key: string]: any;
+    } = {};
+
+    // Extraer scene del GLTF (useThreeLoader ya limpia los nombres)
+    Object.entries(rawAssets).forEach(([name, asset]) => {
+      if (asset && typeof asset === "object") {
+        // Si es un GLTF, extraer la scene
+        if (asset.scene && asset.scene instanceof THREE.Group) {
+          organized.scene = asset.scene;
+          organized[name] = asset; // También mantener el GLTF completo
+        }
+        // Si es una textura KTX2
+        else if (asset instanceof THREE.Texture) {
+          // Determinar si es object o environment basado en el nombre
+          if (name.includes("object")) {
+            organized.objectTexture = asset;
+          } else if (name.includes("wall") || name.includes("environment")) {
+            organized.environmentTexture = asset;
+          }
+          organized[name] = asset;
+        }
+        // Otros tipos de assets
+        else {
+          organized[name] = asset;
+        }
+      }
+    });
+
+    return organized;
+  }, []);
 
   // Función para iniciar la carga
   const startLoading = useCallback(async () => {
@@ -104,27 +146,28 @@ export default function AssetManager({
       // Callback de inicio
       onLoadStart?.();
 
-      // Cargar assets
-      const loaded = await loadAssets(assets);
+      // Cargar assets usando useThreeLoader (ya limpia nombres)
+      const rawAssets = await loadAssets(assets);
 
       console.log(
         "✅ AssetManager: Assets cargados exitosamente:",
-        Object.keys(loaded)
+        Object.keys(rawAssets)
       );
 
-      // Preparar assets con nombres limpiados
-      const cleanedAssets: { [key: string]: any } = {};
-      Object.entries(loaded).forEach(([url, asset]) => {
-        // Extraer nombre del archivo sin extensión
-        const fileName = url.split("/").pop()?.split(".")[0] || url;
-        cleanedAssets[fileName] = asset;
+      // Organizar assets como lo hacía useLoader
+      const organizedAssets = organizeAssets(rawAssets);
+
+      console.log("🏗️ AssetManager: Assets organizados:", {
+        hasScene: !!organizedAssets.scene,
+        hasObjectTexture: !!organizedAssets.objectTexture,
+        hasEnvironmentTexture: !!organizedAssets.environmentTexture,
+        totalAssets: Object.keys(organizedAssets).length,
       });
 
-      setLoadedAssets(cleanedAssets);
       setAssetsLoaded(true);
 
-      // Callback de completado
-      onLoaded?.(cleanedAssets);
+      // Callback con assets organizados (similar a useLoader)
+      onLoaded?.(organizedAssets);
     } catch (error) {
       console.error("❌ AssetManager: Error durante la carga:", error);
       const errorMessage =
@@ -133,7 +176,7 @@ export default function AssetManager({
     } finally {
       loadingRef.current = false;
     }
-  }, [assets, loadAssets, onLoaded, onLoadStart, onError]);
+  }, [assets, loadAssets, onLoaded, onLoadStart, onError, organizeAssets]);
 
   // Iniciar carga cuando cambian los assets
   useEffect(() => {
@@ -144,7 +187,6 @@ export default function AssetManager({
   useEffect(() => {
     loadingRef.current = false;
     setAssetsLoaded(false);
-    setLoadedAssets({});
   }, [assets]);
 
   // Log del estado actual
@@ -152,7 +194,7 @@ export default function AssetManager({
     isLoading,
     progress: Math.round(progress),
     assetsLoaded,
-    loadedAssetKeys: Object.keys(loadedAssets),
+    assetCount: assets.length,
     errors: errors.length,
   });
 
@@ -174,15 +216,28 @@ export default function AssetManager({
  * Hook helper para usar AssetManager con estado local
  */
 export function useAssetManager() {
-  const [assets, setAssets] = useState<{ [key: string]: any }>({});
+  const [assets, setAssets] = useState<{
+    scene?: THREE.Group;
+    objectTexture?: THREE.Texture;
+    environmentTexture?: THREE.Texture;
+    [key: string]: any;
+  }>({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLoaded = useCallback((loadedAssets: { [key: string]: any }) => {
-    setAssets(loadedAssets);
-    setIsLoaded(true);
-    setError(null);
-  }, []);
+  const handleLoaded = useCallback(
+    (organizedAssets: {
+      scene?: THREE.Group;
+      objectTexture?: THREE.Texture;
+      environmentTexture?: THREE.Texture;
+      [key: string]: any;
+    }) => {
+      setAssets(organizedAssets);
+      setIsLoaded(true);
+      setError(null);
+    },
+    []
+  );
 
   const handleError = useCallback((errorMessage: string) => {
     setError(errorMessage);
