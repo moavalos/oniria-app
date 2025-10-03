@@ -119,170 +119,170 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
         resetLoading();
     }, [resetLoading]);
 
-  const loadAssets = useCallback(async (urls: { url: string; type: LoadingItem['type'] }[]): Promise<{ [key: string]: any }> => {
-    if (urls.length === 0) {
-      return {};
-    }
-
-    try {
-      startLoading();
-      
-      // Initialize items in store
-      const initialItems: LoadingItem[] = urls.map(({ url, type }) => ({
-        url,
-        type,
-        loaded: false,
-        progress: 0
-      }));
-      
-      setItems(initialItems);
-      
-      const loaders = initLoaders();
-      const results: { [key: string]: any } = {};
-      
-      // Track global progress
-      const assetProgressTracker = new Map<number, { loaded: number; total: number }>();
-      
-      // Function to calculate and update global progress
-      const updateGlobalProgress = () => {
-        let totalLoaded = 0;
-        let totalSize = 0;
-        
-        assetProgressTracker.forEach(({ loaded, total }) => {
-          totalLoaded += loaded;
-          totalSize += total;
-        });
-        
-        const globalProgress = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
-        
-        // Update store with global progress
-        console.log(`📊 Progreso global: ${Math.round(globalProgress)}% (${totalLoaded}/${totalSize} bytes)`);
-      };
-
-      const loadPromises = urls.map(async ({ url, type }, index) => {
-        try {
-          let loader: any;
-
-          switch (type) {
-            case 'gltf':
-              loader = loaders.gltf;
-              break;
-            case 'texture':
-              loader = loaders.texture;
-              break;
-            case 'ktx2':
-              loader = loaders.ktx2;
-              // Validación crítica para KTX2
-              if (!renderer) {
-                throw new Error("KTX2Loader requiere un renderer.");
-              }
-
-              // Verificar que el KTX2Loader esté correctamente configurado
-              if (loader.transcoderBinary === undefined) {
-                console.warn("KTX2Loader: Transcoder binary no detectado, reintentando detectSupport");
-                try {
-                  loader.detectSupport(renderer);
-                } catch (detectErr) {
-                  console.error("Error reintentando detectSupport:", detectErr);
-                }
-              }
-
-              console.log("Usando KTX2Loader para:", url, {
-                hasTranscoder: !!loader._transcoderBinary,
-                transcoderPath: loader._transcoderPath
-              });
-              break;
-            case 'audio':
-              loader = loaders.audio;
-              break;
-            case 'binary':
-              loader = loaders.file;
-              break;
-            default:
-              throw new Error(`Tipo de asset no soportado: ${type}`);
-          }
-
-          // Cargar con progreso global
-          const result = await new Promise((resolve, reject) => {
-            loader.load(
-              url,
-              // onLoad
-              (data: any) => {
-                console.log(`✅ Asset cargado: ${url}`);
-                
-                // Mark this asset as loaded (100% of its size)
-                const currentProgress = assetProgressTracker.get(index);
-                if (currentProgress) {
-                  assetProgressTracker.set(index, {
-                    loaded: currentProgress.total,
-                    total: currentProgress.total
-                  });
-                }
-                
-                // Update item as loaded
-                updateItem(index, { loaded: true, progress: 100 });
-                updateGlobalProgress();
-
-                resolve(data);
-              },
-              // onProgress
-              (progressEvent: ProgressEvent) => {
-                if (progressEvent.lengthComputable) {
-                  // Update global progress tracker
-                  assetProgressTracker.set(index, {
-                    loaded: progressEvent.loaded,
-                    total: progressEvent.total
-                  });
-                  
-                  updateGlobalProgress();
-                } else {
-                  // If not computable, assume some progress
-                  console.log(`📊 Progreso no computable para ${url}`);
-                }
-              },
-              // onError
-              (err: any) => {
-                console.error(`❌ Error cargando ${url}:`, err);
-
-                // Update item with error
-                updateItem(index, { error: err.message || 'Error desconocido' });
-                addError(err.message || 'Error desconocido');
-
-                reject(err);
-              }
-            );
-          });
-
-          const fileName = url.split('/').pop()?.split('.')[0] || url;
-          results[fileName] = result;
-
-          return result;
-        } catch (error) {
-          const errorMessage = `Error setting up loader for ${url}: ${error}`;
-          console.error(`❌ ${errorMessage}`, error);
-          updateItem(index, { error: errorMessage });
-          addError(errorMessage);
-          throw error;
+    const loadAssets = useCallback(async (urls: { url: string; type: LoadingItem['type'] }[]): Promise<{ [key: string]: any }> => {
+        if (urls.length === 0) {
+            return {};
         }
-      });
 
-      await Promise.all(loadPromises);
-      
-      console.log('✅ All assets loaded successfully:', results);
-      finishLoading();
-      
-      return results;
-    } catch (error) {
-      const errorMessage = `Asset loading failed: ${error}`;
-      console.error(`❌ ${errorMessage}`, error);
-      addError(errorMessage);
-      finishLoading();
-      throw error;
-    }
-  }, [startLoading, finishLoading, setItems, updateItem, addError, initLoaders]);
+        try {
+            startLoading();
 
-  return {
-    loadAssets,
-    resetLoader,
-  };
+            // Initialize items in store
+            const initialItems: LoadingItem[] = urls.map(({ url, type }) => ({
+                url,
+                type,
+                loaded: false,
+                progress: 0
+            }));
+
+            setItems(initialItems);
+
+            const loaders = initLoaders();
+            const results: { [key: string]: any } = {};
+
+            // Track global progress
+            const assetProgressTracker = new Map<number, { loaded: number; total: number }>();
+
+            // Function to calculate and update global progress
+            const updateGlobalProgress = () => {
+                let totalLoaded = 0;
+                let totalSize = 0;
+
+                assetProgressTracker.forEach(({ loaded, total }) => {
+                    totalLoaded += loaded;
+                    totalSize += total;
+                });
+
+                const globalProgress = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
+
+                // Update store with global progress
+                console.log(`📊 Progreso global: ${Math.round(globalProgress)}% (${totalLoaded}/${totalSize} bytes)`);
+            };
+
+            const loadPromises = urls.map(async ({ url, type }, index) => {
+                try {
+                    let loader: any;
+
+                    switch (type) {
+                        case 'gltf':
+                            loader = loaders.gltf;
+                            break;
+                        case 'texture':
+                            loader = loaders.texture;
+                            break;
+                        case 'ktx2':
+                            loader = loaders.ktx2;
+                            // Validación crítica para KTX2
+                            if (!renderer) {
+                                throw new Error("KTX2Loader requiere un renderer.");
+                            }
+
+                            // Verificar que el KTX2Loader esté correctamente configurado
+                            if (loader.transcoderBinary === undefined) {
+                                console.warn("KTX2Loader: Transcoder binary no detectado, reintentando detectSupport");
+                                try {
+                                    loader.detectSupport(renderer);
+                                } catch (detectErr) {
+                                    console.error("Error reintentando detectSupport:", detectErr);
+                                }
+                            }
+
+                            console.log("Usando KTX2Loader para:", url, {
+                                hasTranscoder: !!loader._transcoderBinary,
+                                transcoderPath: loader._transcoderPath
+                            });
+                            break;
+                        case 'audio':
+                            loader = loaders.audio;
+                            break;
+                        case 'binary':
+                            loader = loaders.file;
+                            break;
+                        default:
+                            throw new Error(`Tipo de asset no soportado: ${type}`);
+                    }
+
+                    // Cargar con progreso global
+                    const result = await new Promise((resolve, reject) => {
+                        loader.load(
+                            url,
+                            // onLoad
+                            (data: any) => {
+                                console.log(`✅ Asset cargado: ${url}`);
+
+                                // Mark this asset as loaded (100% of its size)
+                                const currentProgress = assetProgressTracker.get(index);
+                                if (currentProgress) {
+                                    assetProgressTracker.set(index, {
+                                        loaded: currentProgress.total,
+                                        total: currentProgress.total
+                                    });
+                                }
+
+                                // Update item as loaded
+                                updateItem(index, { loaded: true, progress: 100 });
+                                updateGlobalProgress();
+
+                                resolve(data);
+                            },
+                            // onProgress
+                            (progressEvent: ProgressEvent) => {
+                                if (progressEvent.lengthComputable) {
+                                    // Update global progress tracker
+                                    assetProgressTracker.set(index, {
+                                        loaded: progressEvent.loaded,
+                                        total: progressEvent.total
+                                    });
+
+                                    updateGlobalProgress();
+                                } else {
+                                    // If not computable, assume some progress
+                                    console.log(`📊 Progreso no computable para ${url}`);
+                                }
+                            },
+                            // onError
+                            (err: any) => {
+                                console.error(`❌ Error cargando ${url}:`, err);
+
+                                // Update item with error
+                                updateItem(index, { error: err.message || 'Error desconocido' });
+                                addError(err.message || 'Error desconocido');
+
+                                reject(err);
+                            }
+                        );
+                    });
+
+                    const fileName = url.split('/').pop()?.split('.')[0] || url;
+                    results[fileName] = result;
+
+                    return result;
+                } catch (error) {
+                    const errorMessage = `Error setting up loader for ${url}: ${error}`;
+                    console.error(`❌ ${errorMessage}`, error);
+                    updateItem(index, { error: errorMessage });
+                    addError(errorMessage);
+                    throw error;
+                }
+            });
+
+            await Promise.all(loadPromises);
+
+            console.log('✅ All assets loaded successfully:', results);
+            finishLoading();
+
+            return results;
+        } catch (error) {
+            const errorMessage = `Asset loading failed: ${error}`;
+            console.error(`❌ ${errorMessage}`, error);
+            addError(errorMessage);
+            finishLoading();
+            throw error;
+        }
+    }, [startLoading, finishLoading, setItems, updateItem, addError, initLoaders]);
+
+    return {
+        loadAssets,
+        resetLoader,
+    };
 }
