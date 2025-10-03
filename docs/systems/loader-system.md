@@ -12,18 +12,16 @@ El `LoaderSystem` maneja la carga de assets 3D, texturas y configuraciones, prop
 ## 🛠️ Uso Básico
 
 ```tsx
-import { LoaderSystem } from '@/engine';
+import { LoaderSystem } from "@/engine";
 
 export default function MyViewer() {
   return (
     <div>
       {/* LoaderSystem debe ir FUERA del Engine.Canvas */}
       <LoaderSystem />
-      
+
       <Engine.Canvas>
-        <Engine.Core>
-          {/* Otros sistemas... */}
-        </Engine.Core>
+        <Engine.Core>{/* Otros sistemas... */}</Engine.Core>
       </Engine.Canvas>
     </div>
   );
@@ -37,7 +35,7 @@ export default function MyViewer() {
 Permite usar un componente de loading personalizado.
 
 ```tsx
-import { LoaderSystem } from '@/engine';
+import { LoaderSystem } from "@/engine";
 
 const CustomLoader = ({ progress, isLoading, error }) => (
   <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
@@ -47,7 +45,7 @@ const CustomLoader = ({ progress, isLoading, error }) => (
       <div className="text-white">
         <div className="mb-4">Cargando...</div>
         <div className="w-64 bg-gray-700 rounded-full h-2">
-          <div 
+          <div
             className="bg-blue-500 h-2 rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
@@ -58,10 +56,11 @@ const CustomLoader = ({ progress, isLoading, error }) => (
   </div>
 );
 
-<LoaderSystem customLoader={CustomLoader} />
+<LoaderSystem customLoader={CustomLoader} />;
 ```
 
 ### `showProgress?: boolean`
+
 Por defecto: `true`
 
 Controla si se muestra el progreso de carga.
@@ -71,6 +70,7 @@ Controla si se muestra el progreso de carga.
 ```
 
 ### `timeout?: number`
+
 Por defecto: `30000` (30 segundos)
 
 Tiempo límite para la carga antes de mostrar error.
@@ -113,7 +113,7 @@ Tiempo límite para la carga antes de mostrar error.
 ### Ejemplo 1: Loader Personalizado con Branding
 
 ```tsx
-import { LoaderSystem } from '@/engine';
+import { LoaderSystem } from "@/engine";
 
 const BrandedLoader = ({ progress, isLoading, error }) => {
   if (!isLoading && !error) return null;
@@ -121,14 +121,14 @@ const BrandedLoader = ({ progress, isLoading, error }) => {
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-purple-900 to-black flex flex-col items-center justify-center">
       <img src="/logo.png" alt="Logo" className="w-32 h-32 mb-8" />
-      
+
       {error ? (
         <div className="text-center">
           <div className="text-red-400 text-xl mb-4">
             Error al cargar la experiencia
           </div>
           <div className="text-gray-300 mb-6">{error}</div>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg text-white"
           >
@@ -140,19 +140,23 @@ const BrandedLoader = ({ progress, isLoading, error }) => {
           <div className="text-white text-xl mb-6">
             Preparando experiencia...
           </div>
-          
+
           {/* Barra de progreso circular */}
           <div className="relative w-24 h-24 mb-4">
             <svg className="w-24 h-24 transform -rotate-90">
               <circle
-                cx="12" cy="12" r="10"
+                cx="12"
+                cy="12"
+                r="10"
                 stroke="currentColor"
                 strokeWidth="2"
                 fill="none"
                 className="text-gray-600"
               />
               <circle
-                cx="12" cy="12" r="10"
+                cx="12"
+                cy="12"
+                r="10"
                 stroke="currentColor"
                 strokeWidth="2"
                 fill="none"
@@ -164,7 +168,7 @@ const BrandedLoader = ({ progress, isLoading, error }) => {
               {Math.round(progress)}%
             </div>
           </div>
-          
+
           <div className="text-gray-300">
             {progress < 30 && "Cargando modelos 3D..."}
             {progress >= 30 && progress < 70 && "Preparando texturas..."}
@@ -189,40 +193,36 @@ export default function MyApp() {
 ### Ejemplo 2: Loader con Analytics
 
 ```tsx
-import { useEffect } from 'react';
-import { LoaderSystem } from '@/engine';
-import { analytics } from '@/lib/analytics';
+import { useEffect } from "react";
+import { LoaderSystem } from "@/engine";
+import { analytics } from "@/lib/analytics";
 
 const AnalyticsLoader = ({ progress, isLoading, error }) => {
   useEffect(() => {
     if (isLoading) {
-      analytics.track('3d_loading_started');
+      analytics.track("3d_loading_started");
     }
   }, [isLoading]);
 
   useEffect(() => {
     if (error) {
-      analytics.track('3d_loading_error', { error });
+      analytics.track("3d_loading_error", { error });
     }
   }, [error]);
 
   useEffect(() => {
     if (!isLoading && !error && progress === 100) {
-      analytics.track('3d_loading_completed', { 
-        duration: performance.now() 
+      analytics.track("3d_loading_completed", {
+        duration: performance.now(),
       });
     }
   }, [isLoading, error, progress]);
 
   // Tu UI de loader...
-  return (
-    <div className="loader">
-      {/* ... */}
-    </div>
-  );
+  return <div className="loader">{/* ... */}</div>;
 };
 
-<LoaderSystem customLoader={AnalyticsLoader} />
+<LoaderSystem customLoader={AnalyticsLoader} />;
 ```
 
 ### Ejemplo 3: Loader Responsivo
@@ -236,14 +236,18 @@ const ResponsiveLoader = ({ progress, isLoading, error }) => {
       <div className="max-w-md w-full">
         {/* Desktop/Tablet */}
         <div className="hidden sm:block text-center">
-          <div className="text-white text-2xl mb-6">Cargando experiencia 3D</div>
+          <div className="text-white text-2xl mb-6">
+            Cargando experiencia 3D
+          </div>
           <div className="w-full bg-gray-700 rounded-full h-3 mb-4">
-            <div 
+            <div
               className="bg-blue-500 h-3 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-gray-300">{Math.round(progress)}% completado</div>
+          <div className="text-gray-300">
+            {Math.round(progress)}% completado
+          </div>
         </div>
 
         {/* Mobile */}
@@ -263,8 +267,8 @@ const ResponsiveLoader = ({ progress, isLoading, error }) => {
 ### Ejemplo 4: Loader con Preload de Assets
 
 ```tsx
-import { useEffect, useState } from 'react';
-import { LoaderSystem } from '@/engine';
+import { useEffect, useState } from "react";
+import { LoaderSystem } from "@/engine";
 
 const PreloadLoader = ({ progress, isLoading, error }) => {
   const [preloadComplete, setPreloadComplete] = useState(false);
@@ -274,21 +278,21 @@ const PreloadLoader = ({ progress, isLoading, error }) => {
     const preloadAssets = async () => {
       try {
         // Precargar imágenes
-        const images = ['/hero-bg.jpg', '/logo.png'];
+        const images = ["/hero-bg.jpg", "/logo.png"];
         await Promise.all(
-          images.map(src => {
+          images.map((src) => {
             const img = new Image();
             img.src = src;
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               img.onload = resolve;
               img.onerror = resolve; // No fallar por una imagen
             });
           })
         );
-        
+
         setPreloadComplete(true);
       } catch (error) {
-        console.warn('Error preloading assets:', error);
+        console.warn("Error preloading assets:", error);
         setPreloadComplete(true);
       }
     };
@@ -301,17 +305,15 @@ const PreloadLoader = ({ progress, isLoading, error }) => {
   return (
     <div className="fixed inset-0">
       {preloadComplete ? (
-        <div 
+        <div
           className="w-full h-full bg-cover bg-center flex items-center justify-center"
-          style={{ backgroundImage: 'url(/hero-bg.jpg)' }}
+          style={{ backgroundImage: "url(/hero-bg.jpg)" }}
         >
           <div className="bg-black bg-opacity-60 p-8 rounded-lg text-center">
             <div className="text-white text-xl mb-4">
               Preparando experiencia inmersiva
             </div>
-            <div className="text-gray-300">
-              {Math.round(progress)}% cargado
-            </div>
+            <div className="text-gray-300">{Math.round(progress)}% cargado</div>
           </div>
         </div>
       ) : (
@@ -329,6 +331,7 @@ const PreloadLoader = ({ progress, isLoading, error }) => {
 ### Técnicas de Optimización
 
 1. **Lazy Loading de Assets**
+
 ```tsx
 // El engine carga assets solo cuando son necesarios
 const engine = useEngine();
@@ -338,6 +341,7 @@ engine.setRoom("newRoom", "newSkin");
 ```
 
 2. **Precarga Inteligente**
+
 ```tsx
 // Precargar rooms siguientes en background
 useEffect(() => {
@@ -349,6 +353,7 @@ useEffect(() => {
 ```
 
 3. **Gestión de Memoria**
+
 ```tsx
 // El sistema limpia automáticamente assets no usados
 // Puedes forzar limpieza si es necesario
@@ -364,18 +369,21 @@ useEffect(() => {
 ### Errores Comunes
 
 1. **Modelo no encontrado**
+
 ```tsx
 // Error: Failed to load model: /models/room.gltf
 // Solución: Verificar que el archivo existe y está accesible
 ```
 
 2. **Textura corrupta**
+
 ```tsx
 // Error: Texture loading failed
 // Solución: Verificar formato y tamaño de texturas
 ```
 
 3. **Timeout de carga**
+
 ```tsx
 // Error: Loading timeout exceeded
 // Solución: Aumentar timeout o optimizar assets
@@ -391,7 +399,7 @@ const ErrorBoundaryLoader = ({ progress, isLoading, error }) => {
 
   const handleRetry = () => {
     if (retryCount < maxRetries) {
-      setRetryCount(prev => prev + 1);
+      setRetryCount((prev) => prev + 1);
       window.location.reload();
     } else {
       // Fallback a versión simplificada
@@ -426,7 +434,7 @@ const ErrorBoundaryLoader = ({ progress, isLoading, error }) => {
 ```tsx
 const MobileOptimizedLoader = ({ progress, isLoading, error }) => {
   const isMobile = window.innerWidth < 768;
-  
+
   return (
     <div className="loader">
       {isMobile ? (
@@ -437,9 +445,7 @@ const MobileOptimizedLoader = ({ progress, isLoading, error }) => {
         </div>
       ) : (
         // Loader completo para desktop
-        <div className="desktop-loader">
-          {/* Loader con más detalles */}
-        </div>
+        <div className="desktop-loader">{/* Loader con más detalles */}</div>
       )}
     </div>
   );

@@ -12,13 +12,13 @@ El `InteractionSystem` maneja la detección y respuesta a interacciones del usua
 ## 🛠️ Uso Básico
 
 ```tsx
-import { InteractionSystem } from '@/engine';
+import { InteractionSystem } from "@/engine";
 
-<InteractionSystem 
-  onObjectHoverEnter={(objectName) => console.log('Hover enter:', objectName)}
-  onObjectHoverLeave={(objectName) => console.log('Hover leave:', objectName)}
-  onObjectClick={(objectName) => console.log('Click:', objectName)}
-/>
+<InteractionSystem
+  onObjectHoverEnter={(objectName) => console.log("Hover enter:", objectName)}
+  onObjectHoverLeave={(objectName) => console.log("Hover leave:", objectName)}
+  onObjectClick={(objectName) => console.log("Click:", objectName)}
+/>;
 ```
 
 ## 📋 Props
@@ -35,10 +35,10 @@ const handleHoverEnter = (objectName: string, events: ObjectEventArray) => {
   // Mostrar tooltip
   setTooltip({ visible: true, content: objectName, object: objectName });
   // Cambiar cursor
-  document.body.style.cursor = 'pointer';
+  document.body.style.cursor = "pointer";
 };
 
-<InteractionSystem onObjectHoverEnter={handleHoverEnter} />
+<InteractionSystem onObjectHoverEnter={handleHoverEnter} />;
 ```
 
 #### `onObjectHoverLeave?: (objectName: string, events: ObjectEventArray) => void`
@@ -51,10 +51,10 @@ const handleHoverLeave = (objectName: string, events: ObjectEventArray) => {
   // Ocultar tooltip
   setTooltip({ visible: false });
   // Restaurar cursor
-  document.body.style.cursor = 'default';
+  document.body.style.cursor = "default";
 };
 
-<InteractionSystem onObjectHoverLeave={handleHoverLeave} />
+<InteractionSystem onObjectHoverLeave={handleHoverLeave} />;
 ```
 
 #### `onObjectClick?: (objectName: string, events: ObjectEventArray) => void`
@@ -64,23 +64,24 @@ Se ejecuta cuando se hace click en un objeto interactuable.
 ```tsx
 const handleClick = (objectName: string, events: ObjectEventArray) => {
   console.log(`Click en: ${objectName}`);
-  
+
   // Casos de uso típicos:
-  if (objectName === 'door') {
-    navigate('/next-room');
-  } else if (objectName === 'info-panel') {
+  if (objectName === "door") {
+    navigate("/next-room");
+  } else if (objectName === "info-panel") {
     setModalOpen(true);
-  } else if (objectName === 'product') {
+  } else if (objectName === "product") {
     setSelectedProduct(objectName);
   }
 };
 
-<InteractionSystem onObjectClick={handleClick} />
+<InteractionSystem onObjectClick={handleClick} />;
 ```
 
 ### Configuración
 
 #### `enableInteractions?: boolean`
+
 Por defecto: `true`
 
 Habilita o deshabilita completamente el sistema de interacciones.
@@ -94,15 +95,15 @@ Habilita o deshabilita completamente el sistema de interacciones.
 ### Ejemplo 1: Tooltip Simple
 
 ```tsx
-import { useState } from 'react';
-import { InteractionSystem } from '@/engine';
+import { useState } from "react";
+import { InteractionSystem } from "@/engine";
 
 export default function ViewerWithTooltips() {
-  const [tooltip, setTooltip] = useState({ 
-    visible: false, 
-    content: '', 
-    x: 0, 
-    y: 0 
+  const [tooltip, setTooltip] = useState({
+    visible: false,
+    content: "",
+    x: 0,
+    y: 0,
   });
 
   const handleHoverEnter = (objectName: string) => {
@@ -110,21 +111,21 @@ export default function ViewerWithTooltips() {
       visible: true,
       content: `Objeto: ${objectName}`,
       x: 0, // Podrías calcular posición del mouse
-      y: 0
+      y: 0,
     });
   };
 
   const handleHoverLeave = () => {
-    setTooltip(prev => ({ ...prev, visible: false }));
+    setTooltip((prev) => ({ ...prev, visible: false }));
   };
 
   return (
     <div className="relative">
-      <InteractionSystem 
+      <InteractionSystem
         onObjectHoverEnter={handleHoverEnter}
         onObjectHoverLeave={handleHoverLeave}
       />
-      
+
       {tooltip.visible && (
         <div className="absolute top-4 left-4 bg-black text-white p-2 rounded">
           {tooltip.content}
@@ -138,14 +139,14 @@ export default function ViewerWithTooltips() {
 ### Ejemplo 2: Navegación por Objetos
 
 ```tsx
-import { useRouter } from 'next/router';
-import { InteractionSystem } from '@/engine';
+import { useRouter } from "next/router";
+import { InteractionSystem } from "@/engine";
 
 const OBJECT_ROUTES = {
-  'door_exit': '/rooms/lobby',
-  'door_office': '/rooms/office',
-  'info_panel': '/info',
-  'product_showcase': '/products'
+  door_exit: "/rooms/lobby",
+  door_office: "/rooms/office",
+  info_panel: "/info",
+  product_showcase: "/products",
 };
 
 export default function NavigableViewer() {
@@ -161,15 +162,15 @@ export default function NavigableViewer() {
   };
 
   return (
-    <InteractionSystem 
+    <InteractionSystem
       onObjectClick={handleClick}
       onObjectHoverEnter={(obj) => {
         // Cambiar cursor si hay ruta disponible
         const hasRoute = OBJECT_ROUTES[obj];
-        document.body.style.cursor = hasRoute ? 'pointer' : 'default';
+        document.body.style.cursor = hasRoute ? "pointer" : "default";
       }}
       onObjectHoverLeave={() => {
-        document.body.style.cursor = 'default';
+        document.body.style.cursor = "default";
       }}
     />
   );
@@ -179,28 +180,38 @@ export default function NavigableViewer() {
 ### Ejemplo 3: Sistema de Estado Global
 
 ```tsx
-import { useCallback } from 'react';
-import { InteractionSystem } from '@/engine';
-import { useAppStore } from '@/store';
+import { useCallback } from "react";
+import { InteractionSystem } from "@/engine";
+import { useAppStore } from "@/store";
 
 export default function StatefulViewer() {
   const { setHoveredObject, setSelectedObject, addToHistory } = useAppStore();
 
-  const handleHoverEnter = useCallback((objectName: string) => {
-    setHoveredObject(objectName);
-  }, [setHoveredObject]);
+  const handleHoverEnter = useCallback(
+    (objectName: string) => {
+      setHoveredObject(objectName);
+    },
+    [setHoveredObject]
+  );
 
   const handleHoverLeave = useCallback(() => {
     setHoveredObject(null);
   }, [setHoveredObject]);
 
-  const handleClick = useCallback((objectName: string) => {
-    setSelectedObject(objectName);
-    addToHistory({ type: 'interaction', object: objectName, timestamp: Date.now() });
-  }, [setSelectedObject, addToHistory]);
+  const handleClick = useCallback(
+    (objectName: string) => {
+      setSelectedObject(objectName);
+      addToHistory({
+        type: "interaction",
+        object: objectName,
+        timestamp: Date.now(),
+      });
+    },
+    [setSelectedObject, addToHistory]
+  );
 
   return (
-    <InteractionSystem 
+    <InteractionSystem
       onObjectHoverEnter={handleHoverEnter}
       onObjectHoverLeave={handleHoverLeave}
       onObjectClick={handleClick}
@@ -212,23 +223,23 @@ export default function StatefulViewer() {
 ### Ejemplo 4: Integración con Analytics
 
 ```tsx
-import { InteractionSystem } from '@/engine';
-import { analytics } from '@/lib/analytics';
+import { InteractionSystem } from "@/engine";
+import { analytics } from "@/lib/analytics";
 
 export default function AnalyticsViewer() {
   const trackInteraction = (type: string, objectName: string) => {
-    analytics.track('3d_interaction', {
+    analytics.track("3d_interaction", {
       type,
       object: objectName,
       room: currentRoom,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   };
 
   return (
-    <InteractionSystem 
-      onObjectHoverEnter={(obj) => trackInteraction('hover_enter', obj)}
-      onObjectClick={(obj) => trackInteraction('click', obj)}
+    <InteractionSystem
+      onObjectHoverEnter={(obj) => trackInteraction("hover_enter", obj)}
+      onObjectClick={(obj) => trackInteraction("click", obj)}
     />
   );
 }
@@ -269,7 +280,7 @@ useEffect(() => {
   setInteractionsEnabled(!isLoading && !isModalOpen);
 }, [isLoading, isModalOpen]);
 
-<InteractionSystem enableInteractions={interactionsEnabled} />
+<InteractionSystem enableInteractions={interactionsEnabled} />;
 ```
 
 ### Manejo de Errores
@@ -280,8 +291,8 @@ const handleClick = (objectName: string) => {
     // Tu lógica aquí
     handleObjectAction(objectName);
   } catch (error) {
-    console.error('Error en interacción:', error);
-    showErrorToast('Error al interactuar con el objeto');
+    console.error("Error en interacción:", error);
+    showErrorToast("Error al interactuar con el objeto");
   }
 };
 ```
@@ -289,12 +300,12 @@ const handleClick = (objectName: string) => {
 ## 🧪 Testing
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import { InteractionSystem } from '@/engine';
+import { render, screen } from "@testing-library/react";
+import { InteractionSystem } from "@/engine";
 
-test('should call onObjectClick when object is clicked', () => {
+test("should call onObjectClick when object is clicked", () => {
   const mockOnClick = jest.fn();
-  
+
   render(
     <Engine.Canvas>
       <Engine.Core>

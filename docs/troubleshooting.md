@@ -7,50 +7,52 @@ Esta guía te ayudará a diagnosticar y resolver problemas comunes con Oniria En
 ### 🖤 Pantalla Negra / Canvas No Renderiza
 
 #### Síntomas
+
 - El canvas aparece pero permanece negro
 - No se ven modelos 3D
 - No hay errores en consola
 
 #### Diagnóstico
+
 ```tsx
 // Verificar configuración del engine
-<DebugSystem 
-  enabled={true}
-  panels={{ engine: true, scene: true }}
-/>
+<DebugSystem enabled={true} panels={{ engine: true, scene: true }} />
 ```
 
 #### Soluciones
 
 1. **Verificar configuración del room**:
+
 ```tsx
 // ❌ Problemático
 const [room, setRoom] = useState(null); // room es null
 
 // ✅ Correcto
-const [room, setRoom] = useState('oniria'); // room inicializado
+const [room, setRoom] = useState("oniria"); // room inicializado
 ```
 
 2. **Verificar rutas de assets**:
+
 ```tsx
 // ❌ Ruta incorrecta
 const roomConfig = {
-  gltf: './model.gltf', // Ruta relativa problemática
+  gltf: "./model.gltf", // Ruta relativa problemática
 };
 
 // ✅ Ruta correcta
 const roomConfig = {
-  gltf: '/models/oniria.gltf', // Ruta desde public
+  gltf: "/models/oniria.gltf", // Ruta desde public
 };
 ```
 
 3. **Verificar configuración del Canvas**:
+
 ```tsx
 // ✅ Configuración mínima funcional
-<Engine.Canvas 
+<Engine.Canvas
   engineSettings={{
     backgroundColor: "#000000", // Fondo negro explícito
-    antialias: true
+    antialias: true,
   }}
 >
   <Engine.Core>
@@ -62,21 +64,23 @@ const roomConfig = {
 ### 🎮 Controles No Funcionan
 
 #### Síntomas
+
 - No se puede rotar la cámara
 - Los clicks no detectan objetos
 - No hay respuesta a mouse/touch
 
 #### Diagnóstico
+
 ```tsx
 // Verificar estado de sistemas
 const TestControls = () => {
   const engine = useEngine();
-  
+
   useEffect(() => {
-    console.log('Engine state:', {
+    console.log("Engine state:", {
       isLoaded: engine.isLoaded,
       hasActiveRoom: !!engine.activeRoom,
-      systemsLoaded: engine.systemsLoaded
+      systemsLoaded: engine.systemsLoaded,
     });
   }, [engine]);
 };
@@ -85,6 +89,7 @@ const TestControls = () => {
 #### Soluciones
 
 1. **Verificar orden de sistemas**:
+
 ```tsx
 // ✅ Orden correcto
 <Engine.Core>
@@ -95,9 +100,10 @@ const TestControls = () => {
 ```
 
 2. **Verificar configuración de cámara**:
+
 ```tsx
 // ✅ Configuración explícita
-<CameraSystem 
+<CameraSystem
   enableControls={true}
   enablePan={true}
   enableZoom={true}
@@ -106,34 +112,35 @@ const TestControls = () => {
 ```
 
 3. **Verificar interacciones**:
+
 ```tsx
 // ✅ Callbacks explícitos
-<InteractionSystem 
-  onObjectClick={(objectName) => console.log('Clicked:', objectName)}
-  onObjectHoverEnter={(objectName) => console.log('Hover start:', objectName)}
-  onObjectHoverLeave={(objectName) => console.log('Hover end:', objectName)}
+<InteractionSystem
+  onObjectClick={(objectName) => console.log("Clicked:", objectName)}
+  onObjectHoverEnter={(objectName) => console.log("Hover start:", objectName)}
+  onObjectHoverLeave={(objectName) => console.log("Hover end:", objectName)}
 />
 ```
 
 ### 🐌 Performance Lenta
 
 #### Síntomas
+
 - FPS bajo (< 30)
 - Lag al interactuar
 - Consumo alto de memoria
 
 #### Diagnóstico
+
 ```tsx
 // Monitor de performance
-<DebugSystem 
-  enabled={true}
-  panels={{ performance: true }}
-/>
+<DebugSystem enabled={true} panels={{ performance: true }} />
 ```
 
 #### Soluciones
 
 1. **Optimizar configuración**:
+
 ```tsx
 // Para dispositivos de baja potencia
 const lowEndSettings = {
@@ -146,10 +153,15 @@ const lowEndSettings = {
 ```
 
 2. **Reducir sistemas activos**:
+
 ```tsx
 // Renderizar condicionalmente
-{isHighEndDevice && <InteractionSystem />}
-{performanceMode !== 'low' && <AnimationSystem />}
+{
+  isHighEndDevice && <InteractionSystem />;
+}
+{
+  performanceMode !== "low" && <AnimationSystem />;
+}
 ```
 
 3. **Ver guía completa**: [Performance](./performance.md)
@@ -157,11 +169,13 @@ const lowEndSettings = {
 ### 💾 Memory Leaks
 
 #### Síntomas
+
 - Uso de memoria aumenta constantemente
 - La aplicación se vuelve lenta con el tiempo
 - Crashes después de uso prolongado
 
 #### Diagnóstico
+
 ```tsx
 // Monitor memoria en DebugSystem
 const MemoryMonitor = () => {
@@ -169,7 +183,7 @@ const MemoryMonitor = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if ('memory' in performance) {
+      if ("memory" in performance) {
         const memMB = (performance as any).memory.usedJSHeapSize / 1024 / 1024;
         setMemory(memMB);
         console.log(`Memory usage: ${memMB.toFixed(1)}MB`);
@@ -186,11 +200,12 @@ const MemoryMonitor = () => {
 #### Soluciones
 
 1. **Verificar cleanup**:
+
 ```tsx
 // ✅ Cleanup correcto
 useEffect(() => {
   const subscription = loopService.subscribe(callback);
-  
+
   return () => {
     subscription.unsubscribe(); // ¡Importante!
   };
@@ -198,43 +213,46 @@ useEffect(() => {
 ```
 
 2. **Verificar listeners**:
+
 ```tsx
 // ❌ Listener sin cleanup
 useEffect(() => {
-  window.addEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
   // ¡Falta cleanup!
 }, []);
 
 // ✅ Con cleanup
 useEffect(() => {
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
 }, []);
 ```
 
 ### 🔄 Problemas de Estado
 
 #### Síntomas
+
 - Estado desincronizado entre componentes
 - Cambios no se reflejan en la UI
 - Errores de React hooks
 
 #### Diagnóstico
+
 ```tsx
 // Verificar estado del engine
 const StateDebugger = () => {
   const engine = useEngine();
   const core = useEngineCore(); // Solo para debug
 
-  console.log('Public state:', {
+  console.log("Public state:", {
     room: engine.activeRoom?.id,
     skin: engine.activeSkin?.id,
-    isLoaded: engine.isLoaded
+    isLoaded: engine.isLoaded,
   });
 
-  console.log('Internal state:', {
+  console.log("Internal state:", {
     services: Object.keys(core.services),
-    systems: core.systems.size
+    systems: core.systems.size,
   });
 };
 ```
@@ -242,6 +260,7 @@ const StateDebugger = () => {
 #### Soluciones
 
 1. **Usar API pública correctamente**:
+
 ```tsx
 // ❌ Acceso directo a servicios internos
 const core = useEngineCore();
@@ -253,11 +272,12 @@ engine.setTarget(target);
 ```
 
 2. **Verificar dependencias**:
+
 ```tsx
 // ✅ Dependencias correctas
 useEffect(() => {
   if (engine.activeRoom) {
-    engine.setTarget('nodo1');
+    engine.setTarget("nodo1");
   }
 }, [engine.activeRoom]); // Dependencia explícita
 ```
@@ -265,14 +285,16 @@ useEffect(() => {
 ### 🎨 Problemas de Materiales/Texturas
 
 #### Síntomas
+
 - Texturas no cargan
 - Materiales aparecen blancos/grises
 - Cambios de skin no funcionan
 
 #### Diagnóstico
+
 ```tsx
 // Verificar estado de materiales
-<DebugSystem 
+<DebugSystem
   enabled={true}
   panels={{ scene: true }} // Incluye info de materiales
 />
@@ -281,6 +303,7 @@ useEffect(() => {
 #### Soluciones
 
 1. **Verificar rutas de texturas**:
+
 ```tsx
 // Verificar en configuración del room
 const roomConfig = {
@@ -288,15 +311,16 @@ const roomConfig = {
     default: {
       // ✅ Rutas correctas desde public
       textures: {
-        wall: '/skins/oniria_wall.ktx2',
-        object: '/skins/oniria_object.ktx2'
-      }
-    }
-  }
+        wall: "/skins/oniria_wall.ktx2",
+        object: "/skins/oniria_object.ktx2",
+      },
+    },
+  },
 };
 ```
 
 2. **Verificar formatos soportados**:
+
 ```tsx
 // Formatos recomendados
 - Texturas: .ktx2, .webp, .jpg
@@ -304,10 +328,11 @@ const roomConfig = {
 ```
 
 3. **Preload de assets**:
+
 ```tsx
 // Precargar assets críticos
 useEffect(() => {
-  engine.preloadAssets(['texture1', 'texture2']);
+  engine.preloadAssets(["texture1", "texture2"]);
 }, []);
 ```
 
@@ -317,15 +342,15 @@ useEffect(() => {
 
 ```tsx
 // Configuración de debug completa
-<DebugSystem 
-  enabled={process.env.NODE_ENV === 'development'}
+<DebugSystem
+  enabled={process.env.NODE_ENV === "development"}
   panels={{
-    engine: true,     // Estado general del engine
-    camera: true,     // Controles de cámara
-    animation: true,  // Sistema de animaciones
-    interaction: true,// Interacciones y raycasting
-    scene: true,      // Información de escena
-    performance: true // Métricas de rendimiento
+    engine: true, // Estado general del engine
+    camera: true, // Controles de cámara
+    animation: true, // Sistema de animaciones
+    interaction: true, // Interacciones y raycasting
+    scene: true, // Información de escena
+    performance: true, // Métricas de rendimiento
   }}
 />
 ```
@@ -336,7 +361,7 @@ useEffect(() => {
 // Hook para debug de estado
 const useDebugState = (label: string, value: any) => {
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log(`[${label}]`, value);
     }
   }, [label, value]);
@@ -345,10 +370,10 @@ const useDebugState = (label: string, value: any) => {
 // Hook para debug de renders
 const useDebugRenders = (componentName: string) => {
   const renderCount = useRef(0);
-  
+
   useEffect(() => {
     renderCount.current++;
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.log(`${componentName} rendered ${renderCount.current} times`);
     }
   });
@@ -357,13 +382,13 @@ const useDebugRenders = (componentName: string) => {
 // Uso
 const MyComponent = () => {
   const engine = useEngine();
-  
-  useDebugState('Engine State', {
+
+  useDebugState("Engine State", {
     isLoaded: engine.isLoaded,
-    activeRoom: engine.activeRoom?.id
+    activeRoom: engine.activeRoom?.id,
   });
-  
-  useDebugRenders('MyComponent');
+
+  useDebugRenders("MyComponent");
 
   return <div>...</div>;
 };
@@ -373,19 +398,19 @@ const MyComponent = () => {
 
 ```tsx
 // Añadir nombres de display para debugging
-InteractionSystem.displayName = 'InteractionSystem';
-CameraSystem.displayName = 'CameraSystem';
-RoomScene.displayName = 'RoomScene';
+InteractionSystem.displayName = "InteractionSystem";
+CameraSystem.displayName = "CameraSystem";
+RoomScene.displayName = "RoomScene";
 
 // Exponer estado en window para debugging
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   const DebugWindow = () => {
     const engine = useEngine();
-    
+
     useEffect(() => {
       (window as any).oniriaEngine = engine;
     }, [engine]);
-    
+
     return null;
   };
 }
@@ -415,13 +440,13 @@ const usePerformanceProfiler = (name: string) => {
 
 // Uso
 const MyComponent = () => {
-  const profiler = usePerformanceProfiler('MyComponent');
+  const profiler = usePerformanceProfiler("MyComponent");
 
   useEffect(() => {
     profiler.startProfiling();
-    
+
     // ... operación costosa
-    
+
     profiler.endProfiling();
   }, []);
 };
@@ -451,7 +476,7 @@ enum LogLevel {
   ERROR = 0,
   WARN = 1,
   INFO = 2,
-  DEBUG = 3
+  DEBUG = 3,
 }
 
 class Logger {
@@ -488,7 +513,7 @@ class Logger {
 
 // Configurar logger global
 const logger = new Logger(
-  process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.WARN
+  process.env.NODE_ENV === "development" ? LogLevel.DEBUG : LogLevel.WARN
 );
 
 export { logger };
@@ -512,10 +537,10 @@ class EngineErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Engine Error:', error, errorInfo);
-    
+    console.error("Engine Error:", error, errorInfo);
+
     // Enviar a servicio de monitoring
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // sendErrorToService(error, errorInfo);
     }
   }
@@ -526,7 +551,7 @@ class EngineErrorBoundary extends React.Component<
         <div className="engine-error">
           <h2>Engine Error</h2>
           <p>Ha ocurrido un error en el motor 3D.</p>
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <details>
               <summary>Error details</summary>
               <pre>{this.state.error?.stack}</pre>
@@ -595,22 +620,22 @@ export default function App() {
 // Generar reporte de estado
 const generateDebugReport = () => {
   const engine = useEngine();
-  
+
   return {
     timestamp: new Date().toISOString(),
     engine: {
       isLoaded: engine.isLoaded,
       activeRoom: engine.activeRoom?.id,
-      activeSkin: engine.activeSkin?.id
+      activeSkin: engine.activeSkin?.id,
     },
     browser: {
       userAgent: navigator.userAgent,
-      webGL: !!window.WebGLRenderingContext
+      webGL: !!window.WebGLRenderingContext,
     },
     performance: {
-      memory: (performance as any).memory?.usedJSHeapSize || 'not available',
-      timing: performance.timing
-    }
+      memory: (performance as any).memory?.usedJSHeapSize || "not available",
+      timing: performance.timing,
+    },
   };
 };
 ```
@@ -618,13 +643,14 @@ const generateDebugReport = () => {
 ### Templates de Issues
 
 **Bug Report:**
+
 ```
 ## Bug Description
 [Descripción clara del problema]
 
 ## Steps to Reproduce
 1. [Paso 1]
-2. [Paso 2] 
+2. [Paso 2]
 3. [Paso 3]
 
 ## Expected Behavior
@@ -646,6 +672,7 @@ const generateDebugReport = () => {
 ```
 
 **Feature Request:**
+
 ```
 ## Feature Description
 [Descripción de la funcionalidad deseada]

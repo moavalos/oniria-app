@@ -30,16 +30,19 @@ El Oniria Engine está diseñado con una arquitectura modular y orientada a serv
 ## 🎯 Principios de Diseño
 
 ### 1. Encapsulación
+
 - Los servicios internos no son accesibles directamente desde UI
 - Solo se exponen APIs necesarias a través de hooks públicos
 - Separación clara entre lógica interna y API pública
 
 ### 2. Composición
+
 - Sistemas modulares que se pueden combinar según necesidades
 - Cada sistema tiene responsabilidades específicas
 - Dependencias mínimas entre sistemas
 
 ### 3. Declarativo
+
 - Configuración basada en props de React
 - Estado reactivo automático
 - Manejo de efectos secundarios interno
@@ -51,12 +54,14 @@ El Oniria Engine está diseñado con una arquitectura modular y orientada a serv
 **Responsabilidad:** Componentes React que implementan la experiencia de usuario
 
 **Elementos:**
+
 - Componentes de aplicación
 - Handlers de eventos
 - Estado de UI
 - Routing y navegación
 
 **APIs Disponibles:**
+
 ```tsx
 // Hook principal
 const engine = useEngine();
@@ -79,12 +84,14 @@ const engine = useEngine();
 **Responsabilidad:** Interfaz pública estable para desarrolladores
 
 **Elementos:**
+
 - `useEngine()` hook
 - Provider de contexto (`EngineApiProvider`)
 - Sistemas configurables
 - Tipos TypeScript públicos
 
 **Características:**
+
 - API estable versionada
 - Encapsulación de complejidad interna
 - Validación de parámetros
@@ -95,12 +102,14 @@ const engine = useEngine();
 **Responsabilidad:** Gestión de servicios y estado interno
 
 **Elementos:**
+
 - `useEngineCore()` (interno)
 - `EngineStore` (Zustand)
 - Lifecycle management
 - Service orchestration
 
 **Funciones:**
+
 ```tsx
 // Solo para uso interno del engine
 const core = useEngineCore();
@@ -115,42 +124,46 @@ const interactionService = core.getInteractionService();
 **Servicios:**
 
 #### CameraService
+
 ```tsx
 class CameraService {
-  setLookAt(position: Vector3, target: Vector3, animate?: boolean): void
-  getPosition(): Vector3
-  getTarget(): Vector3
+  setLookAt(position: Vector3, target: Vector3, animate?: boolean): void;
+  getPosition(): Vector3;
+  getTarget(): Vector3;
   // ... métodos internos
 }
 ```
 
 #### InteractionService
+
 ```tsx
 class InteractionService extends EventEmitter {
-  update(room: Room, interactables: Record<string, ObjectEventArray>): void
-  on(event: string, callback: Function): void
-  off(event: string): void
+  update(room: Room, interactables: Record<string, ObjectEventArray>): void;
+  on(event: string, callback: Function): void;
+  off(event: string): void;
   // ... métodos internos
 }
 ```
 
 #### AnimationService
+
 ```tsx
 class AnimationService {
-  playAnimation(name: string): void
-  pauseAnimation(name: string): void
-  stopAnimation(name: string): void
+  playAnimation(name: string): void;
+  pauseAnimation(name: string): void;
+  stopAnimation(name: string): void;
   // ... métodos internos
 }
 ```
 
 #### LoopService
+
 ```tsx
 class LoopService {
-  subscribe(callback: () => void): void
-  unsubscribe(callback: () => void): void
-  start(): void
-  stop(): void
+  subscribe(callback: () => void): void;
+  unsubscribe(callback: () => void): void;
+  start(): void;
+  stop(): void;
   // ... métodos internos
 }
 ```
@@ -162,35 +175,40 @@ class LoopService {
 **Elementos:**
 
 #### Room Entity
+
 ```tsx
 class Room {
-  constructor(config: RoomConfig)
-  getScene(): THREE.Scene | null
-  getInteractableObjectsSync(): Record<string, ObjectEventArray>
-  getLookAtableObjectsSync(): Record<string, Vector3>
-  getObjectByName(name: string): THREE.Object3D | null
+  constructor(config: RoomConfig);
+  getScene(): THREE.Scene | null;
+  getInteractableObjectsSync(): Record<string, ObjectEventArray>;
+  getLookAtableObjectsSync(): Record<string, Vector3>;
+  getObjectByName(name: string): THREE.Object3D | null;
 }
 ```
 
 #### ConfigManager
+
 ```tsx
 class ConfigManager {
   // Métodos async para carga inicial
-  getInteractableObjects(roomId: string): Promise<Record<string, ObjectEventArray>>
-  getLookAtableObjects(roomId: string): Promise<Record<string, Vector3>>
-  
+  getInteractableObjects(
+    roomId: string
+  ): Promise<Record<string, ObjectEventArray>>;
+  getLookAtableObjects(roomId: string): Promise<Record<string, Vector3>>;
+
   // Métodos sync para acceso en cache
-  getInteractableObjectsSync(): Record<string, ObjectEventArray>
-  getLookAtableObjectsSync(): Record<string, Vector3>
+  getInteractableObjectsSync(): Record<string, ObjectEventArray>;
+  getLookAtableObjectsSync(): Record<string, Vector3>;
 }
 ```
 
 #### EventEmitter
+
 ```tsx
 class EventEmitter {
-  trigger(event: string, data: any): void
-  on(event: string, callback: Function): void
-  off(event: string): void
+  trigger(event: string, data: any): void;
+  on(event: string, callback: Function): void;
+  off(event: string): void;
 }
 ```
 
@@ -199,6 +217,7 @@ class EventEmitter {
 **Responsabilidad:** Renderizado 3D y manejo de assets
 
 **Elementos:**
+
 - Scene management
 - Renderer configuration
 - Camera controls
@@ -241,7 +260,7 @@ interface EngineState {
   skinId: string | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   setRoomId: (id: string) => void;
   setSkinId: (id: string) => void;
@@ -258,11 +277,13 @@ Cada sistema mantiene su propio estado local usando hooks de React:
 // InteractionSystem
 const [hoveredObjects, setHoveredObjects] = useState<Set<string>>(new Set());
 
-// CameraSystem  
+// CameraSystem
 const [cameraPosition, setCameraPosition] = useState<Vector3>(initialPosition);
 
 // AnimationSystem
-const [activeAnimations, setActiveAnimations] = useState<Map<string, THREE.AnimationAction>>(new Map());
+const [activeAnimations, setActiveAnimations] = useState<
+  Map<string, THREE.AnimationAction>
+>(new Map());
 ```
 
 ## 🎣 Sistema de Hooks
@@ -316,7 +337,7 @@ class ExtendedCameraService extends CameraService {
   setOrthographicView(): void {
     // Lógica adicional
   }
-  
+
   enableVRMode(): void {
     // Funcionalidad VR
   }
@@ -324,7 +345,7 @@ class ExtendedCameraService extends CameraService {
 
 // Registro en el core
 const core = useEngineCore();
-core.registerService('camera', new ExtendedCameraService());
+core.registerService("camera", new ExtendedCameraService());
 ```
 
 ### Sistemas Personalizados
@@ -384,8 +405,8 @@ class ExampleService {
 
 ```tsx
 // Testing de servicios aislados
-describe('CameraService', () => {
-  test('should set camera position', () => {
+describe("CameraService", () => {
+  test("should set camera position", () => {
     const service = new CameraService(mockCamera);
     service.setPosition([0, 5, 10]);
     expect(service.getPosition()).toEqual([0, 5, 10]);
@@ -397,8 +418,8 @@ describe('CameraService', () => {
 
 ```tsx
 // Testing de sistemas completos
-describe('InteractionSystem', () => {
-  test('should detect object interactions', () => {
+describe("InteractionSystem", () => {
+  test("should detect object interactions", () => {
     render(
       <Engine.Canvas>
         <Engine.Core>
@@ -415,17 +436,17 @@ describe('InteractionSystem', () => {
 
 ```tsx
 // Testing de flujo completo
-describe('Engine E2E', () => {
-  test('should load room and enable interactions', async () => {
+describe("Engine E2E", () => {
+  test("should load room and enable interactions", async () => {
     const { getByTestId } = render(<App />);
-    
+
     // Esperar carga
     await waitFor(() => {
-      expect(getByTestId('3d-scene')).toBeInTheDocument();
+      expect(getByTestId("3d-scene")).toBeInTheDocument();
     });
-    
+
     // Interactuar
-    fireEvent.click(getByTestId('interactive-object'));
+    fireEvent.click(getByTestId("interactive-object"));
     expect(mockAnalytics).toHaveBeenCalled();
   });
 });
@@ -452,10 +473,10 @@ describe('Engine E2E', () => {
 
 ```tsx
 // ❌ No exponer servicios internos
-export { CameraService } from './services';
+export { CameraService } from "./services";
 
 // ✅ Solo exponer API pública
-export { useEngine } from './hooks/useEngine';
+export { useEngine } from "./hooks/useEngine";
 ```
 
 ### Validación
@@ -464,14 +485,14 @@ export { useEngine } from './hooks/useEngine';
 // Validación en capa pública
 export const useEngine = () => {
   const api = useEngineAPI();
-  
+
   return {
     setRoom: (roomId: string, skinId: string) => {
       if (!roomId || !skinId) {
-        throw new Error('roomId and skinId are required');
+        throw new Error("roomId and skinId are required");
       }
       return api.setRoom(roomId, skinId);
-    }
+    },
   };
 };
 ```

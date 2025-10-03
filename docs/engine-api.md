@@ -7,7 +7,7 @@ Esta es la referencia completa de la API pública del Oniria Engine disponible p
 El hook principal para interactuar con el engine desde componentes UI.
 
 ```tsx
-import { useEngine } from '@/engine';
+import { useEngine } from "@/engine";
 
 const engine = useEngine();
 ```
@@ -27,10 +27,12 @@ engine.setRoom("office", "modern_theme");
 ```
 
 **Parámetros:**
+
 - `roomId` (string): ID de la room a cargar
 - `skinId` (string): ID del skin/tema a aplicar
 
 **Uso típico:**
+
 ```tsx
 useEffect(() => {
   engine.setRoom("oniria", "oniria");
@@ -58,6 +60,7 @@ console.log(engine.skinId); // "oniria" | null
 ```
 
 **Ejemplo de uso reactivo:**
+
 ```tsx
 const engine = useEngine();
 const [isLoaded, setIsLoaded] = useState(false);
@@ -75,9 +78,7 @@ Componente raíz que envuelve el Canvas de Three.js y configura el contexto del 
 
 ```tsx
 <Engine.Canvas engineSettings={engineSettings}>
-  <Engine.Core>
-    {/* Sistemas aquí */}
-  </Engine.Core>
+  <Engine.Core>{/* Sistemas aquí */}</Engine.Core>
 </Engine.Canvas>
 ```
 
@@ -95,19 +96,20 @@ interface EngineSettings {
 ```
 
 **Ejemplos:**
+
 ```tsx
 // Configuración básica
 <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
 
 // Configuración para móvil
-<Engine.Canvas engineSettings={{ 
+<Engine.Canvas engineSettings={{
   backgroundColor: "#1a1a1a",
   antialias: false,
   powerPreference: "low-power"
 }}>
 
 // Configuración para desktop de alta calidad
-<Engine.Canvas engineSettings={{ 
+<Engine.Canvas engineSettings={{
   backgroundColor: "#000000",
   antialias: true,
   powerPreference: "high-performance"
@@ -137,7 +139,7 @@ Contenedor interno que inicializa los servicios del engine. Debe estar dentro de
 Provider que debe envolver la aplicación para proporcionar acceso al contexto del engine.
 
 ```tsx
-import { EngineApiProvider } from '@/engine';
+import { EngineApiProvider } from "@/engine";
 
 export default function App() {
   return (
@@ -154,14 +156,17 @@ export default function App() {
 Estos sistemas pueden ser configurados y usados por desarrolladores UI:
 
 ### LoaderSystem
+
 ```tsx
 <LoaderSystem />
 ```
+
 Maneja la carga de assets y muestra estados de loading.
 
 ### DebugSystem
+
 ```tsx
-<DebugSystem 
+<DebugSystem
   enabled={isDev}
   panels={{
     camera: true,
@@ -170,47 +175,51 @@ Maneja la carga de assets y muestra estados de loading.
   }}
 />
 ```
+
 Proporciona herramientas de debug y monitoreo.
 
 ### InteractionSystem
+
 ```tsx
-<InteractionSystem 
-  onObjectHoverEnter={(objectName) => console.log('hover enter:', objectName)}
-  onObjectHoverLeave={(objectName) => console.log('hover leave:', objectName)}
-  onObjectClick={(objectName) => console.log('click:', objectName)}
+<InteractionSystem
+  onObjectHoverEnter={(objectName) => console.log("hover enter:", objectName)}
+  onObjectHoverLeave={(objectName) => console.log("hover leave:", objectName)}
+  onObjectClick={(objectName) => console.log("click:", objectName)}
 />
 ```
+
 Maneja la detección de interacciones con objetos.
 
 ### CameraSystem
+
 ```tsx
-<CameraSystem 
-  enableControls={true}
-  autoRotate={false}
-/>
+<CameraSystem enableControls={true} autoRotate={false} />
 ```
+
 Controla el comportamiento de la cámara.
 
 ### AnimationSystem
+
 ```tsx
-<AnimationSystem 
-  autoPlay={true}
-  defaultDuration={1000}
-/>
+<AnimationSystem autoPlay={true} defaultDuration={1000} />
 ```
+
 Gestiona las animaciones de la escena.
 
 ### RoomScene
+
 ```tsx
 <RoomScene />
 ```
+
 Renderiza la escena 3D de la room activa.
 
 ## 📝 Ejemplos de Uso Completo
 
 ### Ejemplo Básico
+
 ```tsx
-import { Engine, useEngine, LoaderSystem, RoomScene } from '@/engine';
+import { Engine, useEngine, LoaderSystem, RoomScene } from "@/engine";
 
 export default function BasicViewer() {
   const engine = useEngine();
@@ -230,19 +239,20 @@ export default function BasicViewer() {
 ```
 
 ### Ejemplo con Interacciones
+
 ```tsx
-import { useState } from 'react';
-import { 
-  Engine, 
-  useEngine, 
+import { useState } from "react";
+import {
+  Engine,
+  useEngine,
   LoaderSystem,
-  InteractionSystem, 
-  RoomScene 
-} from '@/engine';
+  InteractionSystem,
+  RoomScene,
+} from "@/engine";
 
 export default function InteractiveViewer() {
   const engine = useEngine();
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     engine.setRoom("oniria", "oniria");
@@ -254,9 +264,9 @@ export default function InteractiveViewer() {
       <LoaderSystem />
       <Engine.Canvas engineSettings={{ backgroundColor: "#000" }}>
         <Engine.Core>
-          <InteractionSystem 
+          <InteractionSystem
             onObjectHoverEnter={(obj) => setStatus(`Hover: ${obj}`)}
-            onObjectHoverLeave={() => setStatus('')}
+            onObjectHoverLeave={() => setStatus("")}
             onObjectClick={(obj) => alert(`Click en: ${obj}`)}
           />
           <RoomScene />
@@ -268,10 +278,11 @@ export default function InteractiveViewer() {
 ```
 
 ### Ejemplo con Debug
+
 ```tsx
 export default function DevViewer() {
   const engine = useEngine();
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     engine.setRoom("oniria", "oniria");

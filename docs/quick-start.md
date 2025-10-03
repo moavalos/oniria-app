@@ -21,21 +21,21 @@ Esta guía te ayudará a integrar el Oniria Engine en tu aplicación React en me
 ### 1. Importar el Engine
 
 ```tsx
-import { 
-  Engine, 
-  useEngine, 
+import {
+  Engine,
+  useEngine,
   LoaderSystem,
   CameraSystem,
   AnimationSystem,
   InteractionSystem,
-  RoomScene 
-} from '@/engine';
+  RoomScene,
+} from "@/engine";
 ```
 
 ### 2. Crear tu Componente Principal
 
 ```tsx
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export default function MyViewer() {
   const engine = useEngine();
@@ -54,7 +54,7 @@ export default function MyViewer() {
     <div className="w-full h-full">
       {/* Sistemas que van fuera del Canvas */}
       <LoaderSystem />
-      
+
       {/* Canvas del Engine */}
       <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
         <Engine.Core>
@@ -73,7 +73,7 @@ export default function MyViewer() {
 ### 3. Envolver con Provider (si no está ya)
 
 ```tsx
-import { EngineApiProvider } from '@/engine';
+import { EngineApiProvider } from "@/engine";
 
 export default function App() {
   return (
@@ -115,11 +115,11 @@ const handleClick = (objectName: string) => {
   // Navegar, abrir modal, ejecutar acción, etc.
 };
 
-<InteractionSystem 
+<InteractionSystem
   onObjectHoverEnter={handleHoverEnter}
   onObjectHoverLeave={handleHoverLeave}
   onObjectClick={handleClick}
-/>
+/>;
 ```
 
 ## 🔧 Configuración de Desarrollo
@@ -133,7 +133,7 @@ import { DebugSystem } from '@/engine';
 <DebugSystem enabled={process.env.NODE_ENV === 'development'} />
 
 // O con configuración específica
-<DebugSystem 
+<DebugSystem
   enabled={true}
   panels={{
     camera: true,
@@ -146,8 +146,8 @@ import { DebugSystem } from '@/engine';
 ### Configurar Canvas
 
 ```tsx
-<Engine.Canvas 
-  engineSettings={{ 
+<Engine.Canvas
+  engineSettings={{
     backgroundColor: "#1a1a1a",
     antialias: true,
     powerPreference: "high-performance"
@@ -158,17 +158,17 @@ import { DebugSystem } from '@/engine';
 ## 📦 Ejemplo Completo
 
 ```tsx
-import React, { useEffect, useState } from 'react';
-import { 
-  Engine, 
-  useEngine, 
+import React, { useEffect, useState } from "react";
+import {
+  Engine,
+  useEngine,
   LoaderSystem,
   CameraSystem,
   AnimationSystem,
   InteractionSystem,
   RoomScene,
-  DebugSystem 
-} from '@/engine';
+  DebugSystem,
+} from "@/engine";
 
 export default function OniriaViewer() {
   const engine = useEngine();
@@ -188,9 +188,9 @@ export default function OniriaViewer() {
       {/* UI de control */}
       <div className="absolute top-4 left-4 z-10 text-white">
         <h1>Oniria Viewer</h1>
-        <p>Objeto hover: {hoveredObject || 'ninguno'}</p>
-        <button 
-          onClick={() => handleRoomChange('oniria')}
+        <p>Objeto hover: {hoveredObject || "ninguno"}</p>
+        <button
+          onClick={() => handleRoomChange("oniria")}
           className="bg-blue-500 px-3 py-1 rounded mr-2"
         >
           Room Oniria
@@ -200,13 +200,13 @@ export default function OniriaViewer() {
       {/* Sistemas del Engine */}
       <LoaderSystem />
       <DebugSystem enabled={true} />
-      
+
       <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
         <Engine.Core>
-          <InteractionSystem 
+          <InteractionSystem
             onObjectHoverEnter={setHoveredObject}
             onObjectHoverLeave={() => setHoveredObject(null)}
-            onObjectClick={(obj) => console.log('Click:', obj)}
+            onObjectClick={(obj) => console.log("Click:", obj)}
           />
           <AnimationSystem />
           <CameraSystem />
@@ -222,13 +222,13 @@ export default function OniriaViewer() {
 
 ```tsx
 <div className="w-full h-full min-h-screen">
-  <Engine.Canvas 
-    engineSettings={{ 
+  <Engine.Canvas
+    engineSettings={{
       backgroundColor: "#000000",
       // Optimizaciones para móvil
       powerPreference: "low-power"
     }}
-    style={{ 
+    style={{
       touchAction: 'none' // Prevenir scroll en móvil
     }}
   >

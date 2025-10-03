@@ -5,11 +5,13 @@ Esta documentación está dirigida a desarrolladores que implementarán la inter
 ## 📋 Tabla de Contenido
 
 ### Guías Principales
+
 - [🚀 Guía de Inicio Rápido](./quick-start.md)
 - [⚙️ Configuración del Engine](./engine-setup.md)
 - [🎮 API del Engine](./engine-api.md)
 
 ### Sistemas
+
 - [📦 Sistema de Carga (LoaderSystem)](./systems/loader-system.md)
 - [📷 Sistema de Cámara (CameraSystem)](./systems/camera-system.md)
 - [🎬 Sistema de Animación (AnimationSystem)](./systems/animation-system.md)
@@ -18,6 +20,7 @@ Esta documentación está dirigida a desarrolladores que implementarán la inter
 - [🔧 Sistema de Debug (DebugSystem)](./systems/debug-system.md)
 
 ### Avanzado
+
 - [🏗️ Arquitectura del Engine](./architecture.md)
 - [🔌 Hooks Disponibles](./hooks.md)
 - [📊 Gestión de Estado](./state-management.md)
@@ -37,16 +40,16 @@ El Oniria Engine está diseñado con los siguientes principios:
 ## 🚦 Flujo Básico de Implementación
 
 ```tsx
-import { 
-  Engine, 
-  useEngine, 
+import {
+  Engine,
+  useEngine,
   LoaderSystem,
   CameraSystem,
   AnimationSystem,
   InteractionSystem,
   RoomScene,
-  DebugSystem 
-} from '@/engine';
+  DebugSystem,
+} from "@/engine";
 
 export default function MyApp() {
   const engine = useEngine();
@@ -61,7 +64,7 @@ export default function MyApp() {
       {/* 2. Agregar sistemas necesarios fuera del Canvas */}
       <LoaderSystem />
       <DebugSystem enabled={isDev} />
-      
+
       {/* 3. Configurar Canvas del Engine */}
       <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
         <Engine.Core>
@@ -80,12 +83,14 @@ export default function MyApp() {
 ## 🛡️ Reglas de Uso
 
 ### ✅ Permitido para Desarrolladores UI
+
 - Usar `useEngine()` para interactuar con el engine
 - Usar todos los sistemas exportados (`LoaderSystem`, `CameraSystem`, etc.)
 - Configurar sistemas através de props
 - Usar hooks públicos como `useEngine()`
 
 ### ❌ No Permitido para Desarrolladores UI
+
 - Usar `useEngineCore()` (es interno del engine)
 - Importar servicios directamente (`CameraService`, `InteractionService`, etc.)
 - Acceder al store interno `useEngineStore`

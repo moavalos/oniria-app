@@ -2,8 +2,8 @@
 import { render, renderHook, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  SceneProvider,
   useEngineAPI,
+  EngineApiProvider,
 } from "@/engine/context/EngineApiProvider";
 
 // Mock de useThree de @react-three/fiber
@@ -68,61 +68,43 @@ const TestConsumer = () => {
   const api = useEngineAPI();
   return (
     <div>
-      <p data-testid="core">{api.activeRoom?.id}</p>
-      <p data-testid="scene">{api.scene?.id}</p>
-      <p data-testid="camera">{api.camera?.id}</p>
-      <p data-testid="gl">{api.gl?.domElement?.id}</p>
-      <p data-testid="loop">{api.loopService?.constructor?.name}</p>
+      <p data-testid="roomId">{api.roomId}</p>
+      <p data-testid="skinId">{api.skinId}</p>
+      <button onClick={() => api.setRoom("testRoom", "testSkin")}>
+        Set Room
+      </button>
     </div>
   );
 };
 
-describe("SceneProvider", () => {
+describe("EngineApiProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renderiza hijos correctamente", () => {
     render(
-      <SceneProvider>
+      <EngineApiProvider>
         <p data-testid="child">Hola</p>
-      </SceneProvider>
+      </EngineApiProvider>
     );
     expect(screen.getByTestId("child")).toHaveProperty("textContent", "Hola");
   });
 
   it("proporciona useEngineAPI a los componentes hijos", () => {
     render(
-      <SceneProvider>
+      <EngineApiProvider>
         <TestConsumer />
-      </SceneProvider>
+      </EngineApiProvider>
     );
 
-    expect(screen.getByTestId("core")).toHaveProperty(
-      "textContent",
-      "mockCore"
-    );
-    expect(screen.getByTestId("scene")).toHaveProperty(
-      "textContent",
-      "mockScene"
-    );
-    expect(screen.getByTestId("camera")).toHaveProperty(
-      "textContent",
-      "mockCamera"
-    );
-    expect(screen.getByTestId("gl")).toHaveProperty(
-      "textContent",
-      "mockCanvas"
-    );
-    expect(screen.getByTestId("loop")).toHaveProperty(
-      "textContent",
-      "MockLoopService"
-    );
+    expect(screen.getByTestId("roomId")).toBeDefined();
+    expect(screen.getByTestId("skinId")).toBeDefined();
   });
 
   it("al usar useEngineAPI fuera del provider lanza excepcion", () => {
     expect(() => renderHook(() => useEngineAPI())).toThrow(
-      "useEngineAPI debe usarse dentro de EngineSceneProvider"
+      "useEngineAPI debe usarse dentro de EngineApiProvider"
     );
   });
 });

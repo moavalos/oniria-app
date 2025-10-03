@@ -13,18 +13,16 @@ El `DebugSystem` proporciona herramientas de debug y monitoreo para desarrollado
 ## 🛠️ Uso Básico
 
 ```tsx
-import { DebugSystem } from '@/engine';
+import { DebugSystem } from "@/engine";
 
 export default function MyApp() {
   return (
     <div>
       {/* DebugSystem debe ir FUERA del Engine.Canvas */}
-      <DebugSystem enabled={process.env.NODE_ENV === 'development'} />
-      
+      <DebugSystem enabled={process.env.NODE_ENV === "development"} />
+
       <Engine.Canvas>
-        <Engine.Core>
-          {/* Otros sistemas... */}
-        </Engine.Core>
+        <Engine.Core>{/* Otros sistemas... */}</Engine.Core>
       </Engine.Canvas>
     </div>
   );
@@ -34,6 +32,7 @@ export default function MyApp() {
 ## 📋 Props
 
 ### `enabled?: boolean`
+
 Por defecto: `true`
 
 Controla si el sistema de debug está activo.
@@ -56,26 +55,26 @@ Configura qué paneles de debug mostrar.
 
 ```tsx
 interface DebugPanels {
-  engine?: boolean;      // Panel general del engine
-  camera?: boolean;      // Controles de cámara
-  animation?: boolean;   // Controles de animación
+  engine?: boolean; // Panel general del engine
+  camera?: boolean; // Controles de cámara
+  animation?: boolean; // Controles de animación
   interaction?: boolean; // Debug de interacciones
-  scene?: boolean;       // Información de escena
+  scene?: boolean; // Información de escena
   performance?: boolean; // Monitor de performance
 }
 
 // Ejemplo de configuración personalizada
-<DebugSystem 
+<DebugSystem
   enabled={true}
   panels={{
     engine: true,
     camera: true,
-    animation: false,     // Deshabilitar animaciones
+    animation: false, // Deshabilitar animaciones
     interaction: true,
     scene: true,
     performance: true,
   }}
-/>
+/>;
 ```
 
 ## 🎛️ Paneles de Debug
@@ -83,17 +82,19 @@ interface DebugPanels {
 ### 🔧 Panel de Engine
 
 **Información mostrada:**
+
 - Room activa
 - Estado del loop de renderizado
 - Número de objetos cargados
 
 **Controles disponibles:**
+
 - Restart Engine
 - Export State
 
 ```tsx
 // Solo panel de engine
-<DebugSystem 
+<DebugSystem
   panels={{
     engine: true,
     camera: false,
@@ -108,6 +109,7 @@ interface DebugPanels {
 ### 📷 Panel de Cámara
 
 **Controles disponibles:**
+
 - Selector de target para enfocar objetos
 - Botones de posiciones predefinidas (Front, Top, Side)
 - Reset de posición de cámara
@@ -115,7 +117,7 @@ interface DebugPanels {
 
 ```tsx
 // Solo controles de cámara para diseñadores
-<DebugSystem 
+<DebugSystem
   panels={{
     camera: true,
     performance: false,
@@ -126,42 +128,50 @@ interface DebugPanels {
 ### 🎬 Panel de Animación
 
 **Información mostrada:**
+
 - Total de clips de animación
 - Estado de animaciones activas
 
 **Controles disponibles:**
+
 - Play All / Pause All / Stop All
 
 ### 🎯 Panel de Interacción
 
 **Información mostrada:**
+
 - Número total de objetos interactuables
 - Lista de objetos interactuables
 - Estado de interacciones
 
 **Controles disponibles:**
+
 - Simulate Hover (simular hover en primer objeto)
 - Log Interactables (mostrar en consola)
 
 ### 🌍 Panel de Escena
 
 **Información mostrada:**
+
 - Total de objetos en escena
 - Número de luces
 - Número de meshes
 
 **Controles disponibles:**
+
 - Log Scene Graph (árbol de objetos en consola)
 - Toggle Wireframe (modo wireframe)
 
 ### ⚡ Panel de Performance
 
 **Métricas en tiempo real:**
+
 - Frame Rate (FPS)
 - Memory Usage (uso de memoria)
 - Profiling Status
 
 **Herramientas disponibles:**
+
 - Start/End Profiling
 - Force Garbage Collection
 
@@ -170,11 +180,11 @@ interface DebugPanels {
 ### Ejemplo 1: Debug Solo en Desarrollo
 
 ```tsx
-import { DebugSystem } from '@/engine';
+import { DebugSystem } from "@/engine";
 
 export default function App() {
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  
+  const isDevelopment = process.env.NODE_ENV === "development";
+
   return (
     <div>
       <DebugSystem enabled={isDevelopment} />
@@ -187,22 +197,22 @@ export default function App() {
 ### Ejemplo 2: Debug Configurado por Roles
 
 ```tsx
-import { useUser } from '@/hooks/useUser';
-import { DebugSystem } from '@/engine';
+import { useUser } from "@/hooks/useUser";
+import { DebugSystem } from "@/engine";
 
 export default function App() {
   const { user } = useUser();
-  
+
   const debugConfig = {
-    enabled: user.role === 'developer' || user.role === 'designer',
+    enabled: user.role === "developer" || user.role === "designer",
     panels: {
-      engine: user.role === 'developer',
+      engine: user.role === "developer",
       camera: true, // Todos los roles pueden usar cámara
-      animation: user.role === 'developer',
+      animation: user.role === "developer",
       interaction: true,
-      scene: user.role === 'developer',
-      performance: user.role === 'developer',
-    }
+      scene: user.role === "developer",
+      performance: user.role === "developer",
+    },
   };
 
   return (
@@ -217,8 +227,8 @@ export default function App() {
 ### Ejemplo 3: Debug con Toggle UI
 
 ```tsx
-import { useState } from 'react';
-import { DebugSystem } from '@/engine';
+import { useState } from "react";
+import { DebugSystem } from "@/engine";
 
 export default function App() {
   const [debugVisible, setDebugVisible] = useState(false);
@@ -232,9 +242,9 @@ export default function App() {
   });
 
   const togglePanel = (panel: keyof typeof debugPanels) => {
-    setDebugPanels(prev => ({
+    setDebugPanels((prev) => ({
       ...prev,
-      [panel]: !prev[panel]
+      [panel]: !prev[panel],
     }));
   };
 
@@ -243,17 +253,19 @@ export default function App() {
       {/* Control UI */}
       <div className="debug-controls">
         <button onClick={() => setDebugVisible(!debugVisible)}>
-          {debugVisible ? 'Ocultar' : 'Mostrar'} Debug
+          {debugVisible ? "Ocultar" : "Mostrar"} Debug
         </button>
-        
+
         {debugVisible && (
           <div className="panel-toggles">
             {Object.entries(debugPanels).map(([panel, enabled]) => (
               <label key={panel}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={enabled}
-                  onChange={() => togglePanel(panel as keyof typeof debugPanels)}
+                  onChange={() =>
+                    togglePanel(panel as keyof typeof debugPanels)
+                  }
                 />
                 {panel}
               </label>
@@ -262,11 +274,8 @@ export default function App() {
         )}
       </div>
 
-      <DebugSystem 
-        enabled={debugVisible} 
-        panels={debugPanels}
-      />
-      
+      <DebugSystem enabled={debugVisible} panels={debugPanels} />
+
       {/* ... resto de la app */}
     </div>
   );
@@ -276,10 +285,10 @@ export default function App() {
 ### Ejemplo 4: Debug con Persistencia
 
 ```tsx
-import { useState, useEffect } from 'react';
-import { DebugSystem } from '@/engine';
+import { useState, useEffect } from "react";
+import { DebugSystem } from "@/engine";
 
-const DEBUG_STORAGE_KEY = 'oniria-debug-config';
+const DEBUG_STORAGE_KEY = "oniria-debug-config";
 
 export default function App() {
   const [debugConfig, setDebugConfig] = useState({
@@ -291,7 +300,7 @@ export default function App() {
       interaction: true,
       scene: true,
       performance: true,
-    }
+    },
   });
 
   // Cargar configuración del localStorage
@@ -301,7 +310,7 @@ export default function App() {
       try {
         setDebugConfig(JSON.parse(saved));
       } catch (error) {
-        console.warn('Error loading debug config:', error);
+        console.warn("Error loading debug config:", error);
       }
     }
   }, []);
@@ -312,20 +321,20 @@ export default function App() {
   }, [debugConfig]);
 
   const toggleDebug = () => {
-    setDebugConfig(prev => ({ ...prev, enabled: !prev.enabled }));
+    setDebugConfig((prev) => ({ ...prev, enabled: !prev.enabled }));
   };
 
   // Atajo de teclado para toggle (Ctrl+D)
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'd') {
+      if (e.ctrlKey && e.key === "d") {
         e.preventDefault();
         toggleDebug();
       }
     };
 
-    window.addEventListener('keydown', handleKeydown);
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
   }, []);
 
   return (
@@ -342,10 +351,10 @@ export default function App() {
 ### Para Desarrolladores Frontend
 
 ```tsx
-<DebugSystem 
+<DebugSystem
   panels={{
     engine: false,
-    camera: true,      // Para ajustar vistas
+    camera: true, // Para ajustar vistas
     animation: false,
     interaction: true, // Para debug de eventos
     scene: false,
@@ -357,13 +366,13 @@ export default function App() {
 ### Para Desarrolladores 3D/Artistas
 
 ```tsx
-<DebugSystem 
+<DebugSystem
   panels={{
     engine: false,
-    camera: true,      // Para composición
-    animation: true,   // Para revisar animaciones
+    camera: true, // Para composición
+    animation: true, // Para revisar animaciones
     interaction: true, // Para verificar interactivos
-    scene: true,       // Para inspeccionar objetos
+    scene: true, // Para inspeccionar objetos
     performance: false,
   }}
 />
@@ -372,13 +381,13 @@ export default function App() {
 ### Para QA/Testing
 
 ```tsx
-<DebugSystem 
+<DebugSystem
   panels={{
-    engine: true,      // Para estado general
-    camera: true,      // Para reproducir bugs
-    animation: true,   // Para verificar animaciones
+    engine: true, // Para estado general
+    camera: true, // Para reproducir bugs
+    animation: true, // Para verificar animaciones
     interaction: true, // Para testing de interacciones
-    scene: true,       // Para análisis completo
+    scene: true, // Para análisis completo
     performance: true, // Para testing de performance
   }}
 />
@@ -389,7 +398,7 @@ export default function App() {
 ### Configuración para Móviles
 
 ```tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const useResponsiveDebug = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -398,22 +407,22 @@ const useResponsiveDebug = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return {
     enabled: !isMobile, // Deshabilitar en móvil por defecto
     panels: {
       engine: false,
-      camera: !isMobile,      // Solo en desktop
+      camera: !isMobile, // Solo en desktop
       animation: false,
       interaction: !isMobile, // Solo en desktop
       scene: false,
       performance: !isMobile, // Solo en desktop
-    }
+    },
   };
 };
 
@@ -434,21 +443,24 @@ export default function ResponsiveApp() {
 ### Optimización del Debug
 
 ```tsx
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 export default function OptimizedApp() {
   // Memorizar configuración para evitar re-renders
-  const debugConfig = useMemo(() => ({
-    enabled: process.env.NODE_ENV === 'development',
-    panels: {
-      engine: true,
-      camera: true,
-      animation: false,
-      interaction: true,
-      scene: false,
-      performance: true,
-    }
-  }), []);
+  const debugConfig = useMemo(
+    () => ({
+      enabled: process.env.NODE_ENV === "development",
+      panels: {
+        engine: true,
+        camera: true,
+        animation: false,
+        interaction: true,
+        scene: false,
+        performance: true,
+      },
+    }),
+    []
+  );
 
   return (
     <div>
@@ -462,14 +474,14 @@ export default function OptimizedApp() {
 ### Lazy Loading del Debug
 
 ```tsx
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 
-const DebugSystem = lazy(() => 
-  import('@/engine').then(module => ({ default: module.DebugSystem }))
+const DebugSystem = lazy(() =>
+  import("@/engine").then((module) => ({ default: module.DebugSystem }))
 );
 
 export default function LazyDebugApp() {
-  const shouldLoadDebug = process.env.NODE_ENV === 'development';
+  const shouldLoadDebug = process.env.NODE_ENV === "development";
 
   return (
     <div>
@@ -504,7 +516,7 @@ export default function LazyDebugApp() {
 ```tsx
 // Si necesitas debug en producción con datos sensibles
 const sanitizeForProduction = (data: any) => {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     // Remover datos sensibles
     const { userInfo, apiKeys, ...safeData } = data;
     return safeData;

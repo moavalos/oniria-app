@@ -29,10 +29,11 @@ export default function Home() {
   };
 
   return (
-    <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
-      {roomId && skinId && (
-        <>
-          <LoaderSystem />
+    <>
+      <LoaderSystem />
+
+      <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
+        {roomId && skinId && (
           <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
             <Engine.Core>
               <DebugSystem enabled={true} />
@@ -42,8 +43,8 @@ export default function Home() {
               <RoomScene />
             </Engine.Core>
           </Engine.Canvas>
-        </>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }

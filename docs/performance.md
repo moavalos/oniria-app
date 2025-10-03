@@ -15,11 +15,11 @@ Esta guía cubre las mejores prácticas para optimizar el rendimiento de aplicac
 ### Monitoreo con DebugSystem
 
 ```tsx
-<DebugSystem 
+<DebugSystem
   enabled={true}
   panels={{
     performance: true, // Monitor FPS y memoria en tiempo real
-    engine: true,      // Estado general del engine
+    engine: true, // Estado general del engine
   }}
 />
 ```
@@ -53,11 +53,15 @@ const mobileSettings = {
 ### Lazy Loading de Sistemas
 
 ```tsx
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 
 // Cargar sistemas solo cuando se necesiten
-const DebugSystem = lazy(() => import('@/engine').then(m => ({ default: m.DebugSystem })));
-const InteractionSystem = lazy(() => import('@/engine').then(m => ({ default: m.InteractionSystem })));
+const DebugSystem = lazy(() =>
+  import("@/engine").then((m) => ({ default: m.DebugSystem }))
+);
+const InteractionSystem = lazy(() =>
+  import("@/engine").then((m) => ({ default: m.InteractionSystem }))
+);
 
 export default function OptimizedViewer() {
   const [enableInteractions, setEnableInteractions] = useState(false);
@@ -65,7 +69,7 @@ export default function OptimizedViewer() {
   return (
     <div>
       <Suspense fallback={null}>
-        {process.env.NODE_ENV === 'development' && <DebugSystem />}
+        {process.env.NODE_ENV === "development" && <DebugSystem />}
       </Suspense>
 
       <Engine.Canvas>
@@ -73,7 +77,7 @@ export default function OptimizedViewer() {
           <Suspense fallback={null}>
             {enableInteractions && <InteractionSystem />}
           </Suspense>
-          
+
           <CameraSystem />
           <RoomScene />
         </Engine.Core>
@@ -103,10 +107,10 @@ npx gltf-pipeline -i model.gltf -o model-optimized.gltf --draco.compressionLevel
 useEffect(() => {
   const preloadCriticalAssets = async () => {
     // Precargar modelos principales
-    await engine.preloadRoom('main-room');
-    
+    await engine.preloadRoom("main-room");
+
     // Precargar texturas en background
-    engine.preloadTextures(['hero-texture', 'ui-texture']);
+    engine.preloadTextures(["hero-texture", "ui-texture"]);
   };
 
   preloadCriticalAssets();
@@ -115,7 +119,7 @@ useEffect(() => {
 // Lazy loading de assets secundarios
 const loadSecondaryAssets = useCallback(async () => {
   if (userScrolledToBottom) {
-    await engine.loadRoom('detail-room');
+    await engine.loadRoom("detail-room");
   }
 }, [userScrolledToBottom]);
 ```
@@ -134,7 +138,7 @@ const ASSET_BUDGETS = {
     maxTextureSize: 2048,
     maxPolyCount: 200000,
     maxMemoryUsage: 500 * 1024 * 1024, // 500MB
-  }
+  },
 };
 
 const budget = isMobile ? ASSET_BUDGETS.mobile : ASSET_BUDGETS.desktop;
@@ -162,7 +166,7 @@ const useThrottledUpdate = (callback: () => void, delay: number) => {
 // Uso en sistema de interacciones
 const InteractionSystem = () => {
   const core = useEngineCore();
-  
+
   // Throttle interacciones a 30 FPS en lugar de 60
   const throttledUpdate = useThrottledUpdate(() => {
     interactionService.update(activeRoom, interceptables);
@@ -198,7 +202,7 @@ const ConditionalSystems = () => {
       <Engine.Core>
         {/* Siempre renderizar escena básica */}
         <RoomScene />
-        
+
         {/* Sistemas opcionales basados en estado */}
         {isVisible && <CameraSystem />}
         {isVisible && isInteractive && <InteractionSystem />}
@@ -223,11 +227,11 @@ const useResourceCleanup = () => {
   }, []);
 
   const cleanup = useCallback(() => {
-    resourcesRef.current.forEach(resource => {
+    resourcesRef.current.forEach((resource) => {
       if (resource.geometry) resource.geometry.dispose();
       if (resource.material) {
         if (Array.isArray(resource.material)) {
-          resource.material.forEach(mat => mat.dispose());
+          resource.material.forEach((mat) => mat.dispose());
         } else {
           resource.material.dispose();
         }
@@ -254,16 +258,16 @@ const useMemoryMonitor = () => {
 
   useEffect(() => {
     const checkMemory = () => {
-      if ('memory' in performance) {
+      if ("memory" in performance) {
         const memory = (performance as any).memory;
         const usageMB = memory.usedJSHeapSize / 1024 / 1024;
-        
+
         setMemoryUsage(usageMB);
         setMemoryWarning(usageMB > 200); // Alerta si supera 200MB
-        
+
         if (usageMB > 400) {
           // Forzar garbage collection si es posible
-          if ('gc' in window) {
+          if ("gc" in window) {
             (window as any).gc();
           }
         }
@@ -288,23 +292,26 @@ const useMobileOptimization = () => {
     isMobile: false,
     isLowEnd: false,
     supportsWebGL2: false,
-    maxTextureSize: 1024
+    maxTextureSize: 1024,
   });
 
   useEffect(() => {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-    
-    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+
+    const isMobile =
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
     const isLowEnd = navigator.hardwareConcurrency <= 4;
-    const supportsWebGL2 = !!canvas.getContext('webgl2');
+    const supportsWebGL2 = !!canvas.getContext("webgl2");
     const maxTextureSize = gl?.getParameter(gl.MAX_TEXTURE_SIZE) || 1024;
 
     setDeviceCapabilities({
       isMobile,
       isLowEnd,
       supportsWebGL2,
-      maxTextureSize
+      maxTextureSize,
     });
   }, []);
 
@@ -317,25 +324,21 @@ export default function MobileOptimizedViewer() {
   const engineSettings = {
     backgroundColor: "#000000",
     antialias: !device.isMobile && !device.isLowEnd,
-    powerPreference: device.isMobile ? "low-power" : "high-performance"
+    powerPreference: device.isMobile ? "low-power" : "high-performance",
   };
 
   return (
     <Engine.Canvas engineSettings={engineSettings}>
       <Engine.Core>
-        <CameraSystem 
+        <CameraSystem
           enableControls={!device.isMobile}
           autoRotate={device.isMobile} // Auto-rotación en móvil
           enablePan={!device.isMobile}
         />
-        
-        <InteractionSystem 
-          enableInteractions={!device.isLowEnd}
-        />
-        
-        <RoomScene 
-          qualityLevel={device.isLowEnd ? "low" : "high"}
-        />
+
+        <InteractionSystem enableInteractions={!device.isLowEnd} />
+
+        <RoomScene qualityLevel={device.isLowEnd ? "low" : "high"} />
       </Engine.Core>
     </Engine.Canvas>
   );
@@ -355,7 +358,7 @@ const TouchOptimizedControls = () => {
 
   const handleTouchEnd = () => {
     const touchDuration = Date.now() - touchStartTime;
-    
+
     // Distinguir entre tap y drag
     if (touchDuration < 200) {
       // Tap corto - trigger click
@@ -365,14 +368,12 @@ const TouchOptimizedControls = () => {
   };
 
   return (
-    <div 
+    <div
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      style={{ touchAction: 'pan-y' }} // Permitir scroll vertical
+      style={{ touchAction: "pan-y" }} // Permitir scroll vertical
     >
-      <Engine.Canvas>
-        {/* ... */}
-      </Engine.Canvas>
+      <Engine.Canvas>{/* ... */}</Engine.Canvas>
     </div>
   );
 };
@@ -384,34 +385,42 @@ const TouchOptimizedControls = () => {
 
 ```tsx
 // Memoizar configuraciones complejas
-const MemoizedViewer = React.memo(({ roomId, skinId }: { roomId: string; skinId: string }) => {
-  const engine = useEngine();
+const MemoizedViewer = React.memo(
+  ({ roomId, skinId }: { roomId: string; skinId: string }) => {
+    const engine = useEngine();
 
-  const engineSettings = useMemo(() => ({
-    backgroundColor: "#000000",
-    antialias: true,
-    powerPreference: "high-performance" as const
-  }), []);
+    const engineSettings = useMemo(
+      () => ({
+        backgroundColor: "#000000",
+        antialias: true,
+        powerPreference: "high-performance" as const,
+      }),
+      []
+    );
 
-  const interactionHandlers = useMemo(() => ({
-    onObjectHoverEnter: (obj: string) => console.log('Hover:', obj),
-    onObjectClick: (obj: string) => console.log('Click:', obj)
-  }), []);
+    const interactionHandlers = useMemo(
+      () => ({
+        onObjectHoverEnter: (obj: string) => console.log("Hover:", obj),
+        onObjectClick: (obj: string) => console.log("Click:", obj),
+      }),
+      []
+    );
 
-  useEffect(() => {
-    engine.setRoom(roomId, skinId);
-  }, [engine, roomId, skinId]);
+    useEffect(() => {
+      engine.setRoom(roomId, skinId);
+    }, [engine, roomId, skinId]);
 
-  return (
-    <Engine.Canvas engineSettings={engineSettings}>
-      <Engine.Core>
-        <InteractionSystem {...interactionHandlers} />
-        <CameraSystem />
-        <RoomScene />
-      </Engine.Core>
-    </Engine.Canvas>
-  );
-});
+    return (
+      <Engine.Canvas engineSettings={engineSettings}>
+        <Engine.Core>
+          <InteractionSystem {...interactionHandlers} />
+          <CameraSystem />
+          <RoomScene />
+        </Engine.Core>
+      </Engine.Canvas>
+    );
+  }
+);
 ```
 
 ### Debouncing
@@ -462,7 +471,7 @@ const usePerformanceMetrics = () => {
     fps: 0,
     frameTime: 0,
     memoryUsage: 0,
-    renderTime: 0
+    renderTime: 0,
   });
 
   useEffect(() => {
@@ -473,19 +482,21 @@ const usePerformanceMetrics = () => {
     const measurePerformance = () => {
       const currentTime = performance.now();
       const frameTime = currentTime - lastTime;
-      
+
       frameCount++;
       frameTimeSum += frameTime;
 
-      if (frameCount >= 60) { // Update every 60 frames
+      if (frameCount >= 60) {
+        // Update every 60 frames
         const avgFrameTime = frameTimeSum / frameCount;
         const fps = 1000 / avgFrameTime;
-        
-        setMetrics(prev => ({
+
+        setMetrics((prev) => ({
           ...prev,
           fps: Math.round(fps),
           frameTime: avgFrameTime,
-          memoryUsage: (performance as any).memory?.usedJSHeapSize / 1024 / 1024 || 0
+          memoryUsage:
+            (performance as any).memory?.usedJSHeapSize / 1024 / 1024 || 0,
         }));
 
         frameCount = 0;
@@ -509,9 +520,10 @@ export default function MonitoredViewer() {
   return (
     <div>
       <div className="performance-overlay">
-        FPS: {metrics.fps} | Frame: {metrics.frameTime.toFixed(1)}ms | Memory: {metrics.memoryUsage.toFixed(1)}MB
+        FPS: {metrics.fps} | Frame: {metrics.frameTime.toFixed(1)}ms | Memory:{" "}
+        {metrics.memoryUsage.toFixed(1)}MB
       </div>
-      
+
       <Engine.Canvas>
         <Engine.Core>
           <RoomScene />
@@ -531,35 +543,40 @@ const PERFORMANCE_BUDGETS = {
   targetFPS: {
     mobile: 30,
     tablet: 45,
-    desktop: 60
+    desktop: 60,
   },
   maxMemory: {
     mobile: 150, // MB
     tablet: 300,
-    desktop: 500
+    desktop: 500,
   },
   maxLoadTime: {
     mobile: 5000, // ms
     tablet: 3000,
-    desktop: 2000
-  }
+    desktop: 2000,
+  },
 };
 
 // Monitor de budget
-const useBudgetMonitor = (deviceType: 'mobile' | 'tablet' | 'desktop') => {
+const useBudgetMonitor = (deviceType: "mobile" | "tablet" | "desktop") => {
   const budget = PERFORMANCE_BUDGETS[deviceType];
   const metrics = usePerformanceMetrics();
 
-  const budgetStatus = useMemo(() => ({
-    fpsOk: metrics.fps >= budget.targetFPS,
-    memoryOk: metrics.memoryUsage <= budget.maxMemory,
-    overall: metrics.fps >= budget.targetFPS && metrics.memoryUsage <= budget.maxMemory
-  }), [metrics, budget]);
+  const budgetStatus = useMemo(
+    () => ({
+      fpsOk: metrics.fps >= budget.targetFPS,
+      memoryOk: metrics.memoryUsage <= budget.maxMemory,
+      overall:
+        metrics.fps >= budget.targetFPS &&
+        metrics.memoryUsage <= budget.maxMemory,
+    }),
+    [metrics, budget]
+  );
 
   // Alertas automáticas
   useEffect(() => {
     if (!budgetStatus.overall) {
-      console.warn('Performance budget exceeded', { metrics, budget });
+      console.warn("Performance budget exceeded", { metrics, budget });
     }
   }, [budgetStatus.overall]);
 
@@ -584,11 +601,11 @@ npm run build -- --analyze
 
 ```tsx
 // Split por rutas
-const HomeViewer = lazy(() => import('./viewers/HomeViewer'));
-const ProductViewer = lazy(() => import('./viewers/ProductViewer'));
+const HomeViewer = lazy(() => import("./viewers/HomeViewer"));
+const ProductViewer = lazy(() => import("./viewers/ProductViewer"));
 
 // Split por features
-const AdvancedFeatures = lazy(() => import('./features/AdvancedFeatures'));
+const AdvancedFeatures = lazy(() => import("./features/AdvancedFeatures"));
 
 export default function App() {
   return (
