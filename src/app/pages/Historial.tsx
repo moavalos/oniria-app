@@ -1,13 +1,16 @@
 import {
-    Bell, Menu, User, ChevronDown,
     MoreHorizontal, HelpCircle, LogOut,
-    Globe as GlobeIcon
+    Globe as GlobeIcon,
+    Menu
 } from "lucide-react";
-import { motion } from "framer-motion";
+import Sidebar from "../features/auth/components/Sidebar";
 import { useTranslation } from "react-i18next";
 
 import Starfield from "../features/auth/components/Starfield";
 import Pill from "../features/auth/components/Pill";
+import Header from "../features/auth/components/Header";
+import Card from "@/shared/components/Card";
+import NavigationArrows from "../features/auth/components/NavigationArrows";
 
 // ------- data mock (sacar cuando haya backend) -------
 const timeline = new Array(9).fill(0).map((_, i) => ({
@@ -32,14 +35,10 @@ function Globe() {
 
             </div>
             {/* flechas */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-8">
-                <motion.button whileTap={{ scale: .95 }} className="grid place-items-center h-12 w-12 rounded-full bg-fuchsia-700/60 border border-fuchsia-400/40 text-white">
-                    <ChevronDown className="rotate-90" />
-                </motion.button>
-                <motion.button whileTap={{ scale: .95 }} className="grid place-items-center h-12 w-12 rounded-full bg-fuchsia-700/60 border border-fuchsia-400/40 text-white">
-                    <ChevronDown className="-rotate-90" />
-                </motion.button>
-            </div>
+            <NavigationArrows
+                onPrev={() => console.log("Prev")}
+                onNext={() => console.log("Next")}
+            />
         </div>
     );
 }
@@ -53,66 +52,21 @@ export default function HistorialNodes() {
             <Starfield />
 
             {/* top bar */}
-            <header className="relative z-12 flex items-center justify-between px-8 lg:px-16 py-4 border-b border-white/10">
-                <div className="flex items-center gap-3">
-                    {/* logo circular + marca */}
-                    <div className="h-9 w-9 grid place-items-center rounded-full bg-white/10 font-black"></div>
-                    <span className="font-semibold tracking-wide text-lg"></span>
-                </div>
-
-                {/* perfil / acciones */}
-                <div className="flex items-center gap-3 lg:gap-6">
-                    <button className="rounded-full p-2 bg-white/5 border border-white/10"><Bell size={18} /></button>
-                    <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 border border-white/10">
-                        <div className="h-7 w-7 rounded-full bg-white/20 grid place-items-center"><User size={14} /></div>
-                        <div className="leading-tight">
-                            <div className="text-xs font-semibold">Mora Avalos</div>
-                            <div className="text-[10px] text-white/70">moraavalos@gmail.com</div>
-                        </div>
-                        <ChevronDown size={14} className="opacity-70" />
-                    </div>
-                    <button className="rounded-full p-2 bg-white/5 border border-white/10 md:hidden"><Menu size={18} /></button>
-                </div>
-            </header>
+            <Header />
 
             {/* layout principal */}
             <main className="relative z-0 mx-auto grid max-w-[1500px] grid-cols-12 gap-6 px-4 py-6 lg:px-8 lg:py-8">
+
                 {/* ===== sidebar izquierdo ===== */}
-                <aside className="col-span-12 md:col-span-4 xl:col-span-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 h-[88vh] overflow-y-auto text-[15px]">
-                    {/* título y descripción */}
-                    <div className="mb-2 text-[15px] font-semibold text-white/85">{t('historial.title')}</div>
-                    <div className="text-[12px] text-white/50 mb-5">{t('historial.description')}</div>
-
-                    {/* timeline con barra violeta y puntos */}
-                    <div className="relative">
-                        <div className="absolute left-3 top-2 bottom-2 w-[3px] rounded bg-fuchsia-400" />
-                        <ul className="space-y-7 pl-10 pr-2">
-                            {timeline.map((n) => (
-                                <li key={n.id} className="relative">
-                                    <div className={`absolute -left-[34px] top-[2px] h-[16px] w-[16px] rounded-full ring-2 ${n.active ? 'bg-fuchsia-400 ring-fuchsia-300' : 'bg-transparent ring-white/30'}`} />
-                                    <div className="text-[11px] text-white/60">{n.date}</div>
-                                    <div className={`truncate ${n.active ? 'text-white font-semibold' : 'text-white/85'}`}>{n.title}</div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="mt-12">
-                        <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            className="group flex w-full items-center justify-center gap-2 rounded-xl
-                         bg-gradient-to-r from-fuchsia-700 to-fuchsia-600
-                         px-6 py-4 text-[15px] font-bold shadow-[0_0_25px_rgba(217,70,239,0.35)]
-                         border border-fuchsia-400/30 hover:from-fuchsia-600 hover:to-fuchsia-600"
-                        >
-                            {t('historial.oniriaPro')}
-                            <span className="text-fuchsia-200 text-lg">★</span>
-                        </motion.button>
-                    </div>
-                </aside>
+                <Sidebar
+                    title={t('historial.title')}
+                    description={t('historial.description')}
+                    ctaText={t('historial.oniriaPro')}
+                    timeline={timeline}
+                />
 
                 {/* ===== panel central con marco sci-fi ===== */}
-                <section className="col-span-12 md:col-span-8 xl:col-span-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-6">
+                <Card className="col-span-12 md:col-span-8 xl:col-span-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-6">
                     {/* barra superior del panel (pills + insignias) */}
                     <div className="mb-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -153,7 +107,7 @@ export default function HistorialNodes() {
                         {/* orbe central */}
                         <Globe />
                     </div>
-                </section>
+                </Card>
             </main>
 
             {/* menú flotante */}
