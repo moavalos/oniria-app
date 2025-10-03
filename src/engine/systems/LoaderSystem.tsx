@@ -40,6 +40,8 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
         zIndex: 999999,
         color: "white",
         fontFamily: "system-ui, -apple-system, sans-serif",
+        transition: "opacity 0.3s ease",
+        opacity: isLoading ? 1 : 0,
       }}
     >
       {error ? (
@@ -137,7 +139,7 @@ export default function LoaderSystem({
   // Obtener el primer error como string o null
   const error = errors.length > 0 ? errors[0] : null;
 
-  console.log("🎯 LoaderSystem (Zustand):", {
+  console.log("Debugging LoaderSystem (Zustand):", {
     isLoading,
     progress,
     error,
@@ -164,12 +166,14 @@ export default function LoaderSystem({
   // Manejar inicio y fin de la carga
   useEffect(() => {
     if (isLoading && !hasStarted) {
-      console.log("🚀 Carga iniciada");
+      console.log("Carga iniciada");
       setHasStarted(true);
       setTimeoutError(null);
+
+      // Callback de inicio
       onLoadStart?.();
 
-      // Configurar timeout
+      // Configurar timeout por si hay errores
       if (timeout > 0) {
         timeoutRef.current = setTimeout(() => {
           const errorMsg =
@@ -179,7 +183,7 @@ export default function LoaderSystem({
         }, timeout);
       }
     } else if (!isLoading && hasStarted) {
-      console.log("✅ Carga completada");
+      console.log("Carga completada");
       setHasStarted(false);
 
       // Limpiar timeout

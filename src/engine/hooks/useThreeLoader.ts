@@ -6,27 +6,30 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { useLoaderActions } from "./useProgress";
 
 export interface LoadingItem {
-  url: string;
-  type: 'gltf' | 'texture' | 'ktx2' | 'audio' | 'binary';
-  loaded: boolean;
-  progress: number;
-  error?: string;
+    url: string;
+    type: 'gltf' | 'texture' | 'ktx2' | 'audio' | 'binary';
+    loaded: boolean;
+    progress: number;
+    error?: string;
 }
 
 export interface UseLoaderResult {
-  loadAssets: (urls: { url: string; type: LoadingItem['type'] }[]) => Promise<{ [key: string]: any }>;
-  resetLoader: () => void;
+    loadAssets: (urls: { url: string; type: LoadingItem['type'] }[]) => Promise<{ [key: string]: any }>;
+    resetLoader: () => void;
 }
 
 export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult {
-  const {
-    startLoading,
-    finishLoading,
-    setItems,
-    updateItem,
-    addError,
-    resetLoading
-  } = useLoaderActions();    const loadersRef = useRef<{
+    const {
+        startLoading,
+        finishLoading,
+        setItems,
+        updateItem,
+        addError,
+        resetLoading
+    } = useLoaderActions();
+
+
+    const loadersRef = useRef<{
         gltf: GLTFLoader;
         texture: THREE.TextureLoader;
         ktx2: KTX2Loader;
@@ -36,22 +39,25 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
 
     // Verificar archivos del transcoder
     const checkTranscoderFiles = useCallback(async () => {
-        const files = ['/basis/basis_transcoder.js', '/basis/basis_transcoder.wasm'];
+        const files = ['./basis/basis_transcoder.js', './basis/basis_transcoder.wasm'];
         for (const file of files) {
             try {
                 const response = await fetch(file, { method: 'HEAD' });
                 if (!response.ok) {
-                    console.warn(`⚠️ Archivo del transcoder no encontrado: ${file}`);
+                    console.warn(`Archivo del transcoder no encontrado: ${file}`);
                     return false;
                 }
             } catch (err) {
-                console.warn(`⚠️ Error verificando archivo del transcoder ${file}:`, err);
+                console.warn(`Error verificando archivo del transcoder ${file}:`, err);
                 return false;
             }
         }
-        console.log("✅ Archivos del transcoder KTX2 verificados");
+        console.log("Archivos del transcoder KTX2 verificados");
         return true;
-    }, []);  // Inicializar loaders
+    }, []);
+
+
+    // Inicializar loaders
     const initLoaders = useCallback(() => {
         if (loadersRef.current) return loadersRef.current;
 
@@ -63,7 +69,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
         const audioLoader = new THREE.AudioLoader(manager);
         const fileLoader = new THREE.FileLoader(manager);
 
-        // Configurar DRACO para GLTF
+        //Configurar DRACO para GLTF
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('./draco/');
         gltfLoader.setDRACOLoader(dracoLoader);
@@ -74,25 +80,25 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
         // Verificar archivos del transcoder en desarrollo
         if (process.env.NODE_ENV === 'development') {
             checkTranscoderFiles().catch(err =>
-                console.warn("⚠️ Verificación de archivos del transcoder falló:", err)
+                console.warn("Verificación de archivos del transcoder falló:", err)
             );
         }
 
         // Detectar soporte solo si hay renderer
         if (renderer) {
-            console.log("🔧 Configurando KTX2Loader con renderer:", {
+            console.log("Configurando KTX2Loader con renderer:", {
                 renderer: renderer.constructor.name,
                 capabilities: renderer.capabilities?.getMaxAnisotropy?.() || 'N/A'
             });
 
             try {
                 ktx2Loader.detectSupport(renderer);
-                console.log("✅ KTX2Loader.detectSupport() ejecutado exitosamente");
+                console.log("KTX2Loader.detectSupport() ejecutado exitosamente");
             } catch (err) {
-                console.error("❌ Error en KTX2Loader.detectSupport():", err);
+                console.error("Error en KTX2Loader.detectSupport():", err);
             }
         } else {
-            console.warn("⚠️ KTX2Loader: No renderer disponible, algunas texturas KTX2 pueden fallar");
+            console.warn("KTX2Loader: No renderer disponible, algunas texturas KTX2 pueden fallar");
         }
 
         loadersRef.current = {
@@ -103,140 +109,180 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
             file: fileLoader
         };
 
-        console.log("✅ Loaders inicializados:", {
+        console.log("Loaders inicializados:", {
             hasRenderer: !!renderer,
             ktx2Configured: !!renderer
         });
 
         return loadersRef.current;
-    }, [renderer, checkTranscoderFiles]);     const resetLoader = useCallback(() => {
+    }, [renderer, checkTranscoderFiles]); const resetLoader = useCallback(() => {
         resetLoading();
     }, [resetLoading]);
 
-    const loadAssets = useCallback(async (assets: { url: string; type: LoadingItem['type'] }[]): Promise<{ [key: string]: any }> => {
-        if (assets.length === 0) return {};
+  const loadAssets = useCallback(async (urls: { url: string; type: LoadingItem['type'] }[]): Promise<{ [key: string]: any }> => {
+    if (urls.length === 0) {
+      return {};
+    }
 
-        startLoading();
+    try {
+      startLoading();
+      
+      // Initialize items in store
+      const initialItems: LoadingItem[] = urls.map(({ url, type }) => ({
+        url,
+        type,
+        loaded: false,
+        progress: 0
+      }));
+      
+      setItems(initialItems);
+      
+      const loaders = initLoaders();
+      const results: { [key: string]: any } = {};
+      
+      // Track global progress
+      const assetProgressTracker = new Map<number, { loaded: number; total: number }>();
+      
+      // Function to calculate and update global progress
+      const updateGlobalProgress = () => {
+        let totalLoaded = 0;
+        let totalSize = 0;
+        
+        assetProgressTracker.forEach(({ loaded, total }) => {
+          totalLoaded += loaded;
+          totalSize += total;
+        });
+        
+        const globalProgress = totalSize > 0 ? (totalLoaded / totalSize) * 100 : 0;
+        
+        // Update store with global progress
+        console.log(`📊 Progreso global: ${Math.round(globalProgress)}% (${totalLoaded}/${totalSize} bytes)`);
+      };
 
-        // Inicializar items en el store
-        const initialItems: LoadingItem[] = assets.map(asset => ({
-            url: asset.url,
-            type: asset.type,
-            loaded: false,
-            progress: 0
-        }));
-        setItems(initialItems);
-
-        const loaders = initLoaders();
-        const results: { [key: string]: any } = {};
-
+      const loadPromises = urls.map(async ({ url, type }, index) => {
         try {
-            console.log("🚀 Iniciando carga de", assets.length, "assets");
+          let loader: any;
 
-            const loadPromises = assets.map(async (asset, index) => {
+          switch (type) {
+            case 'gltf':
+              loader = loaders.gltf;
+              break;
+            case 'texture':
+              loader = loaders.texture;
+              break;
+            case 'ktx2':
+              loader = loaders.ktx2;
+              // Validación crítica para KTX2
+              if (!renderer) {
+                throw new Error("KTX2Loader requiere un renderer.");
+              }
+
+              // Verificar que el KTX2Loader esté correctamente configurado
+              if (loader.transcoderBinary === undefined) {
+                console.warn("KTX2Loader: Transcoder binary no detectado, reintentando detectSupport");
                 try {
-                    let loader: any;
-
-                    switch (asset.type) {
-                        case 'gltf':
-                            loader = loaders.gltf;
-                            break;
-                        case 'texture':
-                            loader = loaders.texture;
-                            break;
-                        case 'ktx2':
-                            loader = loaders.ktx2;
-                            // Validación crítica para KTX2
-                            if (!renderer) {
-                                throw new Error("KTX2Loader requiere un renderer. Asegúrate de pasar el renderer al hook useThreeLoader.");
-                            }
-
-                            // Verificar que el KTX2Loader esté correctamente configurado
-                            if (!loader._transcoderBinary) {
-                                console.warn("⚠️ KTX2Loader: Transcoder binary no detectado, reintentando detectSupport");
-                                try {
-                                    loader.detectSupport(renderer);
-                                } catch (detectErr) {
-                                    console.error("❌ Error reintentando detectSupport:", detectErr);
-                                }
-                            }
-
-                            console.log("🔧 Usando KTX2Loader para:", asset.url, {
-                                hasTranscoder: !!loader._transcoderBinary,
-                                transcoderPath: loader._transcoderPath
-                            });
-                            break;
-                        case 'audio':
-                            loader = loaders.audio;
-                            break;
-                        case 'binary':
-                            loader = loaders.file;
-                            break;
-                        default:
-                            throw new Error(`Tipo de asset no soportado: ${asset.type}`);
-                    }                    // Cargar con progreso individual
-                    const result = await new Promise((resolve, reject) => {
-                        loader.load(
-                            asset.url,
-                            // onLoad
-                            (data: any) => {
-                                console.log(`✅ Asset cargado: ${asset.url}`);
-
-                                // Actualizar item individual
-                                updateItem(index, { loaded: true, progress: 100 });
-
-                                resolve(data);
-                            },
-                            // onProgress
-                            (progressEvent: ProgressEvent) => {
-                                const itemProgress = progressEvent.lengthComputable
-                                    ? (progressEvent.loaded / progressEvent.total) * 100
-                                    : 0;
-
-                                // Actualizar progreso individual
-                                updateItem(index, { progress: itemProgress });
-                            },
-                            // onError
-                            (err: any) => {
-                                console.error(`❌ Error cargando ${asset.url}:`, err);
-
-                                // Actualizar item con error
-                                updateItem(index, { error: err.message || 'Error desconocido' });
-                                addError(err.message || 'Error desconocido');
-
-                                reject(err);
-                            }
-                        );
-                    });
-
-                    const fileName = asset.url.split('/').pop()?.split('.')[0] || asset.url;
-                    results[fileName] = result;
-
-                    return result;
-                } catch (err: any) {
-                    console.error(`❌ Error en asset ${asset.url}:`, err);
-                    throw err;
+                  loader.detectSupport(renderer);
+                } catch (detectErr) {
+                  console.error("Error reintentando detectSupport:", detectErr);
                 }
-            });
+              }
 
-            // Esperar a que todos los assets se carguen
-            await Promise.all(loadPromises);
+              console.log("Usando KTX2Loader para:", url, {
+                hasTranscoder: !!loader._transcoderBinary,
+                transcoderPath: loader._transcoderPath
+              });
+              break;
+            case 'audio':
+              loader = loaders.audio;
+              break;
+            case 'binary':
+              loader = loaders.file;
+              break;
+            default:
+              throw new Error(`Tipo de asset no soportado: ${type}`);
+          }
 
-            console.log("✅ Todos los assets cargados exitosamente");
-            finishLoading();
+          // Cargar con progreso global
+          const result = await new Promise((resolve, reject) => {
+            loader.load(
+              url,
+              // onLoad
+              (data: any) => {
+                console.log(`✅ Asset cargado: ${url}`);
+                
+                // Mark this asset as loaded (100% of its size)
+                const currentProgress = assetProgressTracker.get(index);
+                if (currentProgress) {
+                  assetProgressTracker.set(index, {
+                    loaded: currentProgress.total,
+                    total: currentProgress.total
+                  });
+                }
+                
+                // Update item as loaded
+                updateItem(index, { loaded: true, progress: 100 });
+                updateGlobalProgress();
 
-            return results;
+                resolve(data);
+              },
+              // onProgress
+              (progressEvent: ProgressEvent) => {
+                if (progressEvent.lengthComputable) {
+                  // Update global progress tracker
+                  assetProgressTracker.set(index, {
+                    loaded: progressEvent.loaded,
+                    total: progressEvent.total
+                  });
+                  
+                  updateGlobalProgress();
+                } else {
+                  // If not computable, assume some progress
+                  console.log(`📊 Progreso no computable para ${url}`);
+                }
+              },
+              // onError
+              (err: any) => {
+                console.error(`❌ Error cargando ${url}:`, err);
 
-        } catch (err: any) {
-            console.error("❌ Error durante la carga:", err);
-            addError(err.message || 'Error desconocido durante la carga');
-            finishLoading();
-            throw err;
+                // Update item with error
+                updateItem(index, { error: err.message || 'Error desconocido' });
+                addError(err.message || 'Error desconocido');
+
+                reject(err);
+              }
+            );
+          });
+
+          const fileName = url.split('/').pop()?.split('.')[0] || url;
+          results[fileName] = result;
+
+          return result;
+        } catch (error) {
+          const errorMessage = `Error setting up loader for ${url}: ${error}`;
+          console.error(`❌ ${errorMessage}`, error);
+          updateItem(index, { error: errorMessage });
+          addError(errorMessage);
+          throw error;
         }
-    }, [initLoaders, startLoading, finishLoading, setItems, updateItem, addError]);
+      });
 
-    return {
-        loadAssets,
-        resetLoader
-    };
+      await Promise.all(loadPromises);
+      
+      console.log('✅ All assets loaded successfully:', results);
+      finishLoading();
+      
+      return results;
+    } catch (error) {
+      const errorMessage = `Asset loading failed: ${error}`;
+      console.error(`❌ ${errorMessage}`, error);
+      addError(errorMessage);
+      finishLoading();
+      throw error;
+    }
+  }, [startLoading, finishLoading, setItems, updateItem, addError, initLoaders]);
+
+  return {
+    loadAssets,
+    resetLoader,
+  };
 }

@@ -1,7 +1,7 @@
 import { useEngineCore } from "../Engine";
 import { useEngineAPI } from "../context/EngineApiProvider";
 import { useEffect, useState } from "react";
-import RoomRendererTest from "../systems/renderer/RoomRendererTest";
+import { RoomRenderer } from "../systems";
 
 interface RoomSceneProps {
   onError?: (error: string) => void;
@@ -79,5 +79,5 @@ export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
   }
 
   // Solo renderizar si hay una room activa registrada en el core
-  return core.activeRoom ? <RoomRendererTest /> : null;
+  return core.activeRoom ? <RoomRenderer /> : null;
 }
