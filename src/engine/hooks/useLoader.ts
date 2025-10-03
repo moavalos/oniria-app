@@ -42,7 +42,6 @@ export function useLoader({ activeRoom }: UseLoaderParams): LoaderResult {
             return;
         }
 
-        console.log("Setting scene and textures for room:", activeRoom.id);
         activeRoom.setScene(gltf.scene);
         activeRoom.setTextures({
             objectTexture: oTex as THREE.Texture,
@@ -53,10 +52,10 @@ export function useLoader({ activeRoom }: UseLoaderParams): LoaderResult {
         setConfiguredRoom(activeRoom);
     }, [activeRoom, gltf.scene, oTex, eTex, urls]);
 
-    // if (!urls) return { room: null, isLoading: false, error: "No active room" };
-    // if (!urls.mesh) return { room: null, isLoading: false, error: "Room mesh URL is missing" };
-    // if (!urls.objectTexture) return { room: null, isLoading: false, error: "Object texture URL is missing" };
-    // if (!urls.environmentTexture) return { room: null, isLoading: false, error: "Environment texture URL is missing" };
+    if (!urls) return { room: null, isLoading: false, error: "No active room" };
+    if (!urls.mesh) return { room: null, isLoading: false, error: "Room mesh URL is missing" };
+    if (!urls.objectTexture) return { room: null, isLoading: false, error: "Object texture URL is missing" };
+    if (!urls.environmentTexture) return { room: null, isLoading: false, error: "Environment texture URL is missing" };
 
     return {
         room: configuredRoom, // Retornamos el room configurado, no el activeRoom directo

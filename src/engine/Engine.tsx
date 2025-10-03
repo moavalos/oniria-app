@@ -122,10 +122,6 @@ export function EngineCore({ children }: EngineCoreProps) {
       // Crear room directamente (la configuración se cargará bajo demanda)
       const room = new Room(roomId, skin);
       setActiveRoom(room);
-
-      console.log(
-        `Room '${roomId}' and Skin '${skinId}' registered successfully`
-      );
     } catch (error) {
       console.error("Failed to register room:", error);
       setActiveRoom(null);

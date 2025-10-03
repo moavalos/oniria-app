@@ -125,7 +125,6 @@ export class AnimationService {
     };
 
     constructor(private scene: THREE.Group<THREE.Object3DEventMap> | null) {
-        console.log("AnimationService: escena inicializada");
         if (!scene) {
             console.warn("AnimationService: scene no está inicializada");
             return;

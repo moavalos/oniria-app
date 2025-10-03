@@ -35,9 +35,6 @@ export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
         core.registerRoom(roomId, skinId);
         setLastRegistered(currentKey);
 
-        console.log(
-          `Room '${roomId}' con skin '${skinId}' registrada exitosamente`
-        );
         if (onLoad) {
           onLoad();
         }

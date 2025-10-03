@@ -55,9 +55,6 @@ export class Room {
         }
         this.scene = scene;
         this.portal = scene.getObjectByName("portal") || undefined;
-        console.log("scene Room:", this.scene)
-
-        // Ya no necesitamos invalidar caché porque cargamos bajo demanda
     }
 
     setSkin(skin: Skin): void {
@@ -109,8 +106,25 @@ export class Room {
         return this.configManager.getLookAtableObjects(this.id, this.scene);
     }
 
+    /**
+     * Obtiene objetos con lookAtOffset (versión síncrona - asume que la config ya está cargada)
+     */
+    getLookAtableObjectsSync(): Record<string, THREE.Vector3> {
+        if (!this.scene) {
+            return {};
+        }
+        return this.configManager.getLookAtableObjectsSync(this.scene);
+    }
+
     async getAnimatableObjects(): Promise<Record<string, AnimationAction>> {
         return this.configManager.getAnimatableObjects(this.id);
+    }
+
+    /**
+     * Obtiene objetos animables (versión síncrona - asume que la config ya está cargada)
+     */
+    getAnimatableObjectsSync(): Record<string, AnimationAction> {
+        return this.configManager.getAnimatableObjectsSync();
     }
 
     async getInteractableObjects(): Promise<Record<string, ObjectEventArray>> {
@@ -120,8 +134,24 @@ export class Room {
         return this.configManager.getInteractableObjects(this.id, this.scene);
     }
 
+    /**
+     * Obtiene objetos interactuables (versión síncrona - asume que la config ya está cargada)
+     */
+    getInteractableObjectsSync(): Record<string, ObjectEventArray> {
+        if (!this.scene) return {};
+
+        return this.configManager.getInteractableObjectsSync(this.scene);
+    }
+
     async getColorableObjects(): Promise<Record<string, string>> {
         return this.configManager.getColorableObjects(this.id);
+    }
+
+    /**
+     * Obtiene objetos con colores (versión síncrona - asume que la config ya está cargada)
+     */
+    getColorableObjectsSync(): Record<string, string> {
+        return this.configManager.getColorableObjectsSync();
     }
 
     async getAllObjects(): Promise<ProcessedRoomObjects> {

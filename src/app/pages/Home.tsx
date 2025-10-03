@@ -6,6 +6,7 @@ import {
   CameraSystem,
   AnimationSystem,
   InteractionSystem,
+  DebugSystem,
 } from "@/engine";
 
 import { useEffect } from "react";
@@ -23,6 +24,10 @@ export default function Home() {
     engine.setRoom(roomId, skinId);
   }, []);
 
+  const hoverHandler = (objectName: string) => {
+    console.log("hovered", objectName);
+  };
+
   return (
     <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
       {roomId && skinId && (
@@ -30,7 +35,8 @@ export default function Home() {
           <LoaderSystem />
           <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
             <Engine.Core>
-              <InteractionSystem autoConfigureForRoom={true} />
+              <DebugSystem enabled={true} />
+              <InteractionSystem onObjectHoverEnter={hoverHandler} />
               <AnimationSystem />
               <CameraSystem />
               <RoomScene />

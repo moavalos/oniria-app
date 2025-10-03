@@ -76,11 +76,33 @@ export class ConfigManager {
     }
 
     /**
+     * Obtiene objetos con lookAtOffset (versión síncrona - asume que la config ya está cargada)
+     */
+    getLookAtableObjectsSync(scene: THREE.Group<THREE.Object3DEventMap>): Record<string, THREE.Vector3> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty lookAtables');
+            return {};
+        }
+        return this.extractLookAtableObjects(this.currentConfig, scene);
+    }
+
+    /**
      * Obtiene objetos animables
      */
     async getAnimatableObjects(roomId: string): Promise<Record<string, AnimationAction>> {
         const config = await this.getConfig(roomId);
         return this.extractAnimatableObjects(config);
+    }
+
+    /**
+     * Obtiene objetos animables (versión síncrona - asume que la config ya está cargada)
+     */
+    getAnimatableObjectsSync(): Record<string, AnimationAction> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty animatables');
+            return {};
+        }
+        return this.extractAnimatableObjects(this.currentConfig);
     }
 
     /**
@@ -92,11 +114,33 @@ export class ConfigManager {
     }
 
     /**
+     * Obtiene objetos interactuables (versión síncrona - asume que la config ya está cargada)
+     */
+    getInteractableObjectsSync(scene: THREE.Group<THREE.Object3DEventMap>): Record<string, ObjectEventArray> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty interactables');
+            return {};
+        }
+        return this.extractInteractableObjects(this.currentConfig, scene);
+    }
+
+    /**
      * Obtiene objetos con colores
      */
     async getColorableObjects(roomId: string): Promise<Record<string, string>> {
         const config = await this.getConfig(roomId);
         return this.extractColorableObjects(config);
+    }
+
+    /**
+     * Obtiene objetos con colores (versión síncrona - asume que la config ya está cargada)
+     */
+    getColorableObjectsSync(): Record<string, string> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty colorables');
+            return {};
+        }
+        return this.extractColorableObjects(this.currentConfig);
     }
 
     /**
@@ -141,23 +185,20 @@ export class ConfigManager {
     private extractInteractableObjects(config: RoomConfig, scene: THREE.Group<THREE.Object3DEventMap>): Record<string, ObjectEventArray> {
         const interactables: Record<string, ObjectEventArray> = {};
 
-        console.log("🔍 [ConfigManager] Extracting interactables from config:", config.objects);
 
         for (const [name, obj] of Object.entries(config.objects)) {
+
             if (obj.interceptable && obj.event) {
-                console.log(`✅ [ConfigManager] Found interceptable: ${name}`, obj);
+
                 // Asegurar que event es siempre un array
                 const eventArray = Array.isArray(obj.event) ? obj.event : [obj.event];
-                console.log(`🔄 [ConfigManager] Normalized event for ${name}:`, eventArray);
                 interactables[name] = eventArray;
-            } else {
-                console.log(`⏭️ [ConfigManager] Skipping ${name}, interceptable: ${obj.interceptable}, event: ${!!obj.event}`);
             }
         }
 
-        console.log("🔍 [ConfigManager] Raw interactables before mapping:", interactables);
+
         const mapped = this.mapHandlersToChildObjects(scene, interactables);
-        console.log("🔍 [ConfigManager] Final mapped interactables:", mapped);
+
 
         return mapped;
     }
@@ -180,20 +221,13 @@ export class ConfigManager {
     ): Record<string, ObjectEventArray> {
         const mapped: Record<string, ObjectEventArray> = {};
 
-        console.log("🗺️ [ConfigManager] Mapping handlers to child objects:", handlers);
-
         Object.entries(handlers).forEach(([name, event]) => {
             if (this.isHandlerObject(name)) {
-                console.log(`🔄 [ConfigManager] ${name} is a handler object, looking for child...`);
                 const childName = this.getChildObjectName(scene, name);
                 if (childName) {
-                    console.log(`✅ [ConfigManager] Mapped ${name} -> ${childName}`);
                     mapped[childName] = event;
-                } else {
-                    console.log(`❌ [ConfigManager] No child found for handler ${name}`);
                 }
             } else {
-                console.log(`➡️ [ConfigManager] ${name} is not a handler, keeping as-is`);
                 mapped[name] = event;
             }
         });
@@ -207,16 +241,13 @@ export class ConfigManager {
 
     private getChildObjectName(scene: THREE.Group<THREE.Object3DEventMap>, handlerName: string): string | null {
         const handler = scene.getObjectByName(handlerName);
-        console.log(`🔍 [ConfigManager] Looking for handler "${handlerName}" in scene...`, !!handler);
-        
+
         if (handler) {
             const child = handler.children[0]; // el primer mesh hijo
-            console.log(`🔍 [ConfigManager] Handler children:`, handler.children.map(c => c.name));
             const childName = child?.name || null;
-            console.log(`🔍 [ConfigManager] Child name:`, childName);
             return childName;
         }
-        
+
         return null;
     }
 }

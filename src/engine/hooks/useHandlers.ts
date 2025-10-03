@@ -8,7 +8,7 @@ export function useHandlers() {
 
     const onEnter = useCallback((event: ObjectEventArray) => {
         console.log("onEnter:", event);
-        
+
         event.forEach((element: ObjectEvent) => {
             if (element.type === "animation") {
                 element.action.forEach((animation: AnimationAction) => {
@@ -16,7 +16,6 @@ export function useHandlers() {
                         document.body.style.cursor = "grab";
                         animationService?.stop(animation.target);
                         animationService?.play(animation);
-                        console.log("ejecutando animación:", animation);
                     }
                 });
             }

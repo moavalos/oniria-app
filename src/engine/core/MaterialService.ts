@@ -89,7 +89,7 @@ export class MaterialService {
             colorWrite: true,
         });
 
-        console.log("Portal material applied", (portal as THREE.Mesh).material);
+
     }
 
     /** Limpia todos los materiales cuando se cambia de habitación */

@@ -1,182 +1,95 @@
 import * as THREE from "three";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useEngineCore } from "../Engine";
-import { useTransitions } from "../hooks";
-import { useHandlers } from "../hooks/useHandlers";
+import { useHandlers, useTransitions } from "../hooks";
 import { button, useControls } from "leva";
-import type { ObjectEvent, ObjectEventArray } from "../config/room.type";
-
-export interface InteractionConfig {
-  interactions?: Record<string, ObjectEventArray>;
-  enableRaycasting?: boolean;
-  raycastingLayers?: number[];
-  debugMode?: boolean;
-}
+import type { ObjectEventArray } from "../config/room.type";
 
 export interface InteractionSystemProps {
-  config?: InteractionConfig;
-  onHoverEnter?: (objectName: string, event: ObjectEvent) => void;
-  onHoverLeave?: (objectName: string, event: ObjectEvent) => void;
-  onClick?: (objectName: string, event: ObjectEvent) => void;
+  // Event callbacks
+  onObjectHoverEnter?: (objectName: string, events: ObjectEventArray) => void;
+  onObjectHoverLeave?: (objectName: string, events: ObjectEventArray) => void;
+  onObjectClick?: (objectName: string, events: ObjectEventArray) => void;
   onInteractionStateChange?: (hoveredObjects: string[]) => void;
+
+  // Configuration
   enableInteractions?: boolean;
-  autoConfigureForRoom?: boolean;
-  showDebugControls?: boolean;
+  enableDebugControls?: boolean;
+  debugControlsConfig?: {
+    showPortalControls?: boolean;
+    showCameraControls?: boolean;
+  };
 }
 
 export default function InteractionSystem({
-  config = {},
-  onHoverEnter,
-  onHoverLeave,
-  onClick,
+  onObjectHoverEnter,
+  onObjectHoverLeave,
+  onObjectClick,
   onInteractionStateChange,
   enableInteractions = true,
-  autoConfigureForRoom = true,
-  showDebugControls = true,
-}: InteractionSystemProps) {
+  enableDebugControls = true,
+  debugControlsConfig = {
+    showPortalControls: true,
+    showCameraControls: true,
+  },
+}: InteractionSystemProps = {}) {
   const core = useEngineCore();
   const { activeRoom, loopService } = core;
   const interactionService = core.getInteractionService();
   const cameraService = core.getCameraService();
+
+  const { onEnter, onLeave, onClick } = useHandlers();
   const { viewNodes } = useTransitions();
-  const { onEnter, onLeave, onClick: onClickHandler } = useHandlers();
+  const interceptablesRef = useRef<Record<string, any>>({});
 
-  // Ref para objetos interactuables (como en la versión antigua)
-  const interceptablesRef = useRef<Record<string, ObjectEventArray>>({});
-
-  // Estado para lookAtables
-  const [lookAtables, setLookAtables] = useState<Record<string, THREE.Vector3>>(
-    {}
-  );
-  // Cargar objetos interactuables (versión simplificada como la antigua)
-  useEffect(() => {
-    if (!activeRoom || !enableInteractions) return;
-
-    let mounted = true;
-
-    const loadInteractables = async () => {
-      try {
-        // Cargar desde la habitación
-        const roomInteractables = await activeRoom.getInteractableObjects();
-        const roomLookAtables = await activeRoom.getLookAtableObjects();
-
-        console.log("🔍 [InteractionSystem] Loaded interceptables:", roomInteractables);
-        console.log("🔍 [InteractionSystem] Loaded lookAtables:", roomLookAtables);
-
-        // Debug: listar todos los objetos de la escena
-        if (activeRoom.getScene()) {
-          const scene = activeRoom.getScene()!;
-          const allObjects: string[] = [];
-          scene.traverse((child) => {
-            if (child.name) allObjects.push(child.name);
-          });
-          console.log("🏗️ [InteractionSystem] All scene objects:", allObjects);
-        }
-
-        if (!mounted) return;
-
-        let newInteractables = { ...roomInteractables };
-
-        // Sobrescribir/agregar con las interacciones de config
-        if (config.interactions) {
-          newInteractables = { ...newInteractables, ...config.interactions };
-        }
-
-        console.log("🔍 [InteractionSystem] Final interceptables:", newInteractables);
-        interceptablesRef.current = newInteractables;
-        setLookAtables(roomLookAtables);
-      } catch (error) {
-        console.error("❌ [InteractionSystem] Error loading room interactables:", error);
-      }
-    };
-
-    loadInteractables();
-
-    return () => {
-      mounted = false;
-    };
-  }, [activeRoom, config.interactions, enableInteractions]);
-
-  // Actualizar interacciones en el loop (como la versión antigua)
-  useEffect(() => {
-    if (
-      !loopService ||
-      !interactionService ||
-      !activeRoom ||
-      !enableInteractions
-    )
-      return;
-
-    const cb = () => {
-      const keys = Object.keys(interceptablesRef.current);
-      if (keys.length > 0) {
-        console.log("🔄 [InteractionSystem] Updating interactions, interceptables:", keys);
-      }
-      interactionService.update(activeRoom, interceptablesRef.current);
-    };
-
-    loopService.subscribe(cb);
-    return () => loopService.unsubscribe(cb);
-  }, [loopService, interactionService, activeRoom, enableInteractions]);
-
-  // Listeners de eventos (como la versión antigua)
+  // Configurar callbacks personalizados en el InteractionService
   useEffect(() => {
     if (!interactionService || !enableInteractions) return;
 
-    // Conectar eventos legacy para animaciones automáticas
-    interactionService.on("hoverEnter", onEnter);
-    interactionService.on("hoverLeave", onLeave);
-    interactionService.on("click", onClickHandler);
+    // Configurar callbacks si se proporcionan
+    if (onObjectHoverEnter) {
+      interactionService.setOnHoverEnter(
+        (objectName: string, event: ObjectEventArray) => {
+          onObjectHoverEnter(objectName, event);
+        }
+      );
+    }
+
+    if (onObjectHoverLeave) {
+      interactionService.setOnHoverLeave(
+        (objectName: string, event: ObjectEventArray) => {
+          onObjectHoverLeave(objectName, event);
+        }
+      );
+    }
+
+    if (onObjectClick) {
+      interactionService.setOnClick(
+        (objectName: string, event: ObjectEventArray) => {
+          onObjectClick(objectName, event);
+        }
+      );
+    }
 
     return () => {
-      interactionService.off("hoverEnter");
-      interactionService.off("hoverLeave");
-      interactionService.off("click");
-    };
-  }, [
-    interactionService,
-    onEnter,
-    onLeave,
-    onClickHandler,
-    enableInteractions,
-  ]);
-
-  // Configurar callbacks personalizados si se proporcionan (opcional)
-  useEffect(() => {
-    if (!interactionService || !enableInteractions) return;
-
-    // Habilitar debug mode temporalmente para diagnóstico
-    interactionService.setDebugMode(true);
-
-    if (onHoverEnter) interactionService.setOnHoverEnter(onHoverEnter);
-    if (onHoverLeave) interactionService.setOnHoverLeave(onHoverLeave);
-    if (onClick) interactionService.setOnClick(onClick);
-    if (onInteractionStateChange)
-      interactionService.setOnStateChange(onInteractionStateChange);
-
-    return () => {
+      // Limpiar callbacks al desmontar
       interactionService.setOnHoverEnter(undefined);
       interactionService.setOnHoverLeave(undefined);
       interactionService.setOnClick(undefined);
-      interactionService.setOnStateChange(undefined);
     };
   }, [
     interactionService,
-    onHoverEnter,
-    onHoverLeave,
-    onClick,
-    onInteractionStateChange,
     enableInteractions,
+    onObjectHoverEnter,
+    onObjectHoverLeave,
+    onObjectClick,
+    onInteractionStateChange,
   ]);
 
-  // Creamos las opciones para el select de lookAtables
-  const options = useMemo(() => Object.keys(lookAtables), [lookAtables]);
-
-  // Controles de debug opcionales
-  const debugControls = useMemo(() => {
-    if (!showDebugControls) return null;
-
-    return {
+  // Debug Controls (solo si están habilitados)
+  if (enableDebugControls && debugControlsConfig.showPortalControls) {
+    //debugging
+    useControls("Portal", {
       reset: button(() => {
         cameraService?.setLookAt(
           new THREE.Vector3(-3.5, 3, 6),
@@ -192,42 +105,73 @@ export default function InteractionSystem({
         );
         viewNodes({});
       }),
-    };
-  }, [showDebugControls, cameraService, viewNodes]);
+    });
+  }
 
-  // Control con dropdown para cámara
-  const cameraControls = useMemo(() => {
-    if (!showDebugControls || options.length === 0) return null;
+  // Cargar lookAtables de forma sincrona
+  const lookAtables = useMemo(() => {
+    if (!activeRoom) return {};
+    return activeRoom?.getLookAtableObjectsSync();
+  }, [activeRoom?.getScene()]);
 
-    return {
-      target: {
-        value: "scene",
-        options,
-      },
-    };
-  }, [showDebugControls, options]);
+  // Creamos las opciones para el select
+  const options = useMemo(() => Object.keys(lookAtables), [lookAtables]);
 
-  // Controles de Leva (hooks siempre se ejecutan para evitar violations)
-  const portalControlsConfig =
-    showDebugControls && debugControls ? debugControls : {};
-  const cameraControlsConfig =
-    showDebugControls && cameraControls
-      ? cameraControls
-      : { target: { value: "scene", options: ["scene"] } };
+  console.log(options);
 
-  useControls("Portal", portalControlsConfig);
-  const { target } = useControls("Camera", cameraControlsConfig);
+  // Control con dropdown
+  const { target } = useControls("Camera", {
+    target: {
+      value: "scene",
+      options: ["scene", ...options],
+      label: "Focus Target",
+    },
+  });
 
-  // Lógica para manejar el cambio de target
+  // Efecto: cuando cambia el target seleccionado
   useEffect(() => {
-    if (!showDebugControls || !target || !cameraService || !lookAtables[target])
-      return;
-
+    if (!target || !cameraService) return;
+    const objPos = activeRoom
+      ?.getObjectByName(target)
+      ?.getWorldPosition(new THREE.Vector3());
     const from = lookAtables[target];
-    if (from) {
-      cameraService.setLookAt(from, new THREE.Vector3(0, 0, 0), true);
+    console.log("Moving camera to:", target, objPos, "from:", from);
+    if (from && objPos) {
+      cameraService.setLookAt(from, objPos, true);
     }
-  }, [showDebugControls, target, cameraService, lookAtables]);
+  }, [target, cameraService, lookAtables, activeRoom?.getScene()]);
+
+  // cargar objetos interceptables de forma sincrona
+  useEffect(() => {
+    if (!activeRoom) return;
+    interceptablesRef.current = activeRoom.getInteractableObjectsSync();
+  }, [activeRoom?.getScene()]);
+
+  // actualizar interacciones en el loop
+  useEffect(() => {
+    if (!loopService || !interactionService || !activeRoom) return;
+
+    const cb = () =>
+      interactionService.update(activeRoom, interceptablesRef.current);
+
+    loopService.subscribe(cb);
+    return () => loopService.unsubscribe(cb);
+  }, [loopService, interactionService, activeRoom]);
+
+  // listeners de eventos
+  useEffect(() => {
+    if (!interactionService) return;
+
+    interactionService.on("hoverEnter", onEnter);
+    interactionService.on("hoverLeave", onLeave);
+    interactionService.on("click", onClick);
+
+    return () => {
+      interactionService.off("hoverEnter");
+      interactionService.off("hoverLeave");
+      interactionService.off("click");
+    };
+  }, [interactionService, onEnter, onLeave, onClick]);
 
   return null;
 }

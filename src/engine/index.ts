@@ -7,3 +7,8 @@ export { default as LoaderSystem } from "./systems/LoaderSystem";
 export { default as CameraSystem } from "./systems/CameraSystem";
 export { default as AnimationSystem } from "./systems/AnimationSystem";
 export { default as InteractionSystem } from "./systems/InteractionSystem";
+export { default as DebugSystem } from "./systems/DebugSystem";
+
+
+//types
+
