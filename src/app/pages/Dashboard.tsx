@@ -1,11 +1,22 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Dashboard() {
-  const { user, session, signOut } = useAuth();
+  const { user, session, signOut, getCurrentUserFromApi } = useAuth();
+  const [backendUser, setBackendUser] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      const data = await getCurrentUserFromApi();
+      console.log("Decoded user from backend:", data);
+      setBackendUser(data);
+    })();
+  }, [getCurrentUserFromApi]);
 
   const fullName = session?.user?.user_metadata?.full_name || "User";
   const language = session?.user?.user_metadata?.language || "N/A";
   const roomSkin = session?.user?.user_metadata?.room_skin || "N/A";
+  console.log("User session access token:", session?.access_token);
 
   return (
     <div className="flex flex-col items-center p-6 gap-4">
@@ -27,6 +38,11 @@ export default function Dashboard() {
         <p></p>
       </div>
 
+      {backendUser && (
+        <pre className="mt-4 p-2 bg-gray-200 rounded text-sm whitespace-pre-wrap">
+          {JSON.stringify(backendUser, null, 2)}
+        </pre>
+      )}
       <button
         onClick={async () => {
           await signOut();

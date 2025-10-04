@@ -58,5 +58,23 @@ export function useAuth() {
     return await supabase.auth.signOut();
   }, []);
 
-  return { user, session, loading, signUp, signIn, signOut };
+  const getCurrentUserFromApi = useCallback(async () => {
+  if (!session?.access_token) return null;
+
+  const response = await fetch("http://localhost:3000/api/dreams/user", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Failed to fetch user from API:", await response.text());
+    return null;
+  }
+
+  return await response.json();
+}, [session?.access_token]);
+
+  return { user, session, loading, signUp, signIn, signOut, getCurrentUserFromApi };
 }
