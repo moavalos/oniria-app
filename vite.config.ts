@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import tailwindcss from '@tailwindcss/vite'
@@ -19,5 +20,9 @@ export default defineConfig({
       "@utils": path.resolve(__dirname, "./src/shared/utils"),
       "@locales": path.resolve(__dirname, "./src/i18n/locales")
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
   }
 })
