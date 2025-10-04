@@ -31,5 +31,18 @@
     "soporte": "Soporte",
     "atajos": "Atajos",
     "salir": "Salir"
+  },
+  "node": {
+    "title": "¿Qué soñaste?",
+    "descriptionLabel": "Escribí tu sueño",
+    "placeholderNode": "Escribí tu sueño acá…",
+    "character1": "Te pasaste del máximo de ",
+    "character2": "caracteres",
+    "interpretar": "Interpretar",
+    "myroom": "Mi habitación",
+    "personalizar": "Personalizar",
+    "toque": "Dale tu toque al espacio",
+    "insignia": "Mis insignias",
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria."
   }
 }

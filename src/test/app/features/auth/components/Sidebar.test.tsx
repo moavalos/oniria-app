@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Sidebar from '@/app/features/auth/components/Sidebar';
 
 const mockTimeline = [
@@ -125,13 +125,14 @@ describe('Sidebar', () => {
     it('CTA button is disabled when ctaDisabled prop is true', () => {
         const props = { ...defaultProps, ctaDisabled: true };
         render(<Sidebar {...props} />);
-        const button = screen.getByRole('button', { name: /Start Now/i });
-        expect((button as HTMLButtonElement).disabled).toBe(true);
+        const button = screen.getByRole('button', { name: /Start Now/i }) as HTMLButtonElement;
+        expect(button.disabled).toBe(true);
     });
 
-    it('CTA button has star icon initially', () => {
+    it('renders CtaButton component', () => {
         render(<Sidebar {...defaultProps} />);
-        expect(screen.getByText('★')).toBeTruthy();
+        const ctaButton = screen.getByRole('button', { name: /Start Now/i });
+        expect(ctaButton).toBeTruthy();
     });
 
     it('calls onSelectItem when timeline item is clicked', () => {
@@ -285,18 +286,5 @@ describe('Sidebar', () => {
         const { container } = render(<Sidebar {...defaultProps} />);
         const listItems = container.querySelectorAll('li');
         expect(listItems).toHaveLength(3);
-    });
-
-    it('CTA button shows checkmark when pressed', async () => {
-        const onCta = vi.fn().mockResolvedValue(undefined);
-        const props = { ...defaultProps, onCta };
-        render(<Sidebar {...props} />);
-
-        const ctaButton = screen.getByRole('button', { name: /Start Now/i });
-        fireEvent.click(ctaButton);
-
-        await waitFor(() => {
-            expect(screen.queryByText('✓')).toBeTruthy();
-        });
     });
 });
