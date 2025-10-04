@@ -1,7 +1,6 @@
-// src/components/LeftPanel.tsx
 import Card from "@/shared/components/Card";
 import { motion } from "framer-motion";
-import { Settings2, BadgeCheck, ChevronRight } from "lucide-react";
+import { Settings2, BadgeCheck, ChevronRight, Quote, RefreshCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import CtaButton from "./CtaButton";
 import { useTranslation } from "react-i18next";
@@ -12,6 +11,10 @@ type LeftPanelProps = {
     onInsignias: () => void;
     initialDream?: string;
     maxChars?: number;
+    onNuevaFrase?: () => void;
+    quote?: string;
+    loadingQuote?: boolean;
+    showQuoteCard?: boolean;
 };
 
 export default function LeftPanel({
@@ -20,6 +23,10 @@ export default function LeftPanel({
     onInsignias,
     initialDream = "",
     maxChars = 1200,
+    onNuevaFrase,
+    quote = "“Lo que no se nombra, se sueña”",
+    loadingQuote = false,
+    showQuoteCard = true,
 }: LeftPanelProps) {
 
     const [dream, setDream] = useState(initialDream);
@@ -75,6 +82,43 @@ export default function LeftPanel({
                     </span>
                 </motion.button>
             </div>
+
+            {/*frases*/}
+            {showQuoteCard && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/15">
+                    <div className="text-[12px] font-semibold text-white/80 mb-1">
+                        {t("node.fraseHoy", "Frase de hoy")}
+                    </div>
+                    <p className="text-[11px] text-white/50 mb-3">
+                        {t("node.fraseHint", "Un guiño simbólico para arrancar..")}
+                    </p>
+
+                    <div className="rounded-xl border border-fuchsia-400/25 bg-black/20 px-3 py-4 mb-3">
+                        <div className="flex items-start gap-2 justify-center text-center">
+                            <Quote size={16} className="mt-0.5 opacity-70 shrink-0" />
+                            <span className="text-[13px] text-fuchsia-200 leading-snug">
+                                {quote}
+                            </span>
+                            <Quote size={16} className="rotate-180 mt-0.5 opacity-70 shrink-0" />
+                        </div>
+                    </div>
+
+                    <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={onNuevaFrase}
+                        disabled={loadingQuote}
+                        className="w-full rounded-xl bg-gradient-to-r from-fuchsia-700 to-fuchsia-600
+                                     px-4 py-3 text-[14px] font-semibold border border-fuchsia-400/30
+                                     shadow-[0_0_22px_rgba(217,70,239,0.25)]
+                                     disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            <RefreshCcw size={16} className={loadingQuote ? "animate-spin" : ""} />
+                            {t("node.nuevaFrase", "Nueva frase")}
+                        </span>
+                    </motion.button>
+                </div>
+            )}
 
             <div className="px-4 sm:px-5 pb-45 rounded-2xl bg-white/5 border border-white/15">
                 <div className="text-[12px] mt-4 font-semibold text-white/80 mb-3">{t("node.myroom")}</div>

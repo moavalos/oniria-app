@@ -38,6 +38,18 @@ function Globe() {
 export default function Node() {
     const { t } = useTranslation();
 
+    const handleInterpretar = (dream: string) => {
+        console.log("Interpretando sueño:", dream);
+    };
+
+    const handlePersonalizar = () => {
+        console.log("Ir a Personalizar habitación");
+    };
+
+    const handleInsignias = () => {
+        console.log("Ir a Mis insignias");
+    };
+    
     return (
         <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
             {/* fondo de estrellas */}
@@ -50,9 +62,10 @@ export default function Node() {
             <main className="relative z-0 mx-auto grid max-w-[1500px] grid-cols-12 gap-6 px-4 py-6 lg:px-8 lg:py-8">
 
                 <LeftPanel
-                    onInterpretar={() => console.log("Interpretar")}
-                    onPersonalizar={() => console.log("Personalizar")}
-                    onInsignias={() => console.log("Insignias")}
+                    onInterpretar={handleInterpretar}
+                    onPersonalizar={handlePersonalizar}
+                    onInsignias={handleInsignias}
+                    showQuoteCard={false}
                 />
 
                 <Card className="col-span-12 md:col-span-8 xl:col-span-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-6">
