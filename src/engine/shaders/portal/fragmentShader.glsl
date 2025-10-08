@@ -13,6 +13,21 @@ uniform float uRadiusFactor;
 uniform float uGainOffset;
 uniform float uGainScale;
 
+// Nuevos uniforms para control de colores
+// Colores base del portal (palette)
+uniform vec3 uPortalColorA;    // Color base A
+uniform vec3 uPortalColorB;    // Color base B  
+uniform vec3 uPortalColorC;    // Frecuencia
+uniform vec3 uPortalColorD;    // Fase
+uniform float uPortalPaletteTime; // Multiplicador de tiempo para la paleta
+
+// Colores de la esfera/atmosphere
+uniform vec3 uSphereColor;     // Color de la esfera externa
+uniform float uSphereIntensity; // Intensidad del color de la esfera
+
+// Efectos de mezcla
+uniform float uColorMixIntensity; // Intensidad general de los colores
+
 vec4 lerp(vec4 a, vec4 b, float t) {
     return (a * vec4(t)) + (b * vec4(1.0-t));
 }

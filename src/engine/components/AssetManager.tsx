@@ -137,32 +137,14 @@ export default function AssetManager({
     setAssetsLoaded(false);
 
     try {
-      console.log(
-        "🎯 AssetManager: Iniciando carga de",
-        assets.length,
-        "assets"
-      );
-
       // Callback de inicio
       onLoadStart?.();
 
       // Cargar assets usando useThreeLoader (ya limpia nombres)
       const rawAssets = await loadAssets(assets);
 
-      console.log(
-        "✅ AssetManager: Assets cargados exitosamente:",
-        Object.keys(rawAssets)
-      );
-
       // Organizar assets como lo hacía useLoader
       const organizedAssets = organizeAssets(rawAssets);
-
-      console.log("🏗️ AssetManager: Assets organizados:", {
-        hasScene: !!organizedAssets.scene,
-        hasObjectTexture: !!organizedAssets.objectTexture,
-        hasEnvironmentTexture: !!organizedAssets.environmentTexture,
-        totalAssets: Object.keys(organizedAssets).length,
-      });
 
       setAssetsLoaded(true);
 
@@ -188,15 +170,6 @@ export default function AssetManager({
     loadingRef.current = false;
     setAssetsLoaded(false);
   }, [assets]);
-
-  // Log del estado actual
-  console.log("🎯 AssetManager:", {
-    isLoading,
-    progress: Math.round(progress),
-    assetsLoaded,
-    assetCount: assets.length,
-    errors: errors.length,
-  });
 
   // Mostrar fallback mientras carga
   if (!assetsLoaded && fallback) {

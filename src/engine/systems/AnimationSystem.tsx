@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { AnimationAction } from "../config/room.type";
 import { useEngineCore } from "@engine/Engine";
 import { useRoomVersion } from "../hooks";
+import { EngineState } from "../types";
 
 export type AnimationConfig = {
   animations?: Record<string, AnimationAction>;
@@ -26,46 +27,33 @@ export default function AnimationSystem({
   enableAnimations = true,
   autoConfigureForRoom = true,
 }: AnimationSystemProps) {
-  const core = useEngineCore();
-  const { activeRoom } = core;
-  const roomVersion = useRoomVersion(activeRoom); // Detectar cambios en el room
+  const services = useEngineCore();
+  const { activeRoom, engineState } = services;
+  const roomVersion = useRoomVersion(activeRoom);
   const activeScene = activeRoom?.getScene();
-  const animationService = core.getAnimationService();
+  const animationService = services.getAnimationService();
 
-  // Estado local para objetos animatables
   const [animatables, setAnimatables] = useState<
     Record<string, AnimationAction>
   >({});
 
+  // Solo funcionar cuando el engine esté listo
+  const isEngineReady = engineState === EngineState.READY;
+
   // Configurar objetos animatables desde la habitación o props
   useEffect(() => {
-    if (!enableAnimations) return;
-
-    console.log(
-      "🎬 AnimationSystem: Detectando cambios - roomVersion:",
-      roomVersion,
-      "activeScene:",
-      !!activeScene
-    );
+    if (!isEngineReady || !enableAnimations) return;
 
     const loadAnimatables = async () => {
       let newAnimatables: Record<string, AnimationAction> = {};
 
-      // Si autoConfigureForRoom está habilitado, cargar desde la habitación
+      // Cargar animatables desde la room si está configurado
       if (autoConfigureForRoom && activeRoom) {
-        console.log(
-          "🎬 AnimationSystem: Cargando animatables desde room:",
-          activeRoom.id
-        );
         const roomAnimatables = await activeRoom.getAnimatableObjects();
         newAnimatables = { ...roomAnimatables };
-        console.log(
-          "🎬 AnimationSystem: Animatables encontrados:",
-          Object.keys(roomAnimatables)
-        );
       }
 
-      // Sobrescribir/agregar con las animaciones de config
+      // Agregar/sobrescribir con animaciones de configuración
       if (config.animations) {
         newAnimatables = { ...newAnimatables, ...config.animations };
       }
@@ -75,30 +63,24 @@ export default function AnimationSystem({
 
     loadAnimatables();
   }, [
-    roomVersion, // Reaccionar a cambios en el room (scene, texturas, etc.)
+    roomVersion,
     activeScene,
     config.animations,
     autoConfigureForRoom,
     enableAnimations,
+    isEngineReady,
+    activeRoom,
   ]);
 
   // Configurar callbacks de eventos en el servicio
   useEffect(() => {
-    if (!animationService) return;
+    if (!isEngineReady || !animationService) return;
 
-    // Configurar callbacks del servicio
-    if (onAnimationStart) {
-      animationService.setOnAnimationStart(onAnimationStart);
-    }
-    if (onAnimationComplete) {
-      animationService.setOnAnimationComplete(onAnimationComplete);
-    }
-    if (onAnimationUpdate) {
-      animationService.setOnAnimationUpdate(onAnimationUpdate);
-    }
+    animationService.setOnAnimationStart(onAnimationStart);
+    animationService.setOnAnimationComplete(onAnimationComplete);
+    animationService.setOnAnimationUpdate(onAnimationUpdate);
 
     return () => {
-      // Limpiar callbacks
       animationService.setOnAnimationStart(undefined);
       animationService.setOnAnimationComplete(undefined);
       animationService.setOnAnimationUpdate(undefined);
@@ -108,18 +90,23 @@ export default function AnimationSystem({
     onAnimationStart,
     onAnimationComplete,
     onAnimationUpdate,
+    isEngineReady,
   ]);
 
-  // Ejecutar animaciones
+  // Ejecutar animaciones automáticas
   useEffect(() => {
-    if (!animationService || !activeRoom?.getScene() || !enableAnimations)
+    if (
+      !isEngineReady ||
+      !animationService ||
+      !activeScene ||
+      !enableAnimations
+    )
       return;
 
-    // Reproducir animaciones automáticamente o según configuración
     const shouldAutoPlay =
       config.autoPlay !== false && config.playOnMount !== false;
 
-    if (shouldAutoPlay) {
+    if (shouldAutoPlay && Object.keys(animatables).length > 0) {
       Object.values(animatables).forEach((animationConfig) => {
         animationService.play(animationConfig);
       });
@@ -131,11 +118,12 @@ export default function AnimationSystem({
   }, [
     animationService,
     animatables,
-    roomVersion, // También reaccionar a cambios del room aquí
+    roomVersion,
     activeScene,
     enableAnimations,
     config.autoPlay,
     config.playOnMount,
+    isEngineReady,
   ]);
 
   return null;

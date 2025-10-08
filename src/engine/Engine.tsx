@@ -11,25 +11,36 @@ import {
 import type { EngineSettings } from "@engine/types/engine.types";
 import { Room } from "./entities/Room";
 import { Skin } from "./entities/Skin";
+import { Node } from "./entities/Node";
+import { EngineState } from "./types/engine.types";
 import {
   AnimationService,
   CameraService,
   InteractionService,
   LoopService,
   MaterialService,
-} from "@/engine/core";
+} from "@/engine/services";
 
 type EngineCoreAPI = {
   scene: THREE.Scene | null;
   camera: THREE.Camera | null;
   gl: THREE.WebGLRenderer | null;
+  size: { width: number; height: number };
+  clock: THREE.Clock;
   activeRoom: Room | null;
   activeSkin: Skin | null;
+  activeNode: Node | null;
   loopService: LoopService;
+  engineState: EngineState;
+  setEngineState: (state: EngineState) => void;
   unregisterService: (name: string) => void;
   registerService: (name: string, service: unknown) => void;
   registerRoom: (roomId: string, skinId: string) => void;
   registerSkin: (skinId: string) => void;
+  registerNode: (
+    nodeId: string,
+    nodeRef: THREE.Group<THREE.Object3DEventMap>
+  ) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;
   getInteractionService: () => InteractionService;
@@ -80,7 +91,11 @@ export function EngineCore({ children }: EngineCoreProps) {
   const [services, setServices] = useState<Record<string, unknown>>({});
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
   const [activeSkin, setActiveSkin] = useState<Skin | null>(null);
-  const { scene, camera, gl } = useThree();
+  const [activeNode, setActiveNode] = useState<Node | null>(null);
+  const [servicesState, setServicesState] = useState<EngineState>(
+    EngineState.INITIALIZING
+  );
+  const { scene, camera, gl, size, clock } = useThree();
 
   // LoopService se inicializa inmediatamente y vive durante toda la sesión
   const loopService = useMemo(() => new LoopService(), []);
@@ -89,6 +104,14 @@ export function EngineCore({ children }: EngineCoreProps) {
   useFrame((state, delta) => {
     loopService.tick(state, delta);
   });
+
+  // Estado del engine
+  const setEngineState = useCallback(
+    (state: EngineState) => {
+      setServicesState(state);
+    },
+    [servicesState]
+  );
 
   const registerService = useCallback((name: string, service: unknown) => {
     setServices((prev) => ({ ...prev, [name]: service }));
@@ -144,14 +167,41 @@ export function EngineCore({ children }: EngineCoreProps) {
         if (activeRoom) {
           activeRoom.setSkin(skin);
         }
-
-        console.log(`Skin '${skinId}' registered successfully`);
       } catch (error) {
         console.error("Failed to register skin:", error);
         throw error;
       }
     },
     [activeRoom]
+  );
+
+  // Registro de Node
+  const registerNode = useCallback(
+    (nodeId: string, nodeRef: THREE.Group<THREE.Object3DEventMap>): void => {
+      try {
+        if (!nodeId?.trim()) {
+          throw new Error("El ID del nodo no puede estar vacío");
+        }
+        if (!nodeRef) {
+          throw new Error("La referencia del nodo no puede ser nula");
+        }
+
+        // Crear o actualizar el nodo activo
+        let node = activeNode;
+        if (!node || node.id !== nodeId) {
+          node = new Node(nodeId);
+          setActiveNode(node);
+        }
+
+        // Establecer la referencia del grupo
+        node.setGroup(nodeRef);
+      } catch (error) {
+        console.error("Error al registrar el nodo:", error);
+        setActiveNode(null);
+        throw error;
+      }
+    },
+    [activeNode]
   );
 
   // Factories internas 👇 - Híbrido: lazy creation pero controlado
@@ -213,13 +263,19 @@ export function EngineCore({ children }: EngineCoreProps) {
       scene,
       camera,
       gl,
+      size,
+      clock,
       activeRoom,
       activeSkin,
+      activeNode,
       loopService,
+      engineState: servicesState,
+      setEngineState,
       unregisterService,
       registerService,
       registerRoom,
       registerSkin,
+      registerNode,
       getAnimationService,
       getCameraService,
       getInteractionService,
@@ -229,13 +285,19 @@ export function EngineCore({ children }: EngineCoreProps) {
       scene,
       camera,
       gl,
+      size,
+      clock,
       activeRoom,
       activeSkin,
+      activeNode,
       loopService,
+      servicesState,
+      setEngineState,
       unregisterService,
       registerService,
       registerRoom,
       registerSkin,
+      registerNode,
       getAnimationService,
       getCameraService,
       getInteractionService,

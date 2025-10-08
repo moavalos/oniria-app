@@ -3,8 +3,8 @@ import { useEngineCore } from "../Engine";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 
 export function useHandlers() {
-    const core = useEngineCore();
-    const animationService = core.getAnimationService();
+    const services = useEngineCore();
+    const animationService = services.getAnimationService();
 
     const onEnter = useCallback((event: ObjectEventArray) => {
         console.log("onEnter:", event);

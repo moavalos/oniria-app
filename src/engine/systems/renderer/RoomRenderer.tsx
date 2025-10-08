@@ -1,78 +1,60 @@
-import * as THREE from "three";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useEngineCore } from "@engine/Engine";
 import { AssetManager } from "@engine/components";
 import { Room } from "@engine/entities";
+import { EngineState } from "@/engine/types";
+import { PortalRenderer } from "./PortalRenderer";
 
 export default function RoomRenderer() {
-  const core = useEngineCore();
-  const { loopService } = core;
+  const services = useEngineCore();
+  const { setEngineState } = services;
 
   const [loadedRoom, setLoadedRoom] = useState<Room | null>(null);
-  const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
 
   // Generar lista de assets basada en la room activa
   const assets = useMemo(() => {
-    if (!core.activeRoom) return [];
+    if (!services.activeRoom) return [];
 
     const roomAssets = [];
 
     // Asset principal del modelo GLTF
     roomAssets.push({
-      url: `/models/${core.activeRoom.id}.gltf`,
+      url: `/models/${services.activeRoom.id}.gltf`,
       type: "gltf" as const,
     });
 
     // Assets de texturas del skin activo
-    if (core.activeRoom.skin) {
+    if (services.activeRoom.skin) {
       roomAssets.push({
-        url: `/skins/${core.activeRoom.skin.id}_object.ktx2`,
+        url: `/skins/${services.activeRoom.skin.id}_object.ktx2`,
         type: "ktx2" as const,
       });
       roomAssets.push({
-        url: `/skins/${core.activeRoom.skin.id}_wall.ktx2`,
+        url: `/skins/${services.activeRoom.skin.id}_wall.ktx2`,
         type: "ktx2" as const,
       });
     }
 
     return roomAssets;
-  }, [core.activeRoom]);
-
-  // Configuración de uniforms del Portal
-  const portalUniforms = useMemo(
-    () => ({
-      uTime: { value: 0 },
-      uPortalAlpha: { value: 1.0 },
-      uDensity: { value: 4.5 },
-      uRadius: { value: 1.2 },
-      uAngle: { value: 3.2 },
-      uHue: { value: 0.74 },
-      uSaturation: { value: 0.58 },
-      uRadiusFactor: { value: 1.5 },
-      uGainOffset: { value: 0.5 },
-      uGainScale: { value: 3.0 },
-    }),
-    []
-  );
+  }, [services.activeRoom]);
 
   // Callback cuando los assets están cargados
   const handleAssetsLoaded = (assets: { [key: string]: any }) => {
-    console.log("✅ RoomRenderer: Assets cargados:", assets);
-    if (!core.activeRoom) return;
+    if (!services.activeRoom) return;
 
     try {
       // Crear instancia de Room con el skin actual
-      const room = core.activeRoom;
+      const room = services.activeRoom;
 
       // Configurar la scene con el modelo GLTF
-      const roomModel = assets[core.activeRoom.id]; // Nombre del archivo GLTF
+      const roomModel = assets[services.activeRoom.id]; // Nombre del archivo GLTF
       if (roomModel) {
         room.setScene(roomModel.scene);
       }
 
       // Configurar texturas si están disponibles
-      const objectTexture = assets[`${core.activeRoom.skin.id}_object`];
-      const environmentTexture = assets[`${core.activeRoom.skin.id}_wall`];
+      const objectTexture = assets[`${services.activeRoom.skin.id}_object`];
+      const environmentTexture = assets[`${services.activeRoom.skin.id}_wall`];
 
       if (objectTexture && environmentTexture) {
         room.setTextures({
@@ -83,7 +65,7 @@ export default function RoomRenderer() {
 
       setLoadedRoom(room);
     } catch (error) {
-      console.error("❌ RoomRenderer: Error procesando assets:", error);
+      console.error("RoomRenderer: Error procesando assets:", error);
     }
   };
 
@@ -93,45 +75,43 @@ export default function RoomRenderer() {
 
     const applyMaterials = async () => {
       try {
-        const materialService = core.getMaterialService();
+        const materialService = services.getMaterialService();
         await materialService.applyMaterialsToRoom(loadedRoom);
-
-        const portal = loadedRoom.getPortal();
-        if (portal) {
-          materialService.applyMaterialsToPortal(portal, portalUniforms);
-          const material = (portal as THREE.Mesh)
-            ?.material as THREE.ShaderMaterial;
-          if (material) {
-            portalMaterialRef.current = material;
-          }
-        }
       } catch (error) {
         console.error("Failed to apply materials:", error);
       }
     };
 
     applyMaterials();
-  }, [loadedRoom, portalUniforms, core]);
+  }, [loadedRoom, services]);
 
-  // Animación del portal
+  // Controlar el estado del engine basado en la disponibilidad de room
   useEffect(() => {
-    if (!loopService || !loadedRoom?.getScene()) return;
-    const cb = (_: unknown, dt: number) => {
-      if (!portalMaterialRef.current) return;
-      portalMaterialRef.current.uniforms.uTime.value += dt;
-    };
-    loopService.subscribe(cb);
-    return () => loopService.unsubscribe(cb);
-  }, [loopService, loadedRoom]);
+    if (!services.activeRoom || assets.length === 0) {
+      setEngineState(EngineState.INITIALIZING);
+    }
+  }, [services.activeRoom, assets.length, setEngineState]);
 
   const scene = useMemo(() => {
     return loadedRoom?.getScene();
   }, [loadedRoom]);
 
+  // Cambiar a READY cuando la escena esté completamente cargada
+  useEffect(() => {
+    if (scene && loadedRoom?.hasScene()) {
+      setEngineState(EngineState.READY);
+    }
+  }, [scene, loadedRoom, setEngineState]);
+
   // Si no hay room activa, no renderizar nada
-  if (!core.activeRoom || assets.length === 0) {
+  if (!services.activeRoom || assets.length === 0) {
     return null;
   }
+
+  // Portal del room cargado
+  const portal = useMemo(() => {
+    return loadedRoom?.getPortal();
+  }, [loadedRoom]);
 
   return (
     <AssetManager
@@ -139,7 +119,12 @@ export default function RoomRenderer() {
       onLoaded={handleAssetsLoaded}
       fallback={<group />} // Fallback vacío mientras carga
     >
-      {scene ? <primitive object={scene} /> : null}
+      {scene ? (
+        <>
+          <primitive object={scene} />
+          <PortalRenderer portal={portal} />
+        </>
+      ) : null}
     </AssetManager>
   );
 }

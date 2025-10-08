@@ -4,9 +4,9 @@ import { useEngineCore } from '../Engine';
 
 
 export function useTransitions() {
-    const core = useEngineCore();
-    const cameraService = core.getCameraService();
-    const { activeRoom } = core;
+    const services = useEngineCore();
+    const cameraService = services.getCameraService();
+    const { activeRoom } = services;
 
 
 

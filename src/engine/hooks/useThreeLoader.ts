@@ -51,7 +51,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                 return false;
             }
         }
-        console.log("Archivos del transcoder KTX2 verificados");
+
         return true;
     }, []);
 
@@ -85,14 +85,10 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
 
         // Detectar soporte solo si hay renderer
         if (renderer) {
-            console.log("Configurando KTX2Loader con renderer:", {
-                renderer: renderer.constructor.name,
-                capabilities: renderer.capabilities?.getMaxAnisotropy?.() || 'N/A'
-            });
 
             try {
                 ktx2Loader.detectSupport(renderer);
-                console.log("KTX2Loader.detectSupport() ejecutado exitosamente");
+
             } catch (err) {
                 console.error("Error en KTX2Loader.detectSupport():", err);
             }
@@ -108,10 +104,6 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
             file: fileLoader
         };
 
-        console.log("Loaders inicializados:", {
-            hasRenderer: !!renderer,
-            ktx2Configured: !!renderer
-        });
 
         return loadersRef.current;
     }, [renderer, checkTranscoderFiles]); const resetLoader = useCallback(() => {
@@ -169,7 +161,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                 });
 
                 setItems(updatedItems);
-                console.log(`📊 Progreso global: ${Math.round(globalProgress)}% (${totalLoaded}/${totalSize} bytes)`);
+
             };
 
             const loadPromises = urls.map(async ({ url, type }, index) => {
@@ -199,11 +191,6 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                                     console.error("Error reintentando detectSupport:", detectErr);
                                 }
                             }
-
-                            console.log("Usando KTX2Loader para:", url, {
-                                hasTranscoder: !!loader._transcoderBinary,
-                                transcoderPath: loader._transcoderPath
-                            });
                             break;
                         case 'audio':
                             loader = loaders.audio;
@@ -248,7 +235,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
                                     updateGlobalProgress();
                                 } else {
                                     // If not computable, assume some progress
-                                    console.log(`📊 Progreso no computable para ${url}`);
+                                    console.log(`Progreso no computable para ${url}`);
                                 }
                             },
                             // onError

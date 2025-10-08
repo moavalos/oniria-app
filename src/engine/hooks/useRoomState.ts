@@ -6,7 +6,7 @@ import { useEngineCore } from '../Engine.tsx';
  * Sistema simplificado que carga configuración bajo demanda
  */
 export function useRoomState() {
-    const core = useEngineCore();
+    const services = useEngineCore();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -16,8 +16,8 @@ export function useRoomState() {
             setIsLoading(true);
             setError(null);
 
-            // Registrar en el core (Room se crea inmediatamente)
-            core.registerRoom(roomId, skinId);
+            // Registrar en el services (Room se crea inmediatamente)
+            services.registerRoom(roomId, skinId);
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Error al registrar room';
@@ -26,23 +26,23 @@ export function useRoomState() {
         } finally {
             setIsLoading(false);
         }
-    }, [core]);
+    }, [services]);
 
     return {
         // Estado
-        activeRoom: core.activeRoom,
-        activeSkin: core.activeSkin,
+        activeRoom: services.activeRoom,
+        activeSkin: services.activeSkin,
         isLoading,
         error,
 
         // Acciones
         registerRoom,
-        registerSkin: core.registerSkin,
+        registerSkin: services.registerSkin,
 
         // Helpers
-        hasRoom: !!core.activeRoom,
-        hasTextures: core.activeRoom?.hasTextures() ?? false,
-        hasScene: core.activeRoom?.hasScene() ?? false,
+        hasRoom: !!services.activeRoom,
+        hasTextures: services.activeRoom?.hasTextures() ?? false,
+        hasScene: services.activeRoom?.hasScene() ?? false,
     };
 }
 

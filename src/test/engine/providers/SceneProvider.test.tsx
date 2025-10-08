@@ -36,7 +36,7 @@ vi.mock("@engine/entities", () => {
 // Mock de EngineCoreProvider
 vi.mock("@engine/context/EngineCoreProvider", () => ({
   useEngineCore: () => ({
-    activeRoom: { id: "mockCore" },
+    activeRoom: { id: "mockServices" },
     activeSkin: { id: "mockSkin" },
   }),
 }));

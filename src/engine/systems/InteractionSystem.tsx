@@ -1,9 +1,8 @@
-import * as THREE from "three";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useEngineCore } from "../Engine";
-import { useHandlers, useTransitions } from "../hooks";
-import { button, useControls } from "leva";
+import { useHandlers } from "../hooks";
 import type { ObjectEventArray } from "../config/room.type";
+import { EngineState } from "../types";
 
 export interface InteractionSystemProps {
   // Event callbacks
@@ -14,65 +13,62 @@ export interface InteractionSystemProps {
 
   // Configuration
   enableInteractions?: boolean;
-  enableDebugControls?: boolean;
-  debugControlsConfig?: {
-    showPortalControls?: boolean;
-    showCameraControls?: boolean;
-  };
 }
 
 export default function InteractionSystem({
   onObjectHoverEnter,
   onObjectHoverLeave,
   onObjectClick,
-  onInteractionStateChange,
   enableInteractions = true,
-  enableDebugControls = true,
-  debugControlsConfig = {
-    showPortalControls: true,
-    showCameraControls: true,
-  },
 }: InteractionSystemProps = {}) {
-  const core = useEngineCore();
-  const { activeRoom, loopService } = core;
-  const interactionService = core.getInteractionService();
-  const cameraService = core.getCameraService();
-
+  const services = useEngineCore();
+  const { activeRoom, loopService, engineState } = services;
+  const interactionService = services.getInteractionService();
   const { onEnter, onLeave, onClick } = useHandlers();
-  const { viewNodes } = useTransitions();
-  const interceptablesRef = useRef<Record<string, any>>({});
+
+  // Estado para objetos interceptables
+  const [interceptables, setInterceptables] = useState<Record<string, any>>({});
+
+  // Solo funcionar cuando el engine esté listo
+  const isEngineReady = engineState === EngineState.READY;
+
+  // Cargar objetos interceptables de forma asíncrona (como AnimationSystem)
+  useEffect(() => {
+    if (!isEngineReady || !activeRoom) {
+      setInterceptables({});
+      return;
+    }
+
+    const loadInterceptables = async () => {
+      try {
+        // Usar método async como AnimationSystem
+        const roomInterceptables = await activeRoom.getInteractableObjects();
+        setInterceptables(roomInterceptables || {});
+      } catch (error) {
+        console.error("Error cargando objetos interceptables:", error);
+        setInterceptables({});
+      }
+    };
+
+    loadInterceptables();
+  }, [activeRoom, isEngineReady]);
 
   // Configurar callbacks personalizados en el InteractionService
   useEffect(() => {
-    if (!interactionService || !enableInteractions) return;
+    if (!isEngineReady || !interactionService || !enableInteractions) return;
 
-    // Configurar callbacks si se proporcionan
+    // Configurar callbacks custom si se proporcionan
     if (onObjectHoverEnter) {
-      interactionService.setOnHoverEnter(
-        (objectName: string, event: ObjectEventArray) => {
-          onObjectHoverEnter(objectName, event);
-        }
-      );
+      interactionService.setOnHoverEnter(onObjectHoverEnter);
     }
-
     if (onObjectHoverLeave) {
-      interactionService.setOnHoverLeave(
-        (objectName: string, event: ObjectEventArray) => {
-          onObjectHoverLeave(objectName, event);
-        }
-      );
+      interactionService.setOnHoverLeave(onObjectHoverLeave);
     }
-
     if (onObjectClick) {
-      interactionService.setOnClick(
-        (objectName: string, event: ObjectEventArray) => {
-          onObjectClick(objectName, event);
-        }
-      );
+      interactionService.setOnClick(onObjectClick);
     }
 
     return () => {
-      // Limpiar callbacks al desmontar
       interactionService.setOnHoverEnter(undefined);
       interactionService.setOnHoverLeave(undefined);
       interactionService.setOnClick(undefined);
@@ -83,85 +79,14 @@ export default function InteractionSystem({
     onObjectHoverEnter,
     onObjectHoverLeave,
     onObjectClick,
-    onInteractionStateChange,
+    isEngineReady,
   ]);
 
-  // Debug Controls (solo si están habilitados)
-  if (enableDebugControls && debugControlsConfig.showPortalControls) {
-    //debugging
-    useControls("Portal", {
-      reset: button(() => {
-        cameraService?.setLookAt(
-          new THREE.Vector3(-3.5, 3, 6),
-          new THREE.Vector3(0, 1.8, 0),
-          true
-        );
-      }),
-      nodos: button(() => {
-        cameraService?.setLookAt(
-          new THREE.Vector3(-3.5, 3, 6),
-          new THREE.Vector3(0, 1.8, 0),
-          true
-        );
-        viewNodes({});
-      }),
-    });
-  }
-
-  // Cargar lookAtables de forma sincrona
-  const lookAtables = useMemo(() => {
-    if (!activeRoom) return {};
-    return activeRoom?.getLookAtableObjectsSync();
-  }, [activeRoom?.getScene()]);
-
-  // Creamos las opciones para el select
-  const options = useMemo(() => Object.keys(lookAtables), [lookAtables]);
-
-  console.log(options);
-
-  // Control con dropdown
-  const { target } = useControls("Camera", {
-    target: {
-      value: "scene",
-      options: ["scene", ...options],
-      label: "Focus Target",
-    },
-  });
-
-  // Efecto: cuando cambia el target seleccionado
+  // Configurar listeners de eventos internos
   useEffect(() => {
-    if (!target || !cameraService) return;
-    const objPos = activeRoom
-      ?.getObjectByName(target)
-      ?.getWorldPosition(new THREE.Vector3());
-    const from = lookAtables[target];
-    console.log("Moving camera to:", target, objPos, "from:", from);
-    if (from && objPos) {
-      cameraService.setLookAt(from, objPos, true);
-    }
-  }, [target, cameraService, lookAtables, activeRoom?.getScene()]);
+    if (!isEngineReady || !interactionService) return;
 
-  // cargar objetos interceptables de forma sincrona
-  useEffect(() => {
-    if (!activeRoom) return;
-    interceptablesRef.current = activeRoom.getInteractableObjectsSync();
-  }, [activeRoom?.getScene()]);
-
-  // actualizar interacciones en el loop
-  useEffect(() => {
-    if (!loopService || !interactionService || !activeRoom) return;
-
-    const cb = () =>
-      interactionService.update(activeRoom, interceptablesRef.current);
-
-    loopService.subscribe(cb);
-    return () => loopService.unsubscribe(cb);
-  }, [loopService, interactionService, activeRoom]);
-
-  // listeners de eventos
-  useEffect(() => {
-    if (!interactionService) return;
-
+    // Configurar los handlers internos
     interactionService.on("hoverEnter", onEnter);
     interactionService.on("hoverLeave", onLeave);
     interactionService.on("click", onClick);
@@ -171,7 +96,29 @@ export default function InteractionSystem({
       interactionService.off("hoverLeave");
       interactionService.off("click");
     };
-  }, [interactionService, onEnter, onLeave, onClick]);
+  }, [interactionService, onEnter, onLeave, onClick, isEngineReady]);
+
+  // Actualizar interacciones en el loop
+  useEffect(() => {
+    if (!isEngineReady || !loopService || !interactionService || !activeRoom) {
+      return;
+    }
+
+    const updateInteractions = () => {
+      if (Object.keys(interceptables).length > 0) {
+        interactionService.update(activeRoom, interceptables);
+      }
+    };
+
+    loopService.subscribe(updateInteractions);
+    return () => loopService.unsubscribe(updateInteractions);
+  }, [
+    loopService,
+    interactionService,
+    activeRoom,
+    isEngineReady,
+    interceptables,
+  ]);
 
   return null;
 }

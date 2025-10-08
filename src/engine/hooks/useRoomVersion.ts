@@ -24,7 +24,7 @@ export function useRoomVersion(room: Room | null) {
         const interval = setInterval(() => {
             const newVersion = room.getVersion();
             if (newVersion !== version) {
-                console.log(`🔄 useRoomVersion: Room[${room.id}] versión cambió de ${version} a ${newVersion}`);
+                // console.log(`useRoomVersion: Room[${room.id}] versión cambió de ${version} a ${newVersion}`);
                 setVersion(newVersion);
             }
         }, 16); // ~60fps para responsividad

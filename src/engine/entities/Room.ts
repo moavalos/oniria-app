@@ -6,7 +6,6 @@ import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager
 export class Room {
     public readonly id: string;
     public skin: Skin;
-
     private scene: THREE.Group<THREE.Object3DEventMap> | null = null;
     private objectTexture: THREE.Texture | null = null;
     private environmentTexture: THREE.Texture | null = null;
@@ -57,7 +56,6 @@ export class Room {
         this.scene = scene;
         this.portal = scene.getObjectByName("portal") || undefined;
         this._version++; // Incrementar versión cuando cambia la scene
-        console.log(`🏠 Room[${this.id}]: Scene actualizada - nueva versión: ${this._version}`);
     }
 
     setSkin(skin: Skin): void {

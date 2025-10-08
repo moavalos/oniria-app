@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { useEffect } from "react";
 import { useEngineCore } from "@engine/Engine";
+import { EngineState } from "../types";
 
 export type CameraConfig = {
   minDistance?: number;
@@ -33,13 +34,18 @@ export default function CameraSystem({
   enableControls = true,
   autoConfigureForRoom = true,
 }: CameraSystemProps) {
-  const core = useEngineCore();
-  const { loopService, activeRoom } = core;
-  const cameraService = core.getCameraService();
+  const services = useEngineCore();
+  const { loopService, activeRoom, engineState } = services;
+  const cameraService = services.getCameraService();
+
+  // Solo funcionar cuando el engine esté listo
+  const isEngineReady = engineState === EngineState.READY;
 
   // Suscripción al loop para updates
   useEffect(() => {
-    if (!loopService || !cameraService || !enableControls) return;
+    if (!isEngineReady || !loopService || !cameraService || !enableControls) {
+      return;
+    }
 
     const cb = (_: unknown, dt: number) => {
       cameraService?.update(dt);
@@ -47,11 +53,11 @@ export default function CameraSystem({
 
     loopService.subscribe(cb);
     return () => loopService.unsubscribe(cb);
-  }, [loopService, cameraService, enableControls]);
+  }, [loopService, cameraService, enableControls, isEngineReady]);
 
   // Configuración de eventos de la cámara
   useEffect(() => {
-    if (!cameraService) return;
+    if (!isEngineReady || !cameraService) return;
 
     const handleCameraMove = () => {
       if (onCameraMove) {
@@ -82,11 +88,11 @@ export default function CameraSystem({
       cameraService.removeEventListener("control", handleCameraControl);
       cameraService.removeEventListener("controlend", handleCameraStop);
     };
-  }, [cameraService, onCameraMove, onCameraStop, onZoomChange]);
+  }, [cameraService, onCameraMove, onCameraStop, onZoomChange, isEngineReady]);
 
   // Configuración automática para la room activa
   useEffect(() => {
-    if (!cameraService || !autoConfigureForRoom) return;
+    if (!isEngineReady || !cameraService || !autoConfigureForRoom) return;
 
     // Configuración por defecto (puede ser sobrescrita por props)
     const defaultConfig: CameraConfig = {
@@ -150,7 +156,7 @@ export default function CameraSystem({
     if (finalConfig.enablePan !== undefined) {
       cameraService.setEnablePan(finalConfig.enablePan);
     }
-  }, [cameraService, activeRoom, config, autoConfigureForRoom]);
+  }, [cameraService, activeRoom, config, autoConfigureForRoom, isEngineReady]);
 
   return null;
 }

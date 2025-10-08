@@ -139,14 +139,6 @@ export default function LoaderSystem({
   // Obtener el primer error como string o null
   const error = errors.length > 0 ? errors[0] : null;
 
-  console.log("Debugging LoaderSystem (Zustand):", {
-    isLoading,
-    progress,
-    error,
-    timeoutError,
-    hasStarted,
-  });
-
   // Añadir keyframes CSS al head
   useEffect(() => {
     const styleId = "oniria-loader-styles";
@@ -166,7 +158,6 @@ export default function LoaderSystem({
   // Manejar inicio y fin de la carga
   useEffect(() => {
     if (isLoading && !hasStarted) {
-      console.log("Carga iniciada");
       setHasStarted(true);
       setTimeoutError(null);
 
@@ -183,7 +174,6 @@ export default function LoaderSystem({
         }, timeout);
       }
     } else if (!isLoading && hasStarted) {
-      console.log("Carga completada");
       setHasStarted(false);
 
       // Limpiar timeout
@@ -234,12 +224,6 @@ export default function LoaderSystem({
   const finalError = timeoutError || error;
   const finalProgress = Math.min(Math.max(progress, 0), 100); // Clamp entre 0-100
   const finalIsLoading = isLoading;
-
-  console.log("🎯 Estado final:", {
-    finalIsLoading,
-    finalProgress: Math.round(finalProgress),
-    finalError,
-  });
 
   return (
     <CustomLoader

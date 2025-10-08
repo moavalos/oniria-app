@@ -9,12 +9,76 @@ type LoadingItem = {
     error?: string;
 };
 
+const uniformDefaults = {
+    // Controles de intensidad (existentes)
+    uPlasmaStrength: 1.0,
+    uGlassStrength: 1.0,
+    uPlasmaRadius: 1.05,
+    uFresnelWidth: 0.3,
+    uFresnelIntensity: 2.0,
+    uOnlyMask: 0.0,
+    uFresnelBright: 1.7,
+
+    // Nuevos controles de color del blob
+    // Colores del plasma
+    uPlasmaColor: [1.9, 1.1, 1.9] as [number, number, number], // Color base del plasma
+    uPlasmaColorIntensity: 1.0,
+    uPlasmaColorMap: [-0.5, 0.5, 0.001, 0.0] as [number, number, number, number], // Mapeo interno del plasma
+    // Paleta procedural del plasma (nuevos)
+    uPlasmaOffset: [0.5, 0.5, 0.5] as [number, number, number],    // Offset del plasma
+    uPlasmaAmplitude: [0.5, 0.5, 0.5] as [number, number, number], // Amplitud del plasma  
+    uPlasmaFrequency: [1.0, 1.0, 1.0] as [number, number, number], // Frecuencia del plasma
+    uPlasmaPhase: [0.0, 0.33, 0.67] as [number, number, number],   // Fase del plasma (desfasado para variación)
+
+    // Colores del vidrio/contenedor (paleta procedural)
+    uGlassColorBase: [1.0, 1.0, 1.0] as [number, number, number], // Color base blanco
+    uGlassOffset: [0.1, 0.1, 0.1] as [number, number, number],    // Offset (era uGlassColorA)
+    uGlassAmplitude: [0.3, 0.3, 0.3] as [number, number, number], // Amplitud (era uGlassColorB)
+    uGlassFrequency: [1.0, 1.0, 1.0] as [number, number, number], // Frecuencia (era uGlassColorC)
+    uGlassPhase: [0.0, 0.1, 0.2] as [number, number, number],     // Fase (era uGlassColorD)
+    uGlassTint: [1.0, 0.7, 0.5] as [number, number, number],      // Tinte del vidrio
+
+    // Control de gamma
+    uGammaCorrection: 1.8,
+};
+
 type EngineStore = {
     // Room/Skin state
     roomId: string | null;
     skinId: string | null;
     setRoomId: (id: string) => void;
     setSkinId: (id: string) => void;
+
+    // Node uniforms state para debug
+    nodeUniforms: {
+        // Controles de intensidad (existentes)
+        uPlasmaStrength: number;
+        uGlassStrength: number;
+        uPlasmaRadius: number;
+        uFresnelWidth: number;
+        uFresnelIntensity: number;
+        uOnlyMask: number;
+        uFresnelBright: number;
+
+        // Nuevos controles de color del blob
+        uPlasmaColor: [number, number, number];
+        uPlasmaColorIntensity: number;
+        uPlasmaColorMap: [number, number, number, number];
+        uPlasmaOffset: [number, number, number];
+        uPlasmaAmplitude: [number, number, number];
+        uPlasmaFrequency: [number, number, number];
+        uPlasmaPhase: [number, number, number];
+        uGlassColorBase: [number, number, number];
+        uGlassOffset: [number, number, number];
+        uGlassAmplitude: [number, number, number];
+        uGlassFrequency: [number, number, number];
+        uGlassPhase: [number, number, number];
+        uGlassTint: [number, number, number];
+        uGammaCorrection: number;
+    };
+    setNodeUniform: (key: string, value: number) => void;
+    setNodeUniforms: (uniforms: Partial<EngineStore['nodeUniforms']>) => void;
+    resetNodeUniforms: () => void;
 
     // Loading state - nuestro sistema propio
     active: boolean;
@@ -40,6 +104,33 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     setRoomId: (id) => set({ roomId: id }),
     setSkinId: (id) => set({ skinId: id }),
 
+    // Node uniforms defaults
+    nodeUniforms: { ...uniformDefaults },
+    setNodeUniform: (key, value) => {
+        set(state => ({
+            nodeUniforms: {
+                ...state.nodeUniforms,
+                [key]: value
+            }
+        }));
+    },
+    setNodeUniforms: (uniforms) => {
+        set(state => ({
+            nodeUniforms: {
+                ...state.nodeUniforms,
+                ...uniforms
+            }
+        }));
+    },
+    resetNodeUniforms: () => {
+        set((state) => ({
+            nodeUniforms: {
+                ...state.nodeUniforms,
+                ...uniformDefaults
+            }
+        }));
+    },
+
     // Loading state inicial
     active: false,
     progress: 0,
@@ -48,7 +139,6 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
 
     // Loading actions
     startLoading: () => {
-        console.log("🚀 EngineStore: Iniciando carga");
         set({
             active: true,
             progress: 0,
@@ -57,7 +147,6 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     },
 
     finishLoading: () => {
-        console.log("✅ EngineStore: Carga completada");
         set({
             active: false,
             progress: 100
@@ -85,7 +174,7 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     },
 
     addError: (error) => {
-        console.error("❌ EngineStore: Error añadido:", error);
+        console.error("EngineStore: Error añadido:", error);
         set((state) => ({
             errors: [...state.errors, error]
         }));
@@ -96,7 +185,7 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     },
 
     resetLoading: () => {
-        console.log("🔄 EngineStore: Reset del loader");
+        console.log("EngineStore: Reset del loader");
         set({
             active: false,
             progress: 0,

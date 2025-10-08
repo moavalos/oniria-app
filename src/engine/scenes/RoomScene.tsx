@@ -9,7 +9,7 @@ interface RoomSceneProps {
 }
 
 export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
-  const core = useEngineCore();
+  const services = useEngineCore();
   const { skinId, roomId } = useEngineAPI();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +32,7 @@ export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
         setIsLoading(true);
         setError(null);
 
-        core.registerRoom(roomId, skinId);
+        services.registerRoom(roomId, skinId);
         setLastRegistered(currentKey);
 
         if (onLoad) {
@@ -78,6 +78,6 @@ export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
     );
   }
 
-  // Solo renderizar si hay una room activa registrada en el core
-  return core.activeRoom ? <RoomRenderer /> : null;
+  // Solo renderizar si hay una room activa registrada en el services
+  return services.activeRoom ? <RoomRenderer /> : null;
 }

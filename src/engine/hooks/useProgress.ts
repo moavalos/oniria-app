@@ -23,14 +23,6 @@ export function useProgress() {
     const errors = useEngineStore((state) => state.errors);
     const items = useEngineStore((state) => state.items);
 
-    //debug
-    console.log("useProgress:", {
-        active,
-        progress: Math.round(progress),
-        errors: errors.length,
-        items: items.length
-    });
-
     return {
         active,
         progress,
