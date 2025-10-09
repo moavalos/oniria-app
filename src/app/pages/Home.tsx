@@ -1,5 +1,3 @@
-import Sidebar from "../features/auth/components/Sidebar";
-import { useTranslation } from "react-i18next";
 import {
   Engine,
   useEngine,
@@ -18,7 +16,7 @@ import { useEffect } from "react";
 import LeftPanel from "../features/auth/components/LeftPanel";
 
 export default function Home() {
-  const { t } = useTranslation();
+  //const { t } = useTranslation();
   const engine = useEngine();
   //algo asi seria la respuesta del backend
   //y se lo pasariamos al engine
