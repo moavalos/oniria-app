@@ -5,6 +5,8 @@ import Register from "@/app/pages/Register";
 import NotFound from "@pages/NotFound";
 import HistorialNodes from "./pages/Historial";
 import Node from "./pages/Node";
+import RegisterPage from "./pages/RegisterExample";
+import Dashboard from "./pages/Dashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -18,6 +20,14 @@ export const routes = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/signup",
+    element: <RegisterPage />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
   },
   {
     path: "*",
