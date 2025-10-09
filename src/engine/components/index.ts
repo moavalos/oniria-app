@@ -1,0 +1,1 @@
+export { default as AssetManager, useAssetManager } from "./AssetManager";

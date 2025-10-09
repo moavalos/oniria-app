@@ -1,40 +1,70 @@
-import { useTranslation } from "react-i18next";
+import {
+  Engine,
+  useEngine,
+  RoomScene,
+  LoaderSystem,
+  CameraSystem,
+  AnimationSystem,
+  InteractionSystem,
+  DebugSystem,
+} from "@/engine";
+
+import Starfield from "../features/auth/components/Starfield";
+import Header from "../features/auth/components/Header";
+import Card from "@/shared/components/Card";
+import { useEffect } from "react";
+import LeftPanel from "../features/auth/components/LeftPanel";
 
 export default function Home() {
-  const { t, i18n } = useTranslation();
+  //const { t } = useTranslation();
+  const engine = useEngine();
+  //algo asi seria la respuesta del backend
+  //y se lo pasariamos al engine
+  //para setear la room y skin
+  //por ahora hardcodeado
+  const backendSettings = { roomId: "oniria", skinId: "oniria" };
+  const { roomId, skinId } = backendSettings;
 
-  const changeLanguage = (lng: "en" | "es") => {
-    i18n.changeLanguage(lng);
+  useEffect(() => {
+    engine.setRoom(roomId, skinId);
+  }, []);
+
+  const hoverHandler = (args: any) => {
+    console.log("hovered", args.objectName || args);
   };
 
   return (
-    <div className="flex flex-col gap-3 justify-center items-center h-screen">
-      {/* nav */}
-      <div className="flex gap-2">
-        <a href="/" className="text-lg underline">
-          {t("home.link")}
-        </a>
-        <a href="/login" className="text-lg underline">
-          {t("login.link")}
-        </a>
-      </div>
+    <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
+      {/* fondo de estrellas */}
+      <Starfield />
 
-      <div className="flex gap-2">
-        <button
-          className="px-4 py-2 border rounded cursor-pointer"
-          onClick={() => changeLanguage("en")}
-        >
-          English
-        </button>
-        <button
-          className="px-4 py-2 border rounded cursor-pointer"
-          onClick={() => changeLanguage("es")}
-        >
-          Español
-        </button>
-      </div>
+      {/* top bar */}
+      <Header />
 
-      <h1 className="text-3xl font-bold underline">{t("home.title")}</h1>
+      {/* layout principal */}
+      <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
+        <LeftPanel />
+
+        {/* Canvas 3d*/}
+        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4">
+          {/* barra superior del panel (pills + insignias) */}
+          <LoaderSystem />
+
+          {roomId && skinId && (
+            <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
+              <Engine.Core>
+                <DebugSystem enabled={true} />
+                <InteractionSystem onObjectHoverEnter={hoverHandler} />
+                <AnimationSystem />
+                <CameraSystem />
+                <RoomScene />
+              </Engine.Core>
+            </Engine.Canvas>
+          )}
+
+          {/* marco / contenedor del orbe con “esquinas” */}
+        </Card>
+      </main>
     </div>
   );
 }

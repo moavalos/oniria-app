@@ -5,13 +5,56 @@
     "description": "Explora el mundo de los sueños con Oniria."
   },
   "login": {
-    "link": "Iniciar Sesión",
-    "title": "Iniciar Sesión",
+    "link": "Iniciá sesión",
+    "subtitle": "Iniciá sesión con tu cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "button": "Ingresar",
+    "forgot": "Olvidé mi contraseña",
+    "or": "o",
+    "google": "Continuar con Google",
+    "register": "¿No tenés cuenta? <1>Registrate</1>",
+    "error": "Credenciales inválidas"
+  },
+  "register": {
+    "link": "Registrate",
+    "subtitle": "Creá tu cuenta",
     "username": "Nombre de usuario",
-    "password": "Contraseña"
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "button": "Registrarse",
+    "errorPasswordMatch": "Las contraseñas no coinciden",
+    "text": "¿Ya tenés una cuenta?",
+    "textLink": "Iniciá sesión"
   },
   "notFound": {
     "link": "404",
     "message": "Página no encontrada"
+  },
+  "historial": {
+    "title": "Explora tus Nodos",
+    "description": "Selecciona entre las plantillas que más te gusten",
+    "oniriaPro": "Probá Oniria PRO",
+    "visibility": "Visibilidad",
+    "public": "Público",
+    "insignia": "Insignias",
+    "emocion": "Emoción",
+    "soporte": "Soporte",
+    "atajos": "Atajos",
+    "salir": "Salir"
+  },
+  "node": {
+    "title": "¿Qué soñaste?",
+    "descriptionLabel": "Escribí tu sueño",
+    "placeholderNode": "Escribí tu sueño acá…",
+    "character1": "Te pasaste del máximo de ",
+    "character2": "caracteres",
+    "interpretar": "Interpretar",
+    "myroom": "Mi habitación",
+    "personalizar": "Personalizar",
+    "toque": "Dale tu toque al espacio",
+    "insignia": "Mis insignias",
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria."
   }
 }
