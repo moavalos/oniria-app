@@ -1,43 +1,50 @@
-import { useTranslation } from "react-i18next";
+import {
+  Engine,
+  useEngine,
+  RoomScene,
+  LoaderSystem,
+  CameraSystem,
+  AnimationSystem,
+  InteractionSystem,
+  DebugSystem,
+} from "@/engine";
+
+import { useEffect } from "react";
 
 export default function Home() {
-  const { t, i18n } = useTranslation();
+  const engine = useEngine();
+  //algo asi seria la respuesta del backend
+  //y se lo pasariamos al engine
+  //para setear la room y skin
+  //por ahora hardcodeado
+  const backendSettings = { roomId: "oniria", skinId: "oniria" };
+  const { roomId, skinId } = backendSettings;
 
-  const changeLanguage = (lng: "en" | "es") => {
-    i18n.changeLanguage(lng);
+  useEffect(() => {
+    engine.setRoom(roomId, skinId);
+  }, []);
+
+  const hoverHandler = (args: any) => {
+    console.log("hovered", args.objectName || args);
   };
 
   return (
-    <div className="flex flex-col gap-3 justify-center items-center h-screen">
-      {/* nav */}
-      <div className="flex gap-2">
-        <a href="/" className="text-lg underline">
-          {t("home.link")}
-        </a>
-        <a href="/login" className="text-lg underline">
-          {t("login.link")}
-        </a>
-        <a href="/register" className="text-lg underline">
-          {t("register.link")}
-        </a>
-      </div>
+    <>
+      <LoaderSystem />
 
-      <div className="flex gap-2">
-        <button
-          className="px-4 py-2 border rounded cursor-pointer"
-          onClick={() => changeLanguage("en")}
-        >
-          English
-        </button>
-        <button
-          className="px-4 py-2 border rounded cursor-pointer"
-          onClick={() => changeLanguage("es")}
-        >
-          Español
-        </button>
+      <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
+        {roomId && skinId && (
+          <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
+            <Engine.Core>
+              <DebugSystem enabled={true} />
+              <InteractionSystem onObjectHoverEnter={hoverHandler} />
+              <AnimationSystem />
+              <CameraSystem />
+              <RoomScene />
+            </Engine.Core>
+          </Engine.Canvas>
+        )}
       </div>
-
-      <h1 className="text-3xl font-bold underline">{t("home.title")}</h1>
-    </div>
+    </>
   );
 }
