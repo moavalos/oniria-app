@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
   useCallback,
+  useEffect,
   type PropsWithChildren,
 } from "react";
 import type { EngineSettings } from "@engine/types/engine.types";
@@ -32,15 +33,17 @@ type EngineCoreAPI = {
   activeNode: Node | null;
   loopService: LoopService;
   engineState: EngineState;
+  // ✅ Solo necesitamos updateActiveRoom en el contexto
+  updateActiveRoom: () => void;
   setEngineState: (state: EngineState) => void;
   unregisterService: (name: string) => void;
   registerService: (name: string, service: unknown) => void;
   registerRoom: (roomId: string, skinId: string) => void;
-  registerSkin: (skinId: string) => void;
   registerNode: (
     nodeId: string,
     nodeRef: THREE.Group<THREE.Object3DEventMap>
   ) => void;
+  registerSkin: (skinId: string) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;
   getInteractionService: () => InteractionService;
@@ -48,6 +51,9 @@ type EngineCoreAPI = {
 };
 
 export const EngineCoreContext = createContext<EngineCoreAPI | null>(null);
+
+// ✅ Contexto separado para roomVersion para evitar re-renders
+const RoomVersionContext = createContext<number>(0);
 
 interface EngineCanvasProps extends PropsWithChildren {
   engineSettings: EngineSettings;
@@ -95,6 +101,9 @@ export function EngineCore({ children }: EngineCoreProps) {
   const [servicesState, setServicesState] = useState<EngineState>(
     EngineState.INITIALIZING
   );
+  // ✅ Estado centralizado para versiones de Room
+  const [roomVersion, setRoomVersion] = useState<number>(0);
+
   const { scene, camera, gl, size, clock } = useThree();
 
   // LoopService se inicializa inmediatamente y vive durante toda la sesión
@@ -180,10 +189,10 @@ export function EngineCore({ children }: EngineCoreProps) {
     (nodeId: string, nodeRef: THREE.Group<THREE.Object3DEventMap>): void => {
       try {
         if (!nodeId?.trim()) {
-          throw new Error("El ID del nodo no puede estar vacío");
+          throw new Error("Node ID cannot be empty");
         }
         if (!nodeRef) {
-          throw new Error("La referencia del nodo no puede ser nula");
+          throw new Error("Node ref cannot be null");
         }
 
         // Crear o actualizar el nodo activo
@@ -196,7 +205,7 @@ export function EngineCore({ children }: EngineCoreProps) {
         // Establecer la referencia del grupo
         node.setGroup(nodeRef);
       } catch (error) {
-        console.error("Error al registrar el nodo:", error);
+        console.error("Failed to register node:", error);
         setActiveNode(null);
         throw error;
       }
@@ -258,6 +267,28 @@ export function EngineCore({ children }: EngineCoreProps) {
     return service;
   }, [services, registerService]);
 
+  // ✅ Método para actualizar versión de Room desde eventos
+  const updateActiveRoom = useCallback(() => {
+    setRoomVersion((prev) => prev + 1);
+  }, []); // Sin dependencias para evitar loops
+
+  // ✅ Configurar listeners de eventos de Room cuando activeRoom cambia
+  useEffect(() => {
+    if (activeRoom) {
+      // Escuchar todos los eventos de cambio de Room
+      const handleRoomChange = () => {
+        updateActiveRoom();
+      };
+
+      activeRoom.on("change", handleRoomChange);
+
+      // Cleanup al desmontarse o cambiar de room
+      return () => {
+        activeRoom.off("change");
+      };
+    }
+  }, [activeRoom, updateActiveRoom]); // Solo depende de activeRoom
+
   const value = useMemo(
     () => ({
       scene,
@@ -270,6 +301,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       activeNode,
       loopService,
       engineState: servicesState,
+      // ✅ Solo updateActiveRoom, sin roomVersion para evitar re-renders
+      updateActiveRoom,
       setEngineState,
       unregisterService,
       registerService,
@@ -292,6 +325,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       activeNode,
       loopService,
       servicesState,
+      // ✅ Sin roomVersion para evitar re-renders constantes
+      updateActiveRoom,
       setEngineState,
       unregisterService,
       registerService,
@@ -306,9 +341,11 @@ export function EngineCore({ children }: EngineCoreProps) {
   );
 
   return (
-    <EngineCoreContext.Provider value={value}>
-      {children}
-    </EngineCoreContext.Provider>
+    <RoomVersionContext.Provider value={roomVersion}>
+      <EngineCoreContext.Provider value={value}>
+        {children}
+      </EngineCoreContext.Provider>
+    </RoomVersionContext.Provider>
   );
 }
 
@@ -317,6 +354,11 @@ export function useEngineCore() {
   if (!ctx)
     throw new Error("useEngineCore debe usarse dentro de EngineCoreProvider");
   return ctx;
+}
+
+// ✅ Hook separado para roomVersion
+export function useRoomVersionFromEngine() {
+  return useContext(RoomVersionContext);
 }
 
 EngineCore.displayName = "Engine.Core";

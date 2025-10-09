@@ -18,6 +18,7 @@ const uniformDefaults = {
     uFresnelIntensity: 2.0,
     uOnlyMask: 0.0,
     uFresnelBright: 1.7,
+    uFresnelBrightWidth: 0.7,
 
     // Nuevos controles de color del blob
     // Colores del plasma
@@ -59,6 +60,7 @@ type EngineStore = {
         uFresnelIntensity: number;
         uOnlyMask: number;
         uFresnelBright: number;
+        uFresnelBrightWidth: number;
 
         // Nuevos controles de color del blob
         uPlasmaColor: [number, number, number];

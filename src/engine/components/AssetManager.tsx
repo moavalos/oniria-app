@@ -78,6 +78,18 @@ export default function AssetManager({
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const loadingRef = useRef(false);
 
+  // ✅ Refs para estabilizar callbacks
+  const onLoadedRef = useRef(onLoaded);
+  const onLoadStartRef = useRef(onLoadStart);
+  const onErrorRef = useRef(onError);
+
+  // Actualizar refs cuando cambien las props
+  useEffect(() => {
+    onLoadedRef.current = onLoaded;
+    onLoadStartRef.current = onLoadStart;
+    onErrorRef.current = onError;
+  });
+
   // Callback de progreso
   useEffect(() => {
     if (onProgress && isLoading) {
@@ -137,8 +149,8 @@ export default function AssetManager({
     setAssetsLoaded(false);
 
     try {
-      // Callback de inicio
-      onLoadStart?.();
+      // Callback de inicio usando ref
+      onLoadStartRef.current?.();
 
       // Cargar assets usando useThreeLoader (ya limpia nombres)
       const rawAssets = await loadAssets(assets);
@@ -149,16 +161,21 @@ export default function AssetManager({
       setAssetsLoaded(true);
 
       // Callback con assets organizados (similar a useLoader)
-      onLoaded?.(organizedAssets);
+      console.log("📦 AssetManager - onLoaded callback", {
+        assetsKeys: Object.keys(organizedAssets),
+        timestamp: Date.now(),
+        stack: new Error().stack?.split("\n")[1]?.trim(),
+      });
+      onLoadedRef.current?.(organizedAssets);
     } catch (error) {
       console.error("❌ AssetManager: Error durante la carga:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Error desconocido";
-      onError?.(errorMessage);
+      onErrorRef.current?.(errorMessage);
     } finally {
       loadingRef.current = false;
     }
-  }, [assets, loadAssets, onLoaded, onLoadStart, onError, organizeAssets]);
+  }, [assets, loadAssets, organizeAssets]); // ✅ Solo dependencias esenciales
 
   // Iniciar carga cuando cambian los assets
   useEffect(() => {

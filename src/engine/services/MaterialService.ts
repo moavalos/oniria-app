@@ -82,14 +82,27 @@ export class MaterialService {
 
     applyMaterialsToPortal(portal: THREE.Object3D | undefined, uniforms = {}) {
         if (!portal) return;
+
+        console.log("🔧 MaterialService - Applying portal material:", {
+            hasPortal: !!portal,
+            hasVertexShader: !!portalVertexShader,
+            hasFragmentShader: !!portalFragmentShader,
+            vertexShaderLength: portalVertexShader?.length,
+            fragmentShaderLength: portalFragmentShader?.length,
+            uniformsKeys: Object.keys(uniforms)
+        });
+
         (portal as THREE.Mesh).material = new THREE.ShaderMaterial({
             uniforms,
             vertexShader: portalVertexShader,
             fragmentShader: portalFragmentShader,
-            transparent: false,
-            depthWrite: false,
+            transparent: true,
+            depthWrite: true,
             colorWrite: true,
+            side: THREE.DoubleSide,
         });
+
+        console.log("🔧 MaterialService - Portal material applied successfully");
     }
 
     applyMaterialsToNodes(node: THREE.Group<THREE.Object3DEventMap> | undefined, uniforms: Record<string, any> = {}): THREE.ShaderMaterial | null {
@@ -159,7 +172,7 @@ export class MaterialService {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
                 // console.log(mesh)
-                // if (mesh.name === "portal") return; // skip portal
+                if (mesh.name === "portal") return; // skip portal
 
                 if (this.materialMap[mesh.name]) {
                     mesh.material = this.materialMap[mesh.name];

@@ -2,8 +2,14 @@ import * as THREE from 'three';
 import { type AnimationAction, type ObjectEventArray } from '../config/room.type';
 import { Skin } from './Skin';
 import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager';
+import { EventEmitter } from '../utils/EventEmitter';
 
-export class Room {
+// Eventos que puede emitir Room
+interface RoomEventMap {
+    'change': { room: Room; changeType: 'scene' | 'skin' | 'textures' };
+}
+
+export class Room extends EventEmitter<RoomEventMap> {
     public readonly id: string;
     public skin: Skin;
     private scene: THREE.Group<THREE.Object3DEventMap> | null = null;
@@ -12,9 +18,10 @@ export class Room {
     private portal: THREE.Object3D | undefined = undefined;
     private readonly meshUrl: string;
     private configManager: ConfigManager;
-    private _version: number = 0;
 
     constructor(id: string, skin: Skin) {
+        super(); // ✅ Llamar constructor de EventEmitter
+
         if (!id?.trim()) {
             throw new Error('Room ID cannot be empty');
         }
@@ -26,6 +33,11 @@ export class Room {
         this.skin = skin;
         this.meshUrl = `models/${id}.gltf`;
         this.configManager = ConfigManager.getInstance();
+
+        console.log(`🏠 Room[${this.id}] - Constructor called (EventEmitter)`, {
+            skinId: skin.id,
+            stack: new Error().stack?.split('\n')[1]?.trim()
+        });
     }
 
     // Método para cargar la configuración cuando sea necesario
@@ -55,7 +67,14 @@ export class Room {
         }
         this.scene = scene;
         this.portal = scene.getObjectByName("portal") || undefined;
-        this._version++; // Incrementar versión cuando cambia la scene
+
+        // ✅ Solo emitir evento change
+        this.emit('change', { room: this, changeType: 'scene' });
+
+        console.log(`🏠 Room[${this.id}] - setScene() emitted change event`, {
+            scene: scene.name || 'unnamed',
+            portal: !!this.portal,
+        });
     }
 
     setSkin(skin: Skin): void {
@@ -63,7 +82,13 @@ export class Room {
             throw new Error('Skin cannot be null');
         }
         this.skin = skin;
-        this._version++; // Incrementar versión cuando cambia el skin
+
+        // ✅ Solo emitir evento change
+        this.emit('change', { room: this, changeType: 'skin' });
+
+        console.log(`🏠 Room[${this.id}] - setSkin() emitted change event`, {
+            skin: skin.id,
+        });
     }
 
     setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture, environmentTexture: THREE.Texture }): void {
@@ -72,12 +97,20 @@ export class Room {
         }
         this.objectTexture = objectTexture;
         this.environmentTexture = environmentTexture;
-        this._version++; // Incrementar versión cuando cambian las texturas
+
+        // ✅ Solo emitir evento change
+        this.emit('change', { room: this, changeType: 'textures' });
+
+        console.log(`🏠 Room[${this.id}] - setTextures() emitted change event`, {
+            objectTexture: objectTexture.name || 'unnamed',
+            environmentTexture: environmentTexture.name || 'unnamed',
+        });
     }
 
-    getVersion(): number {
-        return this._version;
-    }
+    // ❌ Método deprecado - El core manejará las versiones centralmente
+    // getVersion(): number {
+    //     return this._version;
+    // }
 
     getObjectTexture(): THREE.Texture | null {
         return this.objectTexture;
@@ -201,5 +234,8 @@ export class Room {
         this.objectTexture = null;
         this.environmentTexture = null;
         this.portal = undefined;
+
+        // ✅ Remover todos los listeners del EventEmitter
+        this.removeAllListeners();
     }
 }

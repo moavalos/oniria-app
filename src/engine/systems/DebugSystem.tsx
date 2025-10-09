@@ -31,8 +31,8 @@ export default function DebugSystem({
     node: true,
   },
 }: DebugSystemProps) {
-  const services = useEngineCore();
-  const { engineState } = services;
+  const core = useEngineCore();
+  const { engineState } = core;
 
   // Solo mostrar cuando el engine esté listo (para debug)
   const isEngineReady = engineState === EngineState.READY;
@@ -54,8 +54,8 @@ export default function DebugSystem({
 
 // Panel de Engine General
 function EngineDebugPanel() {
-  const services = useEngineCore();
-  const { activeRoom, engineState } = services;
+  const core = useEngineCore();
+  const { activeRoom, engineState } = core;
 
   // Crear un objeto de controles que se actualice reactivamente
   const controls = React.useMemo(
@@ -100,9 +100,9 @@ function EngineDebugPanel() {
 
 // Panel de Cámara
 function CameraDebugPanel() {
-  const services = useEngineCore();
-  const { activeRoom, engineState } = services;
-  const cameraService = services.getCameraService();
+  const core = useEngineCore();
+  const { activeRoom, engineState } = core;
+  const cameraService = core.getCameraService();
   const { viewNodes } = useTransitions();
 
   console.log(engineState);
@@ -204,8 +204,8 @@ function CameraDebugPanel() {
 
 // Panel de Animaciones
 function AnimationDebugPanel() {
-  const services = useEngineCore();
-  const { activeRoom } = services;
+  const core = useEngineCore();
+  const { activeRoom } = core;
 
   useControls("🎬 Animation", {
     totalClips: {
@@ -229,8 +229,8 @@ function AnimationDebugPanel() {
 
 // Panel de Interacciones
 function InteractionDebugPanel() {
-  const services = useEngineCore();
-  const { activeRoom, engineState } = services;
+  const core = useEngineCore();
+  const { activeRoom, engineState } = core;
 
   // Estado para interactables (usando patrón async como AnimationSystem)
   const [interactables, setInteractables] = useState<Record<string, any>>({});
@@ -291,8 +291,8 @@ function InteractionDebugPanel() {
 
 // Panel de Escena
 function SceneDebugPanel() {
-  const services = useEngineCore();
-  const { activeRoom } = services;
+  const core = useEngineCore();
+  const { activeRoom } = core;
 
   const sceneInfo = React.useMemo(() => {
     const scene = activeRoom?.getScene();

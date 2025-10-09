@@ -24,8 +24,8 @@ export default function Home() {
     engine.setRoom(roomId, skinId);
   }, []);
 
-  const hoverHandler = (objectName: string) => {
-    console.log("hovered", objectName);
+  const hoverHandler = (args: any) => {
+    console.log("hovered", args.objectName || args);
   };
 
   return (

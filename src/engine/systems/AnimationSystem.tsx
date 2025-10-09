@@ -27,11 +27,11 @@ export default function AnimationSystem({
   enableAnimations = true,
   autoConfigureForRoom = true,
 }: AnimationSystemProps) {
-  const services = useEngineCore();
-  const { activeRoom, engineState } = services;
+  const core = useEngineCore();
+  const { activeRoom, engineState } = core;
   const roomVersion = useRoomVersion(activeRoom);
   const activeScene = activeRoom?.getScene();
-  const animationService = services.getAnimationService();
+  const animationService = core.getAnimationService();
 
   const [animatables, setAnimatables] = useState<
     Record<string, AnimationAction>

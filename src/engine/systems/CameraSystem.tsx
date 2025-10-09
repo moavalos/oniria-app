@@ -34,9 +34,9 @@ export default function CameraSystem({
   enableControls = true,
   autoConfigureForRoom = true,
 }: CameraSystemProps) {
-  const services = useEngineCore();
-  const { loopService, activeRoom, engineState } = services;
-  const cameraService = services.getCameraService();
+  const core = useEngineCore();
+  const { loopService, activeRoom, engineState } = core;
+  const cameraService = core.getCameraService();
 
   // Solo funcionar cuando el engine esté listo
   const isEngineReady = engineState === EngineState.READY;

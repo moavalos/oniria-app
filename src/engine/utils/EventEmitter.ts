@@ -4,7 +4,10 @@ interface Name {
     namespace: string
 }
 
-export class EventEmitter {
+// Tipo genérico para mapa de eventos
+type EventMap = Record<string, any>;
+
+export class EventEmitter<T extends EventMap = EventMap> {
     callbacks: any = {}
 
     constructor() {
@@ -12,6 +15,8 @@ export class EventEmitter {
         this.callbacks.base = {}
     }
 
+    on<K extends keyof T>(_names: K, callback: (event: T[K]) => void): this;
+    on(_names: string, callback: Function): this;
     on(_names: string, callback: Function) {
         // Errors
         if (typeof _names === 'undefined' || _names === '') {
@@ -153,6 +158,18 @@ export class EventEmitter {
         }
 
         return finalResult
+    }
+
+    // ✅ Método emit para compatibilidad con Node.js EventEmitter API
+    emit<K extends keyof T>(eventName: K, data: T[K]): boolean {
+        return this.trigger(eventName as string, [data]) !== false;
+    }
+
+    // ✅ Método para remover todos los listeners
+    removeAllListeners(): this {
+        this.callbacks = {};
+        this.callbacks.base = {};
+        return this;
     }
 
     resolveNames(_names: string) {

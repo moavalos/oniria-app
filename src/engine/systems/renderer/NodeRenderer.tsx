@@ -40,6 +40,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
       uFresnelIntensity: { value: nodeUniforms.uFresnelIntensity },
       uOnlyMask: { value: nodeUniforms.uOnlyMask },
       uFresnelBright: { value: nodeUniforms.uFresnelBright },
+      uFresnelBrightWidth: { value: nodeUniforms.uFresnelBrightWidth },
 
       // Nuevos uniforms de color del blob
       uPlasmaColor: { value: new THREE.Vector3(...nodeUniforms.uPlasmaColor) },
@@ -99,7 +100,9 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
       materialRef.current.uniforms.uOnlyMask.value = nodeUniforms.uOnlyMask;
       materialRef.current.uniforms.uFresnelBright.value =
         nodeUniforms.uFresnelBright;
-
+      materialRef.current.uniforms.uFresnelBrightWidth.value =
+        nodeUniforms.uFresnelBrightWidth;
+      console.log(nodeUniforms.uFresnelBrightWidth);
       // Nuevos uniforms de color
       materialRef.current.uniforms.uPlasmaColor.value.set(
         ...nodeUniforms.uPlasmaColor
@@ -169,7 +172,9 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
     if (!isEngineReady) return;
 
     const renderBackgroundShader = (_: unknown, deltaTime: number) => {
-      uniforms.uTime.value += deltaTime;
+      if (materialRef.current?.uniforms?.uTime) {
+        materialRef.current.uniforms.uTime.value += deltaTime;
+      }
     };
 
     loopService.subscribe(renderBackgroundShader);

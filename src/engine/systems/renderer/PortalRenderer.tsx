@@ -9,9 +9,9 @@ interface PortalRendererProps {
 }
 
 export const PortalRenderer = ({ portal }: PortalRendererProps) => {
-  const services = useEngineCore();
-  const { loopService, engineState } = services;
-  const materialService = services.getMaterialService();
+  const core = useEngineCore();
+  const { loopService, engineState } = core;
+  const materialService = core.getMaterialService();
   const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
 
   const isEngineReady = engineState === EngineState.READY;
@@ -30,54 +30,39 @@ export const PortalRenderer = ({ portal }: PortalRendererProps) => {
       uGainOffset: { value: 0.5 },
       uGainScale: { value: 3.0 },
     }),
-    [isEngineReady]
+    []
   );
 
-  // Aplicar material al portal cuando esté listo
+  // Aplicar material y configurar animación del portal
   useEffect(() => {
-    if (!isEngineReady || !portal || !materialService) {
+    if (!isEngineReady || !portal || !materialService || !loopService) {
       return;
     }
 
-    const applyPortalMaterial = () => {
-      try {
-        // Verificar que el portal sea un Mesh
-        if (!(portal instanceof THREE.Mesh)) {
-          return;
-        }
+    console.log("🚪 PortalRenderer - Aplicando material al portal");
 
-        // Aplicar el material del portal
-        materialService.applyMaterialsToPortal(portal, portalUniforms);
+    // Aplicar el material del portal
+    materialService.applyMaterialsToPortal(portal, portalUniforms);
 
-        // Verificar que el material se aplicó correctamente
-        const appliedMaterial = portal.material as THREE.ShaderMaterial;
-        if (appliedMaterial && appliedMaterial.uniforms) {
-          portalMaterialRef.current = appliedMaterial;
-        }
-      } catch (error) {
-        console.error("Error aplicando material al portal:", error);
-      }
-    };
-
-    // Aplicar material inmediatamente
-    applyPortalMaterial();
-  }, [portal, portalUniforms, materialService, isEngineReady]);
-
-  // Animación del portal - solo si el material está listo
-  useEffect(() => {
-    if (!isEngineReady || !loopService || !portalMaterialRef.current) {
-      return;
+    // Guardar referencia al material
+    const portalMesh = portal as THREE.Mesh;
+    if (portalMesh.material && "uniforms" in portalMesh.material) {
+      portalMaterialRef.current = portalMesh.material as THREE.ShaderMaterial;
     }
 
-    const animatePortal = (_: unknown, dt: number) => {
+    // Configurar animación
+    const animatePortal = (_: unknown, delta: number) => {
       if (portalMaterialRef.current?.uniforms?.uTime) {
-        portalMaterialRef.current.uniforms.uTime.value += dt;
+        portalMaterialRef.current.uniforms.uTime.value += delta;
       }
     };
 
     loopService.subscribe(animatePortal);
-    return () => loopService.unsubscribe(animatePortal);
-  }, [loopService, isEngineReady, portalMaterialRef.current]);
+
+    return () => {
+      loopService.unsubscribe(animatePortal);
+    };
+  }, [isEngineReady, portal, materialService, loopService, portalUniforms]);
 
   return <NodeScene />;
 };

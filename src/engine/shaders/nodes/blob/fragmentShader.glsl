@@ -10,6 +10,7 @@ uniform float uPlasmaRadius;     // Radio del plasma dentro de la esfera
 uniform float uFresnelWidth;     // Qué tan "grueso" es el borde contenedor
 uniform float uFresnelIntensity; // Intensidad del efecto fresnelghp float
 uniform float uFresnelBright;   // Brillo extra en el borde del contenedor
+uniform float uFresnelBrightWidth; // Ancho del brillo extra en el borde del contenedor
 
 // === CONTROLES DE COLOR ===
 // Colores del plasma
@@ -98,7 +99,7 @@ vec3 glassLayer(vec2 uv,float t){
 
   // Fresnel final - borde brillante del contenedor
   col=c+col*pow((1.0-smoothstep(1.0,uFresnelWidth,l)
-                -pow(max(0.0,length(uv)-1.0),0.7))*uFresnelBright,2.0);
+                -pow(max(0.0,length(uv)-1.0),uFresnelBrightWidth))*uFresnelBright,2.0);
   col+=abs(norm)*(1.0-d)*sm*0.55;
 
   return col;
