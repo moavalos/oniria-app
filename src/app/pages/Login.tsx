@@ -1,6 +1,6 @@
 import Card from "../../shared/components/Card";
 import AuthTitle from "../features/auth/components/AuthTitle";
-import LoginForm from "../features/auth/components/LoginForm";
+import LoginForm from "../features/auth/login/LoginForm";
 import GoogleButton from "../features/auth/components/GoogleButton";
 import AuthLinks from "../features/auth/components/AuthLinks";
 import bgImage from "../../assets/images/Screenshot_1.png";
@@ -16,7 +16,6 @@ export default function Login() {
         alt="background"
         className="absolute inset-0 w-full h-full object-cover -z-10"
       />
-
       <Card className="p-7 min-w-sm">
         <AuthTitle title="Oniria" subtitle={t("login.subtitle")} />
         <LoginForm />

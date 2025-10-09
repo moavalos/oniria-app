@@ -17,6 +17,9 @@ export default function Home() {
         <a href="/login" className="text-lg underline">
           {t("login.link")}
         </a>
+        <a href="/register" className="text-lg underline">
+          {t("register.link")}
+        </a>
       </div>
 
       <div className="flex gap-2">

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "home": {
     "link": "Inicio",
@@ -46,3 +47,41 @@
     "descriptionInsignia": "Gestioná tus logros dentro de Oniria."
   }
 }
+=======
+  {
+    "home": {
+      "link": "Inicio",
+      "title": "Bienvenido a Oniria",
+      "description": "Explora el mundo de los sueños con Oniria."
+    },
+    "login": {
+      "link": "Iniciá sesión",
+      "subtitle": "Iniciá sesión con tu cuenta",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "button": "Ingresar",
+      "forgot": "Olvidé mi contraseña",
+      "or": "o",
+      "google": "Continuar con Google",
+      "text": "¿No tenés una cuenta?",
+      "textLink": "Registrate",
+      "error": "Credenciales inválidas"
+    },
+    "register": {
+      "link": "Registrate",
+      "subtitle": "Creá tu cuenta",
+      "username": "Nombre de usuario",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "button": "Registrarse",
+      "errorPasswordMatch": "Las contraseñas no coinciden",
+      "text": "¿Ya tenés una cuenta?",
+      "textLink": "Iniciá sesión"
+    },
+    "notFound": {
+      "link": "404",
+      "message": "Página no encontrada"
+    }
+  }
+>>>>>>> feature/register-form
