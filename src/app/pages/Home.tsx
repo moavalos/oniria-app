@@ -1,3 +1,5 @@
+import Sidebar from "../features/auth/components/Sidebar";
+import { useTranslation } from "react-i18next";
 import {
   Engine,
   useEngine,
@@ -9,9 +11,14 @@ import {
   DebugSystem,
 } from "@/engine";
 
+import Starfield from "../features/auth/components/Starfield";
+import Header from "../features/auth/components/Header";
+import Card from "@/shared/components/Card";
 import { useEffect } from "react";
+import LeftPanel from "../features/auth/components/LeftPanel";
 
 export default function Home() {
+  const { t } = useTranslation();
   const engine = useEngine();
   //algo asi seria la respuesta del backend
   //y se lo pasariamos al engine
@@ -29,22 +36,37 @@ export default function Home() {
   };
 
   return (
-    <>
-      <LoaderSystem />
+    <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
+      {/* fondo de estrellas */}
+      <Starfield />
 
-      <div className="p-5 h-full w-full rounded-3xl bg-gradient-to-b from-black/80 via-black/30 to-black/80">
-        {roomId && skinId && (
-          <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
-            <Engine.Core>
-              <DebugSystem enabled={true} />
-              <InteractionSystem onObjectHoverEnter={hoverHandler} />
-              <AnimationSystem />
-              <CameraSystem />
-              <RoomScene />
-            </Engine.Core>
-          </Engine.Canvas>
-        )}
-      </div>
-    </>
+      {/* top bar */}
+      <Header />
+
+      {/* layout principal */}
+      <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
+        <LeftPanel />
+
+        {/* Canvas 3d*/}
+        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4">
+          {/* barra superior del panel (pills + insignias) */}
+          <LoaderSystem />
+
+          {roomId && skinId && (
+            <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
+              <Engine.Core>
+                <DebugSystem enabled={true} />
+                <InteractionSystem onObjectHoverEnter={hoverHandler} />
+                <AnimationSystem />
+                <CameraSystem />
+                <RoomScene />
+              </Engine.Core>
+            </Engine.Canvas>
+          )}
+
+          {/* marco / contenedor del orbe con “esquinas” */}
+        </Card>
+      </main>
+    </div>
   );
 }
