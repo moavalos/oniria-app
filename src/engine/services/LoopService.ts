@@ -1,6 +1,6 @@
 import { type RootState } from "@react-three/fiber";
 
-type FrameCallback = (state: RootState, delta: number) => void;
+type FrameCallback = (_state: RootState, _delta: number) => void;
 
 export class LoopService {
     private callbacks = new Set<FrameCallback>();
@@ -8,6 +8,7 @@ export class LoopService {
     subscribe(cb: FrameCallback) {
         this.callbacks.add(cb);
     }
+
     unsubscribe(cb: FrameCallback) {
         this.callbacks.delete(cb);
     }

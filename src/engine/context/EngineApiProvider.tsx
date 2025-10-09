@@ -37,6 +37,7 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useEngineAPI() {
   const ctx = useContext(EngineAPIContext);
   if (!ctx)

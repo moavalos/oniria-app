@@ -5,28 +5,29 @@ interface Name {
 }
 
 // Tipo genérico para mapa de eventos
-type EventMap = Record<string, any>;
+type EventMap = Record<string, unknown>;
+
+// Tipo para callback función genérica
+type CallbackFunction = (..._args: unknown[]) => unknown;
 
 export class EventEmitter<T extends EventMap = EventMap> {
-    callbacks: any = {}
+    callbacks: Record<string, Record<string, CallbackFunction[]>> = {}
 
     constructor() {
         this.callbacks = {}
         this.callbacks.base = {}
     }
 
-    on<K extends keyof T>(_names: K, callback: (event: T[K]) => void): this;
-    on(_names: string, callback: Function): this;
-    on(_names: string, callback: Function) {
+    on(_names: string, callback: CallbackFunction): this {
         // Errors
         if (typeof _names === 'undefined' || _names === '') {
             console.warn('wrong names')
-            return false
+            return this
         }
 
         if (typeof callback === 'undefined') {
             console.warn('wrong callback')
-            return false
+            return this
         }
 
         // Resolve names
@@ -105,24 +106,24 @@ export class EventEmitter<T extends EventMap = EventMap> {
         return this
     }
 
-    trigger(_name: string, _args?: any[]) {
+    trigger(_name: string, _args?: unknown[]): unknown {
         // Errors
         if (typeof _name === 'undefined' || _name === '') {
             console.warn('wrong name')
             return false
         }
 
-        let finalResult: any = null
+        let finalResult: unknown = null
         let result = null
 
         // Default args
         const args = !(_args instanceof Array) ? [] : _args
 
         // Resolve names (should on have one event)
-        let nameArray = this.resolveNames(_name)
+        const nameArray = this.resolveNames(_name)
 
         // Resolve name
-        let name = this.resolveName(nameArray[0])
+        const name = this.resolveName(nameArray[0])
 
         // Default namespace
         if (name.namespace === 'base') {
@@ -132,7 +133,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
                     this.callbacks[namespace] instanceof Object &&
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
-                    this.callbacks[namespace][name.value].forEach((callback: Function) => {
+                    this.callbacks[namespace][name.value].forEach((callback: CallbackFunction) => {
                         result = callback.apply(this, args)
 
                         if (typeof finalResult === 'undefined') {
@@ -150,7 +151,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
                 return this
             }
 
-            this.callbacks[name.namespace][name.value].forEach((callback: Function) => {
+            this.callbacks[name.namespace][name.value].forEach((callback: CallbackFunction) => {
                 result = callback.apply(this, args)
 
                 if (typeof finalResult === 'undefined') finalResult = result

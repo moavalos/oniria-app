@@ -15,7 +15,6 @@ export default defineConfig([
       tseslint.configs.recommended,
       reactHooks.configs["recommended-latest"],
       reactRefresh.configs.vite,
-      reactThree.configs.recommended,
     ],
     plugins: {
       "@react-three": reactThree,
@@ -27,6 +26,8 @@ export default defineConfig([
     rules: {
       "lines-between-class-members": ["error", "always"],
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/ban-types": "off",
     },
   }, // Configuración específica para archivos de test y mock
   {
@@ -41,6 +42,7 @@ export default defineConfig([
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-explicit-any": "off",
     },
   },

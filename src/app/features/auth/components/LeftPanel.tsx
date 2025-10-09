@@ -12,7 +12,7 @@ import CtaButton from "./CtaButton";
 import { useTranslation } from "react-i18next";
 
 type LeftPanelProps = {
-  onInterpretar?: (dream: string) => void;
+  onInterpretar?: (_dream: string) => void;
   onPersonalizar?: () => void;
   onInsignias?: () => void;
   initialDream?: string;

@@ -10,7 +10,7 @@ export function useTransitions() {
 
 
 
-    const viewNodes = useCallback(({ }) => {
+    const viewNodes = useCallback(() => {
         if (!cameraService || !activeRoom) return;
         const target = activeRoom.getPortal()?.position;
         if (!target) return;

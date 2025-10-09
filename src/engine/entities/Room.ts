@@ -5,18 +5,25 @@ import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager
 import { EventEmitter } from '../utils/EventEmitter';
 
 // Eventos que puede emitir Room
-interface RoomEventMap {
+interface RoomEventMap extends Record<string, unknown> {
     'change': { room: Room; changeType: 'scene' | 'skin' | 'textures' };
 }
 
 export class Room extends EventEmitter<RoomEventMap> {
     public readonly id: string;
+
     public skin: Skin;
+
     private scene: THREE.Group<THREE.Object3DEventMap> | null = null;
+
     private objectTexture: THREE.Texture | null = null;
+
     private environmentTexture: THREE.Texture | null = null;
+
     private portal: THREE.Object3D | undefined = undefined;
+
     private readonly meshUrl: string;
+
     private configManager: ConfigManager;
 
     constructor(id: string, skin: Skin) {

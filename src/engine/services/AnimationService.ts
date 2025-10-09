@@ -2,14 +2,18 @@ import * as THREE from "three";
 import type { AnimationAction } from "../config/room.type";
 import { AnimationRepository } from "./animation";
 
-type AnimationCallback = (targetName: string, animationType: string) => void;
-type AnimationUpdateCallback = (targetName: string, progress: number) => void;
+type AnimationCallback = (_targetName: string, _animationType: string) => void;
+type AnimationUpdateCallback = (_targetName: string, _progress: number) => void;
 
 export class AnimationService {
     private animations: Record<string, any> = {}; // Timeline de GSAP
+
     private animationRepository: AnimationRepository;
+
     private onAnimationStart?: AnimationCallback;
+
     private onAnimationComplete?: AnimationCallback;
+
     private onAnimationUpdate?: AnimationUpdateCallback;
 
     constructor(private scene: THREE.Group<THREE.Object3DEventMap> | null) {
@@ -157,7 +161,7 @@ export class AnimationService {
     /**
      * Registra una nueva animación personalizada
      */
-    registerCustomAnimation(name: string, handler: (target: THREE.Object3D, config: AnimationAction) => any): void {
+    registerCustomAnimation(name: string, handler: (_target: THREE.Object3D, _config: AnimationAction) => any): void {
         this.animationRepository.registerAnimation(name, handler);
     }
 

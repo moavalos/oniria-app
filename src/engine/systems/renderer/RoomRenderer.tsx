@@ -103,18 +103,6 @@ export default function RoomRenderer() {
     return loadedRoom?.getScene();
   }, [loadedRoom]);
 
-  // Cambiar a READY cuando la escena esté completamente cargada
-  useEffect(() => {
-    if (scene && loadedRoom?.hasScene()) {
-      setEngineState(EngineState.READY);
-    }
-  }, [scene, loadedRoom, setEngineState]);
-
-  // Si no hay room activa, no renderizar nada
-  if (!core.activeRoom || assets.length === 0) {
-    return null;
-  }
-
   // Portal del room cargado
   const portal = useMemo(() => {
     const foundPortal = loadedRoom?.getPortal();
@@ -130,6 +118,18 @@ export default function RoomRenderer() {
     });
     return foundPortal;
   }, [loadedRoom, scene]);
+
+  // Cambiar a READY cuando la escena esté completamente cargada
+  useEffect(() => {
+    if (scene && loadedRoom?.hasScene()) {
+      setEngineState(EngineState.READY);
+    }
+  }, [scene, loadedRoom, setEngineState]);
+
+  // Si no hay room activa, no renderizar nada
+  if (!core.activeRoom || assets.length === 0) {
+    return null;
+  }
 
   return (
     <AssetManager

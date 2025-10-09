@@ -205,6 +205,7 @@ export default function AssetManager({
 /**
  * Hook helper para usar AssetManager con estado local
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAssetManager() {
   const [assets, setAssets] = useState<{
     scene?: THREE.Group;

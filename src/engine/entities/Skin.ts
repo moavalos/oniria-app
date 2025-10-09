@@ -1,5 +1,6 @@
 export class Skin {
     private objectTextureUrl: string | null = null;
+
     private environmentTextureUrl: string | null = null;
 
     constructor(public id: string

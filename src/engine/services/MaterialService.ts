@@ -7,6 +7,7 @@ import maskFragmentShader from "@engine/shaders/nodes/blob/fragmentShaderMask.gl
 import blobVertexShader from "@engine/shaders/nodes/blob/vertexShader.glsl";
 export class MaterialService {
     private scene: THREE.Scene | THREE.Group = null as any;
+
     private materialMap: Record<string, THREE.Material> = {};
 
     constructor() { }
@@ -143,7 +144,9 @@ export class MaterialService {
 
         // Devolver el material principal para que NodeRenderer pueda mantener referencia
         return mat;
-    }    /** Limpia todos los materiales cuando se cambia de habitación */
+    }
+
+    /** Limpia todos los materiales cuando se cambia de habitación */
     clearMaterials() {
         // Disponer de materiales personalizados para liberar memoria
         Object.values(this.materialMap).forEach(material => {

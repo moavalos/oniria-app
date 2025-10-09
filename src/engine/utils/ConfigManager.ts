@@ -18,7 +18,9 @@ export interface ProcessedRoomObjects {
  */
 export class ConfigManager {
     private static instance: ConfigManager | null = null;
+
     private currentConfig: RoomConfig | null = null;
+
     private currentRoomId: string | null = null;
 
     private constructor() { }

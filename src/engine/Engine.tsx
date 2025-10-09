@@ -21,6 +21,8 @@ import {
   LoopService,
   MaterialService,
 } from "@/engine/services";
+// TODO: Migrar gradualmente a archivos separados
+// import { EngineCoreContext, type EngineCoreAPI } from "./context/EngineContext";
 
 type EngineCoreAPI = {
   scene: THREE.Scene | null;
@@ -33,24 +35,20 @@ type EngineCoreAPI = {
   activeNode: Node | null;
   loopService: LoopService;
   engineState: EngineState;
-  // ✅ Solo necesitamos updateActiveRoom en el contexto
   updateActiveRoom: () => void;
-  setEngineState: (state: EngineState) => void;
-  unregisterService: (name: string) => void;
-  registerService: (name: string, service: unknown) => void;
-  registerRoom: (roomId: string, skinId: string) => void;
-  registerNode: (
-    nodeId: string,
-    nodeRef: THREE.Group<THREE.Object3DEventMap>
-  ) => void;
-  registerSkin: (skinId: string) => void;
+  setEngineState: (_state: EngineState) => void;
+  unregisterService: (_name: string) => void;
+  registerService: (_name: string, _service: unknown) => void;
+  registerRoom: (_roomId: string, _skinId: string) => void;
+  registerNode: (_nodeId: string, _nodeRef: THREE.Group<THREE.Object3DEventMap>) => void;
+  registerSkin: (_skinId: string) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;
   getInteractionService: () => InteractionService;
   getMaterialService: () => MaterialService;
 };
 
-export const EngineCoreContext = createContext<EngineCoreAPI | null>(null);
+const EngineCoreContext = createContext<EngineCoreAPI | null>(null);
 
 // ✅ Contexto separado para roomVersion para evitar re-renders
 const RoomVersionContext = createContext<number>(0);
@@ -91,7 +89,7 @@ EngineCanvas.displayName = "Engine.Canvas";
 
 //Engine.Core
 
-interface EngineCoreProps extends PropsWithChildren {}
+type EngineCoreProps = PropsWithChildren;
 
 export function EngineCore({ children }: EngineCoreProps) {
   const [services, setServices] = useState<Record<string, unknown>>({});
@@ -349,7 +347,7 @@ export function EngineCore({ children }: EngineCoreProps) {
   );
 }
 
-export function useEngineCore() {
+function useEngineCore() {
   const ctx = useContext(EngineCoreContext);
   if (!ctx)
     throw new Error("useEngineCore debe usarse dentro de EngineCoreProvider");
@@ -357,7 +355,7 @@ export function useEngineCore() {
 }
 
 // ✅ Hook separado para roomVersion
-export function useRoomVersionFromEngine() {
+function useRoomVersionFromEngine() {
   return useContext(RoomVersionContext);
 }
 
@@ -368,7 +366,11 @@ type EngineNamespace = {
   Core: typeof EngineCore;
 };
 
-export const Engine: EngineNamespace = {
+const Engine: EngineNamespace = {
   Canvas: EngineCanvas,
   Core: EngineCore,
 };
+
+// Exportaciones para mantener compatibilidad
+// eslint-disable-next-line react-refresh/only-export-components
+export { useEngineCore, useRoomVersionFromEngine, Engine };

@@ -17,6 +17,7 @@ import type {
  */
 export class AnimationRepository implements IAnimationRepository {
     private animations: Map<string, AnimationHandler> = new Map();
+
     private metadata: Map<string, AnimationMetadata> = new Map();
 
     constructor() {

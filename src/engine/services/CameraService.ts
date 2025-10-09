@@ -4,6 +4,7 @@ import * as THREE from "three";
 
 export class CameraService {
     private static installed = false;
+
     private controls: CameraControls;
 
     constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {

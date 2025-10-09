@@ -5,7 +5,7 @@ import NavigationArrows from '@/app/features/auth/components/NavigationArrows';
 describe('NavigationArrows', () => {
 
     it('renders the component correctly', () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { container: _container } = render(<NavigationArrows />); // solo verifica que no lance error
         const buttons = screen.getAllByRole('button');
         expect(buttons).toHaveLength(2);
@@ -18,7 +18,7 @@ describe('NavigationArrows', () => {
     });
 
     it('the first button has the icon rotated 90 degrees (to go back)', () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { container: _container } = render(<NavigationArrows />);
         const buttons = screen.getAllByRole('button');
         const firstButtonIcon = buttons[0].querySelector('.rotate-90');
@@ -26,7 +26,7 @@ describe('NavigationArrows', () => {
     });
 
     it('the second button has the icon rotated -90 degrees (to go forward)', () => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const { container: _container } = render(<NavigationArrows />);
         const buttons = screen.getAllByRole('button');
         const secondButtonIcon = buttons[1].querySelector('.-rotate-90');

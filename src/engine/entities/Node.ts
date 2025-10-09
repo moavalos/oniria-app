@@ -2,7 +2,9 @@ import * as THREE from 'three';
 
 export class Node {
     public readonly id: string;
+
     private group: THREE.Group<THREE.Object3DEventMap> | null = null;
+
     private _version: number = 0;
 
     constructor(id: string) {

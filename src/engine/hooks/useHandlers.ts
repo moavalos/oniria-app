@@ -139,10 +139,12 @@ export function useHandlers() {
 
     const onNodeEnter = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
         // Node entered
+        console.log("Node entered:", _event.target.id);
     }, []);
 
     const onNodeLeave = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
         // Node left
+        console.log("Node left:", _event.target.id);
     }, []);
 
     return { onObjectsEnter, onObjectsLeave, onObjectsClick, onNodeClick, onNodeEnter, onNodeLeave };

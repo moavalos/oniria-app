@@ -11,7 +11,7 @@ export type EventArgs<T = any, D = any> = {
 }
 
 // Mapa de tipos de eventos para inferencia automática
-export interface InteractionEventMap {
+export interface InteractionEventMap extends Record<string, unknown> {
     // Eventos de Room
     objectEnter: EventArgs<string, ObjectEventArray>;
     objectLeave: EventArgs<string, ObjectEventArray>;
@@ -24,8 +24,8 @@ export interface InteractionEventMap {
     nodeClick: EventArgs<Node, { distance: number; position: THREE.Vector3 }>;
 }
 
-type InteractionCallback = (args: EventArgs<string, ObjectEventArray>) => void;
-type NodeInteractionCallback = (args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
+type InteractionCallback = (_args: EventArgs<string, ObjectEventArray>) => void;
+type NodeInteractionCallback = (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
 
 // Configuraciones para diferentes tipos de entidades
 interface RoomInteractionConfig {
@@ -42,27 +42,40 @@ type InteractionConfig<T> = T extends Room ? RoomInteractionConfig : T extends N
 
 export class InteractionService extends EventEmitter<InteractionEventMap> {
     private raycaster = new THREE.Raycaster();
+
     private mouse = new THREE.Vector2();
+
     private prevHovered = new Set<string>();
+
     private interactableCache: Record<string, ObjectEventArray> = {};
+
     private currentNodeDistance: number = Infinity;
+
     private isWithinNodeRadius: boolean = false;
+
     private currentNode: Node | null = null; // Referencia al nodo actual
 
     // Callbacks personalizados para Room
     private onObjectEnterCallback?: InteractionCallback;
+
     private onObjectLeaveCallback?: InteractionCallback;
+
     private onObjectClickCallback?: InteractionCallback;
 
     // Callbacks personalizados para Node
     private onNodeEnterCallback?: NodeInteractionCallback;
+
     private onNodeLeaveCallback?: NodeInteractionCallback;
+
     private onNodeMoveCallback?: NodeInteractionCallback;
+
     private onNodeClickCallback?: NodeInteractionCallback;
 
 
     constructor(
+        // eslint-disable-next-line no-unused-vars
         private camera: THREE.Camera,
+        // eslint-disable-next-line no-unused-vars
         private domElement: HTMLElement,
     ) {
         super();
@@ -292,6 +305,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
      * Método legacy para compatibilidad con código existente
      * @deprecated Usa update<Room>(room, { interceptableObjects }) en su lugar
      */
+
     updateRoom(room: Room, interactableObjects: Record<string, ObjectEventArray>) {
         this.update(room, { interceptableObjects: interactableObjects });
     }
