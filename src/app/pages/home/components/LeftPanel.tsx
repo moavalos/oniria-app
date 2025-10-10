@@ -6,10 +6,12 @@ import {
   ChevronRight,
   Quote,
   RefreshCcw,
+  Clock,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import CtaButton from "../../../features/auth/components/CtaButton";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
 
 type LeftPanelProps = {
   onInterpretar?: (_dream: string) => void;
@@ -38,6 +40,7 @@ export default function LeftPanel({
   const charsLeft = useMemo(() => maxChars - dream.length, [dream, maxChars]);
   const isEmpty = dream.trim().length === 0;
   const isTooLong = dream.length > maxChars;
+  const navigate = useNavigate(); 
   const { t } = useTranslation();
 
   return (
@@ -48,9 +51,8 @@ export default function LeftPanel({
             {t("node.title")}
           </div>
           <div
-            className={`text-[11px] ${
-              isTooLong ? "text-red-300" : "text-white/50"
-            }`}
+            className={`text-[11px] ${isTooLong ? "text-red-300" : "text-white/50"
+              }`}
           >
             {charsLeft}
           </div>
@@ -160,7 +162,7 @@ export default function LeftPanel({
 
         <button
           onClick={onInsignias}
-          className="w-full flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-3 py-3 hover:bg-white/[0.08]"
+          className="w-full mb-3 flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-3 py-3 hover:bg-white/[0.08]"
         >
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-full grid place-items-center bg-white/10 border border-white/10">
@@ -172,6 +174,26 @@ export default function LeftPanel({
               </div>
               <div className="text-[11px] text-white/60">
                 {t("node.descriptionInsignia")}
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-white/60" />
+        </button>
+
+        <button
+          onClick={() => navigate("/historial")}
+          className="w-full mb-3 flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-3 py-3 hover:bg-white/[0.08]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full grid place-items-center bg-white/10 border border-white/10">
+              <Clock size={16} />
+            </div>
+            <div className="leading-tight text-left">
+              <div className="text-[12px] font-semibold">
+                {t("historial.link")}
+              </div>
+              <div className="text-[11px] text-white/60">
+                {t("historial.verSuenos")}
               </div>
             </div>
           </div>

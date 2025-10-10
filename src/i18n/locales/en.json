@@ -33,6 +33,8 @@
     "message": "Page not found"
   },
   "historial": {
+    "link": "History",
+    "verSuenos": "See your saved dreams",
     "title": "Explore your Nodes",
     "description": "Select from the templates you like best",
     "oniriaPro": "Try Oniria PRO",
