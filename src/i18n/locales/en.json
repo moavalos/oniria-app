@@ -5,12 +5,56 @@
     "description": "Explore the world of dreams with Oniria."
   },
   "login": {
-    "link": "Login",
-    "title": "Login",
+    "link": "Log In",
+    "subtitle": "Log in to your account",
+    "email": "Email",
+    "password": "Password",
+    "button": "Log In",
+    "forgot": "I forgot my password",
+    "or": "or",
+    "google": "Continue with Google",
+    "text": "Don't have an account?",
+    "textLink": "Sign Up",
+    "error": "Invalid credentials"
+  },
+  "register": {
+    "link": "Sign Up",
+    "subtitle": "Create your account",
     "username": "Username",
-    "password": "Password"
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "button": "Sign Up",
+    "errorPasswordMatch": "Passwords do not match",
+    "text": "Already have an account?",
+    "textLink": "Log In"
   },
   "notFound": {
     "message": "Page not found"
+  },
+  "historial": {
+    "title": "Explore your Nodes",
+    "description": "Select from the templates you like best",
+    "oniriaPro": "Try Oniria PRO",
+    "visibility": "Visibility",
+    "public": "Public",
+    "insignia": "Badges",
+    "emocion": "Emotion",
+    "soporte": "Support",
+    "atajos": "Shortcuts",
+    "salir": "Exit"
+  },
+  "node": {
+    "title": "What did you dream?",
+    "descriptionLabel": "Write your dream",
+    "placeholderNode": "Write your dream here…",
+    "character1": "You exceeded the maximum of ",
+    "character2": "characters",
+    "interpretar": "Interpreter",
+    "myroom": "My room",
+    "personalizar": "Customize",
+    "toque": "Add your touch to the space",
+    "insignia": "My badges",
+    "descriptionInsignia": "Manage your achievements within Oniria."
   }
 }

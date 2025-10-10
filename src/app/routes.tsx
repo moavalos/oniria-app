@@ -1,19 +1,36 @@
+import { EngineApiProvider } from "@/engine";
+import { Leva } from "leva";
 import { createBrowserRouter } from "react-router";
-import Home from "@pages/Home";
-import Login from "@pages/Login";
-import NotFound from "@pages/NotFound";
+import { Dashboard, History, Home, Login, NotFound, Register } from "./pages";
 
 export const routes = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: (
+      <EngineApiProvider>
+        <Leva collapsed />
+        <Home />
+      </EngineApiProvider>
+    ),
   },
   {
     path: "/login",
     element: <Login />,
   },
   {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
     path: "*",
     element: <NotFound />,
+  },
+  {
+    path: "/historial",
+    element: <History />,
   },
 ]);
