@@ -12,6 +12,7 @@ import { useMemo, useState } from "react";
 import CtaButton from "../../../features/auth/components/CtaButton";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { getRandomQuote } from "@/services/home/home.service";
 
 type LeftPanelProps = {
   onInterpretar?: (_dream: string) => void;
@@ -40,8 +41,22 @@ export default function LeftPanel({
   const charsLeft = useMemo(() => maxChars - dream.length, [dream, maxChars]);
   const isEmpty = dream.trim().length === 0;
   const isTooLong = dream.length > maxChars;
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const [quoteText, setQuoteText] = useState(quote);
+  const [isLoadingQ, setIsLoadingQ] = useState(loadingQuote || false);
+
+  const handleNuevaFrase = async () => {
+    setIsLoadingQ(true);
+    try {
+      const q = await getRandomQuote();
+      setQuoteText(q);
+      onNuevaFrase?.();
+    } finally {
+      setIsLoadingQ(false);
+    }
+  };
 
   return (
     <Card className="col-span-12 md:col-span-3 min-w-[300px] p-6 h-[88vh] overflow-y-auto text-[15px] space-y-4">
@@ -108,29 +123,23 @@ export default function LeftPanel({
             <div className="flex items-start gap-2 justify-center text-center">
               <Quote size={16} className="mt-0.5 opacity-70 shrink-0" />
               <span className="text-[13px] text-fuchsia-200 leading-snug">
-                {quote}
+                {quoteText}
               </span>
-              <Quote
-                size={16}
-                className="rotate-180 mt-0.5 opacity-70 shrink-0"
-              />
+              <Quote size={16} className="rotate-180 mt-0.5 opacity-70 shrink-0" />
             </div>
           </div>
 
           <motion.button
             whileTap={{ scale: 0.98 }}
-            onClick={onNuevaFrase}
-            disabled={loadingQuote}
+            onClick={handleNuevaFrase}
+            disabled={isLoadingQ}
             className="w-full rounded-xl bg-gradient-to-r from-fuchsia-700 to-fuchsia-600
-                                     px-4 py-3 text-[14px] font-semibold border border-fuchsia-400/30
-                                     shadow-[0_0_22px_rgba(217,70,239,0.25)]
-                                     disabled:opacity-60 disabled:cursor-not-allowed"
+                       px-4 py-3 text-[14px] font-semibold border border-fuchsia-400/30
+                       shadow-[0_0_22px_rgba(217,70,239,0.25)]
+                       disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span className="inline-flex items-center gap-2">
-              <RefreshCcw
-                size={16}
-                className={loadingQuote ? "animate-spin" : ""}
-              />
+              <RefreshCcw size={16} className={isLoadingQ ? "animate-spin" : ""} />
               {t("node.nuevaFrase", "Nueva frase")}
             </span>
           </motion.button>
