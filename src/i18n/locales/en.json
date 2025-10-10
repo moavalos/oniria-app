@@ -27,7 +27,9 @@
     "button": "Sign Up",
     "errorPasswordMatch": "Passwords do not match",
     "text": "Already have an account?",
-    "textLink": "Log In"
+    "textLink": "Log In",
+    "success": "Account created successfully. Please check your email to confirm your account.",
+    "error": "Error creating account"
   },
   "notFound": {
     "message": "Page not found"

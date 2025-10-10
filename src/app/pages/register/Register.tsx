@@ -19,7 +19,7 @@ export default function Register() {
       <Card>
         <AuthTitle title="Oniria" subtitle={t("register.subtitle")} />
         <RegisterForm />
-        <AuthLinks href="/register" section="register" />
+        <AuthLinks href="/login" section="register" />
       </Card>
     </div>
   );
