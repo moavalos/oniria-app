@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+
 import { useLoaderActions } from "./useProgress";
 
 export interface LoadingItem {
@@ -14,10 +15,16 @@ export interface LoadingItem {
 }
 
 export interface UseLoaderResult {
-    loadAssets: (urls: { url: string; type: LoadingItem['type'] }[]) => Promise<{ [key: string]: any }>;
+    loadAssets: (_urls: { url: string; type: LoadingItem['type'] }[]) => Promise<{ [key: string]: any }>;
     resetLoader: () => void;
 }
 
+/**
+ * Hook para cargar assets 3D con soporte para múltiples formatos
+ * 
+ * @param renderer - Renderer de Three.js para configurar loaders avanzados
+ * @returns Objeto con métodos para cargar y resetear assets
+ */
 export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult {
     const {
         startLoading,
@@ -60,6 +67,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
     const initLoaders = useCallback(() => {
         if (loadersRef.current) return loadersRef.current;
 
+        // Manager de carga global
         const manager = new THREE.LoadingManager();
 
         const gltfLoader = new GLTFLoader(manager);
@@ -274,7 +282,7 @@ export function useThreeLoader(renderer?: THREE.WebGLRenderer): UseLoaderResult 
             finishLoading();
             throw error;
         }
-    }, [startLoading, finishLoading, setProgress, setItems, updateItem, addError, initLoaders]);
+    }, [startLoading, finishLoading, setProgress, setItems, updateItem, addError, initLoaders, renderer]);
 
     return {
         loadAssets,

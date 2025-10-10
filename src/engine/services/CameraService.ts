@@ -2,11 +2,20 @@ import CameraControls from "camera-controls";
 import type { CameraControlsEventMap } from "camera-controls/dist/types";
 import * as THREE from "three";
 
+/**
+ * Servicio para gestionar controles de cámara y transiciones suaves
+ */
 export class CameraService {
     private static installed = false;
 
     private controls: CameraControls;
 
+    /**
+     * Crea una nueva instancia del servicio de cámara
+     * 
+     * @param camera - Cámara de Three.js a controlar
+     * @param domElement - Elemento DOM para capturar eventos de entrada
+     */
     constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
         if (!CameraService.installed) {
             CameraControls.install({ THREE });
@@ -15,10 +24,22 @@ export class CameraService {
         this.controls = new CameraControls(camera, domElement);
     }
 
+    /**
+     * Actualiza los controles de cámara en cada frame
+     * 
+     * @param delta - Tiempo transcurrido desde el último frame
+     */
     update(delta: number) {
         this.controls.update(delta);
     }
 
+    /**
+     * Establece la posición y objetivo de la cámara
+     * 
+     * @param pos - Posición de la cámara
+     * @param target - Objetivo al que mira la cámara
+     * @param smooth - Si la transición debe ser suave
+     */
     setLookAt(pos: THREE.Vector3, target: THREE.Vector3, smooth = true) {
         this.controls.setLookAt(
             pos.x,
@@ -88,11 +109,11 @@ export class CameraService {
         this.controls.mouseButtons.right = value ? CameraControls.ACTION.TRUCK : CameraControls.ACTION.NONE;
     }
 
-    addEventListener(type: keyof CameraControlsEventMap, listener: (event: any) => void) {
+    addEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void) {
         this.controls.addEventListener(type, listener);
     }
 
-    removeEventListener(type: keyof CameraControlsEventMap, listener: (event: any) => void) {
+    removeEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void) {
         this.controls.removeEventListener(type, listener);
     }
 

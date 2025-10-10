@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { useEffect, useState } from "react";
+
 import { useEngineCore } from "@engine/core";
 import { useHandlers } from "../hooks";
 import type { ObjectEventArray } from "../config/room.type";
@@ -32,6 +33,10 @@ export interface InteractionSystemProps {
   enableInteractions?: boolean;
 }
 
+/**
+ * Sistema de interacciones del motor 3D.
+ * Gestiona las interacciones con objetos y nodos en la escena mediante raycasting.
+ */
 export default function InteractionSystem({
   onObjectHoverEnter,
   onObjectHoverLeave,

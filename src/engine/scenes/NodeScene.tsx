@@ -1,8 +1,13 @@
 import * as THREE from "three";
-import { NodeRenderer } from "../systems/renderer/NodeRenderer";
 import { useRef, useEffect } from "react";
+
+import { NodeRenderer } from "../systems/renderer/NodeRenderer";
 import { useEngineCore } from "@engine/core";
 
+/**
+ * Escena para renderizar nodos 3D.
+ * Gestiona la renderización de nodos especiales en la escena.
+ */
 export default function NodeScene() {
   const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
   const core = useEngineCore();

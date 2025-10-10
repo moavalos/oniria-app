@@ -1,6 +1,7 @@
+import type { PropsWithChildren } from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import type { PropsWithChildren } from "react";
+
 import type { EngineSettings } from "../types/engine.types";
 
 interface EngineCanvasProps extends PropsWithChildren {
@@ -8,6 +9,13 @@ interface EngineCanvasProps extends PropsWithChildren {
   className?: string;
 }
 
+/**
+ * Canvas principal del motor 3D que envuelve React Three Fiber
+ *
+ * @param engineSettings - Configuración del motor (color de fondo, etc.)
+ * @param children - Componentes hijos a renderizar dentro del canvas
+ * @param className - Clase CSS adicional opcional
+ */
 export function EngineCanvas({
   engineSettings = {
     backgroundColor: "#000000",

@@ -1,12 +1,16 @@
 import * as THREE from "three";
+
 import type { AnimationAction } from "../config/room.type";
 import { AnimationRepository } from "./animation";
 
 type AnimationCallback = (_targetName: string, _animationType: string) => void;
 type AnimationUpdateCallback = (_targetName: string, _progress: number) => void;
 
+/**
+ * Servicio para gestionar animaciones GSAP en objetos 3D
+ */
 export class AnimationService {
-    private animations: Record<string, any> = {}; // Timeline de GSAP
+    private animations: Record<string, any> = {};
 
     private animationRepository: AnimationRepository;
 
@@ -16,18 +20,24 @@ export class AnimationService {
 
     private onAnimationUpdate?: AnimationUpdateCallback;
 
+    /**
+     * Crea una nueva instancia del servicio de animaciones
+     * 
+     * @param scene - Escena de Three.js donde se encuentran los objetos a animar
+     */
     constructor(private scene: THREE.Group<THREE.Object3DEventMap> | null) {
-        // Inicializar el repositorio de animaciones siempre
         this.animationRepository = new AnimationRepository();
 
         if (!scene) {
-            console.warn("AnimationService: scene no está inicializada");
+            console.warn("AnimationService: escena no está inicializada");
             return;
         }
     }
 
     /**
      * Obtiene el repositorio de animaciones para operaciones avanzadas
+     * 
+     * @returns Instancia del repositorio de animaciones
      */
     getAnimationRepository(): AnimationRepository {
         return this.animationRepository;
@@ -35,19 +45,28 @@ export class AnimationService {
 
     /**
      * Crea un timeline personalizado para animaciones manuales
+     * 
+     * @returns Timeline de GSAP
      */
-    createCustomTimeline(): any { // Timeline de GSAP
+    createCustomTimeline(): any {
         return this.animationRepository.createCustomTimeline();
     }
 
     /**
      * Crea un timeline personalizado para un objeto específico
+     * 
+     * @param target - Objeto 3D para el cual crear el timeline
+     * @returns Timeline de GSAP configurado para el objeto
      */
-    createTimelineForObject(target: THREE.Object3D): any { // Timeline de GSAP
+    createTimelineForObject(target: THREE.Object3D): any {
         return this.animationRepository.createTimelineForObject(target);
     }
 
-    /** Ejecutar una animación */
+    /**
+     * Ejecuta una animación basada en configuración
+     * 
+     * @param config - Configuración de la animación a ejecutar
+     */
     play(config: AnimationAction) {
         if (!this.scene) {
             console.warn("AnimationService: scene no está inicializada");

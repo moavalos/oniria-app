@@ -1,19 +1,14 @@
 import { useEngineStore } from "@engine/core/store/engineStore";
 
 /**
- * Hook useProgress propio que reemplaza al de Drei
- * utilizamos uno propio porque nos da mas control y podemos
- * personalizar el comportamiento a nuestras necesidades.
+ * Hook personalizado para monitorear el progreso de carga de assets del motor
  * 
- * este Hook se utiliza fuera del Engine para que componentes de ui
- * puedan mostrar el progreso de carga de assets del engine
+ * Este hook reemplaza al useProgress de @react-three/drei para tener mayor control
+ * y personalización específica para nuestras necesidades.
  * 
- * Retorna el mismo formato que useProgress de @react-three/drei
- * pero usando nuestro store de Zustand interno.
- * 
- * @returns {object} Estado del progreso de carga
- * @property {boolean} active - Si hay una carga activa
- * @property {number} progress - Progreso de 0 a 100
+ * @returns Estado completo del progreso de carga
+ * @property {boolean} active - Si hay una carga activa en progreso
+ * @property {number} progress - Progreso de carga de 0 a 100
  * @property {string[]} errors - Array de errores durante la carga
  * @property {LoadingItem[]} items - Items individuales siendo cargados
  */

@@ -1,5 +1,3 @@
-import * as THREE from "three";
-import { useThree, useFrame } from "@react-three/fiber";
 import {
   useMemo,
   useState,
@@ -7,10 +5,12 @@ import {
   useEffect,
   type PropsWithChildren,
 } from "react";
+import * as THREE from "three";
+import { useThree, useFrame } from "@react-three/fiber";
+
 import { Room } from "@engine/entities/Room";
 import { Skin } from "@engine/entities/Skin";
 import { Node } from "@engine/entities/Node";
-import { EngineState } from "../types/engine.types";
 import {
   AnimationService,
   CameraService,
@@ -18,6 +18,7 @@ import {
   LoopService,
   MaterialService,
 } from "../../services";
+import { EngineState } from "../types/engine.types";
 import {
   EngineCoreContext,
   RoomVersionContext,
@@ -25,6 +26,11 @@ import {
 
 type EngineCoreProps = PropsWithChildren;
 
+/**
+ * Núcleo del motor 3D que gestiona servicios, entidades y el ciclo de vida del engine
+ *
+ * @param children - Sistemas y componentes del motor a renderizar
+ */
 export function EngineCore({ children }: EngineCoreProps) {
   const [services, setServices] = useState<Record<string, unknown>>({});
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
@@ -33,7 +39,6 @@ export function EngineCore({ children }: EngineCoreProps) {
   const [servicesState, setServicesState] = useState<EngineState>(
     EngineState.INITIALIZING
   );
-  // ✅ Estado centralizado para versiones de Room
   const [roomVersion, setRoomVersion] = useState<number>(0);
 
   const { scene, camera, gl, size, clock } = useThree();
@@ -41,20 +46,31 @@ export function EngineCore({ children }: EngineCoreProps) {
   // LoopService se inicializa inmediatamente y vive durante toda la sesión
   const loopService = useMemo(() => new LoopService(), []);
 
-  // useFrame centralizado para todo el engine
   useFrame((state, delta) => {
     loopService.tick(state, delta);
   });
 
-  // Estado del engine
+  /**
+   * Establece el estado actual del motor
+   * @param state - Nuevo estado del motor
+   */
   const setEngineState = useCallback((state: EngineState) => {
     setServicesState(state);
   }, []);
 
+  /**
+   * Registra un servicio en el motor
+   * @param name - Nombre único del servicio
+   * @param service - Instancia del servicio
+   */
   const registerService = useCallback((name: string, service: unknown) => {
     setServices((prev) => ({ ...prev, [name]: service }));
   }, []);
 
+  /**
+   * Desregistra un servicio del motor
+   * @param name - Nombre del servicio a eliminar
+   */
   const unregisterService = useCallback((name: string) => {
     setServices((prev) => {
       const copy = { ...prev };
@@ -63,7 +79,11 @@ export function EngineCore({ children }: EngineCoreProps) {
     });
   }, []);
 
-  // Registro de Room y Skin
+  /**
+   * Registra una nueva room y skin en el motor
+   * @param roomId - ID único de la room
+   * @param skinId - ID único del skin a aplicar
+   */
   const registerRoom = useCallback((roomId: string, skinId: string): void => {
     try {
       if (!roomId?.trim()) {
@@ -73,11 +93,9 @@ export function EngineCore({ children }: EngineCoreProps) {
         throw new Error("Skin ID cannot be empty");
       }
 
-      // Crear skin
       const skin = new Skin(skinId);
       setActiveSkin(skin);
 
-      // Crear room directamente (la configuración se cargará bajo demanda)
       const room = new Room(roomId, skin);
       setActiveRoom(room);
     } catch (error) {
@@ -88,6 +106,10 @@ export function EngineCore({ children }: EngineCoreProps) {
     }
   }, []);
 
+  /**
+   * Registra un nuevo skin en el motor
+   * @param skinId - ID único del skin
+   */
   const registerSkin = useCallback(
     (skinId: string): void => {
       try {
@@ -193,12 +215,10 @@ export function EngineCore({ children }: EngineCoreProps) {
     return service;
   }, [services, registerService]);
 
-  // ✅ Método para actualizar versión de Room desde eventos
   const updateActiveRoom = useCallback(() => {
     setRoomVersion((prev) => prev + 1);
-  }, []); // Sin dependencias para evitar loops
+  }, []);
 
-  // ✅ Configurar listeners de eventos de Room cuando activeRoom cambia
   useEffect(() => {
     if (activeRoom) {
       // Escuchar todos los eventos de cambio de Room
@@ -227,7 +247,6 @@ export function EngineCore({ children }: EngineCoreProps) {
       activeNode,
       loopService,
       engineState: servicesState,
-      // ✅ Solo updateActiveRoom, sin roomVersion para evitar re-renders
       updateActiveRoom,
       setEngineState,
       unregisterService,
@@ -251,7 +270,6 @@ export function EngineCore({ children }: EngineCoreProps) {
       activeNode,
       loopService,
       servicesState,
-      // ✅ Sin roomVersion para evitar re-renders constantes
       updateActiveRoom,
       setEngineState,
       unregisterService,

@@ -1,29 +1,19 @@
 import * as THREE from "three";
 import { useCallback } from "react";
+
 import { useEngineCore } from "@engine/core";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 import type { EventArgs } from "../services";
 import { Node } from "../entities/Node";
 
-
 /**
- * Hook que demuestra el sistema de tipos tipados para eventos.
+ * Hook que proporciona handlers tipados para eventos del motor
  * 
- * La inferencia automática funciona cuando usas InteractionService directamente:
+ * @returns Objeto con métodos para manejar diferentes tipos de eventos
  * 
  * @example
- * // TypeScript infiere automáticamente los tipos
- * interactionService.on('objectClick', (event) => {
- *   // event es automáticamente EventArgs<string, ObjectEventArray>
- *   console.log(event.target); // string
- *   console.log(event.data);   // ObjectEventArray
- * });
- * 
- * interactionService.on('nodeClick', (event) => {
- *   // event es automáticamente EventArgs<Node, { distance: number; position: Vector3 }>
- *   console.log(event.target);     // Node
- *   console.log(event.data.distance); // number
- * });
+ * const { handleObjectEvent } = useHandlers();
+ * handleObjectEvent('click', objectId, eventData);
  */
 export function useHandlers() {
     const services = useEngineCore();
@@ -137,13 +127,19 @@ export function useHandlers() {
         timeline?.play();
     }, [animationService]);
 
+    /**
+     * Handler para cuando el cursor entra en un nodo
+     * @param _event - Evento con datos del nodo y posición
+     */
     const onNodeEnter = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
-        // Node entered
         console.log("Node entered:", _event.target.id);
     }, []);
 
+    /**
+     * Handler para cuando el cursor sale de un nodo
+     * @param _event - Evento con datos del nodo y posición
+     */
     const onNodeLeave = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
-        // Node left
         console.log("Node left:", _event.target.id);
     }, []);
 

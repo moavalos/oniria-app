@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import type { AnimationAction } from "../config/room.type";
 import { useEngineCore } from "@engine/core";
 import { useRoomVersion } from "../hooks";
@@ -19,6 +20,10 @@ export interface AnimationSystemProps {
   autoConfigureForRoom?: boolean;
 }
 
+/**
+ * Sistema de animaciones del motor 3D.
+ * Gestiona la reproducción automática y manual de animaciones en objetos de la escena.
+ */
 export default function AnimationSystem({
   config = {},
   onAnimationStart,

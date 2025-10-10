@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
+
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core";
 import NodeScene from "@/engine/scenes/NodeScene";
@@ -8,6 +9,10 @@ interface PortalRendererProps {
   portal?: THREE.Object3D;
 }
 
+/**
+ * Renderer para portales con efectos de shader animados.
+ * Gestiona la renderización de portales con efectos visuales especiales.
+ */
 export const PortalRenderer = ({ portal }: PortalRendererProps) => {
   const core = useEngineCore();
   const { loopService, engineState } = core;
@@ -39,7 +44,7 @@ export const PortalRenderer = ({ portal }: PortalRendererProps) => {
       return;
     }
 
-    console.log("🚪 PortalRenderer - Aplicando material al portal");
+    console.log("PortalRenderer - Aplicando material al portal");
 
     // Aplicar el material del portal
     materialService.applyMaterialsToPortal(portal, portalUniforms);

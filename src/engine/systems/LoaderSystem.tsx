@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+
 import { useProgress } from "../hooks/useProgress";
 
 // Interfaces
@@ -19,7 +20,9 @@ export interface LoaderSystemProps {
   onLoadError?: (error: Error) => void;
 }
 
-// Loader por defecto
+/**
+ * Loader por defecto con interfaz visual para estados de carga.
+ */
 function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
   // Solo mostrar si está cargando o hay error
   if (!isLoading && !error) return null;
@@ -122,7 +125,10 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
   );
 }
 
-// Componente principal
+/**
+ * Sistema de carga del motor 3D.
+ * Gestiona el estado de carga de recursos y muestra una interfaz visual apropiada.
+ */
 export default function LoaderSystem({
   customLoader: CustomLoader = DefaultLoader,
   showProgress = true,

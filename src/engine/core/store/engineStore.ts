@@ -47,8 +47,8 @@ type EngineStore = {
     // Room/Skin state
     roomId: string | null;
     skinId: string | null;
-    setRoomId: (id: string) => void;
-    setSkinId: (id: string) => void;
+    setRoomId: (_id: string) => void;
+    setSkinId: (_id: string) => void;
 
     // Node uniforms state para debug
     nodeUniforms: {
@@ -78,8 +78,8 @@ type EngineStore = {
         uGlassTint: [number, number, number];
         uGammaCorrection: number;
     };
-    setNodeUniform: (key: string, value: number) => void;
-    setNodeUniforms: (uniforms: Partial<EngineStore['nodeUniforms']>) => void;
+    setNodeUniform: (_key: string, _value: number) => void;
+    setNodeUniforms: (_uniforms: Partial<EngineStore['nodeUniforms']>) => void;
     resetNodeUniforms: () => void;
 
     // Loading state - nuestro sistema propio
@@ -91,10 +91,10 @@ type EngineStore = {
     // Loading actions
     startLoading: () => void;
     finishLoading: () => void;
-    setProgress: (progress: number) => void;
-    setItems: (items: LoadingItem[]) => void;
-    updateItem: (index: number, updates: Partial<LoadingItem>) => void;
-    addError: (error: string) => void;
+    setProgress: (_progress: number) => void;
+    setItems: (_items: LoadingItem[]) => void;
+    updateItem: (_index: number, _updates: Partial<LoadingItem>) => void;
+    addError: (_error: string) => void;
     clearErrors: () => void;
     resetLoading: () => void;
 };

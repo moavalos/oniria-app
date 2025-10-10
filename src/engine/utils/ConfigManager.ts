@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import type { RoomConfig, AnimationAction, ObjectEventArray } from '../config/room.type';
 import { loadRoomConfig } from './ConfigLoader';
 
@@ -13,8 +14,8 @@ export interface ProcessedRoomObjects {
 }
 
 /**
- * Gestor de configuraciones de habitaciones - carga bajo demanda
- * Solo mantiene la configuración de la habitación activa
+ * Gestor de configuraciones de habitaciones - carga bajo demanda.
+ * Solo mantiene la configuración de la habitación activa.
  */
 export class ConfigManager {
     private static instance: ConfigManager | null = null;
@@ -33,11 +34,13 @@ export class ConfigManager {
     }
 
     /**
-     * Obtiene la configuración de una habitación
+     * Obtiene la configuración de una habitación.
+     * @param roomId - ID de la habitación
+     * @returns Configuración de la habitación
      */
     async getConfig(roomId: string): Promise<RoomConfig> {
         if (!roomId?.trim()) {
-            throw new Error('Room ID cannot be empty');
+            throw new Error('El ID de la habitación no puede estar vacío');
         }
 
         // Si es la misma habitación que ya tenemos cargada, devolverla

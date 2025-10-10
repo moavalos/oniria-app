@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { useEffect } from "react";
+
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core/";
 
@@ -26,6 +27,10 @@ export interface CameraSystemProps {
   autoConfigureForRoom?: boolean;
 }
 
+/**
+ * Sistema de cámara del motor 3D.
+ * Gestiona la configuración y controles de la cámara para la exploración de la escena.
+ */
 export default function CameraSystem({
   config,
   onCameraMove,

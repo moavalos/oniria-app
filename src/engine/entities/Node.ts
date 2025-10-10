@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 
+/**
+ * Entidad que representa un nodo 3D con un grupo de objetos Three.js
+ */
 export class Node {
     public readonly id: string;
 
@@ -7,6 +10,11 @@ export class Node {
 
     private _version: number = 0;
 
+    /**
+     * Crea una nueva instancia de Node
+     * 
+     * @param id - Identificador único del nodo
+     */
     constructor(id: string) {
         if (!id?.trim()) {
             throw new Error('El ID del nodo no puede estar vacío');
@@ -17,17 +25,21 @@ export class Node {
 
     /**
      * Establece el grupo Three.js para este nodo
+     * 
+     * @param group - Grupo de Three.js a asociar
      */
     setGroup(group: THREE.Group<THREE.Object3DEventMap>): void {
         if (!group) {
             throw new Error('El grupo no puede ser nulo');
         }
         this.group = group;
-        this._version++; // Incrementar versión cuando cambia el grupo
+        this._version++;
     }
 
     /**
      * Obtiene el grupo Three.js de este nodo
+     * 
+     * @returns Grupo asociado al nodo o null si no existe
      */
     getGroup(): THREE.Group<THREE.Object3DEventMap> | null {
         return this.group;
@@ -35,6 +47,8 @@ export class Node {
 
     /**
      * Obtiene la versión actual del nodo para tracking de cambios
+     * 
+     * @returns Número de versión actual
      */
     getVersion(): number {
         return this._version;
