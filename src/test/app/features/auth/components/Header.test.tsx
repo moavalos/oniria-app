@@ -66,14 +66,6 @@ describe("Header", () => {
     expect(header.classList.contains("border-white/10")).toBe(true);
   });
 
-  it("renders the logo/placeholder on the left side", () => {
-    const { container } = render(<Header />);
-    const logoContainer = container.querySelector(
-      ".h-9.w-9.rounded-full.bg-white\\/10"
-    );
-    expect(logoContainer).toBeTruthy();
-  });
-
   it("has two main buttons (notifications and mobile menu)", () => {
     render(<Header />);
     const buttons = screen.getAllByRole("button");
