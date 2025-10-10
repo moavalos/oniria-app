@@ -55,6 +55,11 @@
     "personalizar": "Personalizar",
     "toque": "Dale tu toque al espacio",
     "insignia": "Mis insignias",
-    "descriptionInsignia": "Gestioná tus logros dentro de Oniria."
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria.",
+    "suenoDelNodo": "Sueño del nodo",
+    "cerrar": "Cerrar",
+    "guardar": "Guardar",
+    "reinterpretar": "Reinterpretar",
+    "acaAparecera": "Acá aparecerá el contenido del sueño..."
   }
 }
