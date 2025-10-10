@@ -1,11 +1,26 @@
-import { createContext, useContext, useMemo, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useCallback,
+  useState,
+} from "react";
 
 import { useEngineStore } from "../store/engineStore";
+
+// Definir el tipo del objeto node que se expondrá en la API
+type NodeAPI = {
+  next: () => void;
+  prev: () => void;
+};
 
 type EngineContextAPI = {
   setRoom: (roomId: string, skinId: string) => void;
   roomId?: string | null;
   skinId?: string | null;
+  node?: NodeAPI;
+  // Método interno para que el core publique APIs
+  _setAPI: (key: string, api: unknown) => void;
 };
 
 const EngineAPIContext = createContext<EngineContextAPI | null>(null);
@@ -21,6 +36,9 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
   const setRoomId = useEngineStore((s) => s.setRoomId);
   const setSkinId = useEngineStore((s) => s.setSkinId);
 
+  // Estado para APIs dinámicas
+  const [dynamicAPIs, setDynamicAPIs] = useState<Record<string, unknown>>({});
+
   /**
    * Configura una nueva sala y skin en el motor
    *
@@ -35,9 +53,25 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
     [setRoomId, setSkinId]
   );
 
+  /**
+   * Método interno para que el core publique APIs dinámicamente
+   *
+   * @param key - Clave de la API (ej: 'node')
+   * @param api - Objeto API a publicar
+   */
+  const _setAPI = useCallback((key: string, api: unknown) => {
+    setDynamicAPIs((prev) => ({ ...prev, [key]: api }));
+  }, []);
+
   const value = useMemo(
-    () => ({ setRoom, roomId, skinId }),
-    [setRoom, roomId, skinId]
+    () => ({
+      setRoom,
+      roomId,
+      skinId,
+      node: dynamicAPIs.node as NodeAPI,
+      _setAPI,
+    }),
+    [setRoom, roomId, skinId, dynamicAPIs, _setAPI]
   );
 
   return (

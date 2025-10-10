@@ -5,6 +5,7 @@
 // Componentes principales
 export { EngineCanvas } from "./components/EngineCanvas";
 export { EngineCore } from "./components/EngineCore";
+export { DefaultEngineIndicator } from "./components/DefaultEngineIndicator";
 
 // Hooks principales del core
 export { useEngineCore, useRoomVersionFromEngine, useEngine } from "./hooks";

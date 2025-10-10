@@ -6,7 +6,7 @@ import { useEngineAPI } from "../context/EngineApiProvider";
  * @returns API pública del motor con métodos para configurar salas y skins
  */
 export function useEngine() {
-    const engineApi = useEngineAPI();
+    const { setRoom, roomId, skinId, node } = useEngineAPI();
 
-    return { ...engineApi };
+    return { setRoom, roomId, skinId, node };
 }

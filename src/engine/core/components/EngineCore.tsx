@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   type PropsWithChildren,
+  Children,
 } from "react";
 import * as THREE from "three";
 import { useThree, useFrame } from "@react-three/fiber";
@@ -23,6 +24,8 @@ import {
   EngineCoreContext,
   RoomVersionContext,
 } from "../context/EngineContext";
+import { useEngineAPI } from "../context/EngineApiProvider";
+import { DefaultEngineIndicator } from "./DefaultEngineIndicator";
 
 type EngineCoreProps = PropsWithChildren;
 
@@ -42,6 +45,7 @@ export function EngineCore({ children }: EngineCoreProps) {
   const [roomVersion, setRoomVersion] = useState<number>(0);
 
   const { scene, camera, gl, size, clock } = useThree();
+  const engineAPI = useEngineAPI();
 
   // LoopService se inicializa inmediatamente y vive durante toda la sesión
   const loopService = useMemo(() => new LoopService(), []);
@@ -137,10 +141,22 @@ export function EngineCore({ children }: EngineCoreProps) {
     (nodeId: string, nodeRef: THREE.Group<THREE.Object3DEventMap>): void => {
       try {
         if (!nodeId?.trim()) {
-          throw new Error("Node ID cannot be empty");
+          throw new Error("El ID del nodo no puede estar vacío");
         }
         if (!nodeRef) {
-          throw new Error("Node ref cannot be null");
+          throw new Error("La referencia al Nodo no puede ser nula");
+        }
+
+        // Verificar si ya existe un nodo con el mismo ID y referencia
+        if (
+          activeNode &&
+          activeNode.id === nodeId &&
+          activeNode.getGroup() === nodeRef
+        ) {
+          console.log(
+            `Nodo ${nodeId} ya está registrado, omitiendo re-registro`
+          );
+          return;
         }
 
         // Crear o actualizar el nodo activo
@@ -152,13 +168,25 @@ export function EngineCore({ children }: EngineCoreProps) {
 
         // Establecer la referencia del grupo
         node.setGroup(nodeRef);
+
+        // Publicar el objeto node en la API del motor
+        const nodeAPI = {
+          next: () => {
+            node.next();
+          },
+          prev: () => {
+            node.prev();
+          },
+        };
+
+        engineAPI._setAPI("node", nodeAPI);
       } catch (error) {
-        console.error("Failed to register node:", error);
+        console.error("Error al publicar Nodo:", error);
         setActiveNode(null);
         throw error;
       }
     },
-    [activeNode]
+    [activeNode, engineAPI]
   );
 
   // Factories internas 👇 - Híbrido: lazy creation pero controlado
@@ -284,10 +312,13 @@ export function EngineCore({ children }: EngineCoreProps) {
     ]
   );
 
+  // Verificar si hay contenido para renderizar
+  const hasChildren = Children.count(children) > 0;
+
   return (
     <RoomVersionContext.Provider value={roomVersion}>
       <EngineCoreContext.Provider value={value}>
-        {children}
+        {hasChildren ? children : <DefaultEngineIndicator />}
       </EngineCoreContext.Provider>
     </RoomVersionContext.Provider>
   );

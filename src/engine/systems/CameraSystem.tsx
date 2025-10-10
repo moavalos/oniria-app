@@ -4,19 +4,7 @@ import { useEffect } from "react";
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core/";
 
-export type CameraConfig = {
-  minDistance?: number;
-  maxDistance?: number;
-  position?: THREE.Vector3;
-  target?: THREE.Vector3;
-  smoothTime?: number;
-  maxPolarAngle?: number;
-  minPolarAngle?: number;
-  maxAzimuthAngle?: number;
-  minAzimuthAngle?: number;
-  enablePan?: boolean;
-  boundaryEnclosesCamera?: boolean;
-};
+import { type CameraConfig } from "@engine/services/CameraService";
 
 export interface CameraSystemProps {
   config?: CameraConfig;
@@ -118,49 +106,7 @@ export default function CameraSystem({
     const finalConfig = { ...defaultConfig, ...config };
 
     // Aplicar configuración
-    if (
-      finalConfig.minDistance !== undefined &&
-      finalConfig.maxDistance !== undefined
-    ) {
-      cameraService.setMinMaxDistance(
-        finalConfig.minDistance,
-        finalConfig.maxDistance
-      );
-    }
-
-    if (finalConfig.position && finalConfig.target) {
-      cameraService.setLookAt(finalConfig.position, finalConfig.target, true);
-    }
-
-    if (finalConfig.smoothTime !== undefined) {
-      cameraService.setSmoothTime(finalConfig.smoothTime);
-    }
-
-    if (finalConfig.maxPolarAngle !== undefined) {
-      cameraService.setMaxPolarAngle(finalConfig.maxPolarAngle);
-    }
-
-    if (finalConfig.minPolarAngle !== undefined) {
-      cameraService.setMinPolarAngle(finalConfig.minPolarAngle);
-    }
-
-    if (finalConfig.maxAzimuthAngle !== undefined) {
-      cameraService.setAximuthMaxAngle(finalConfig.maxAzimuthAngle);
-    }
-
-    if (finalConfig.minAzimuthAngle !== undefined) {
-      cameraService.setAzimuthMinAngle(finalConfig.minAzimuthAngle);
-    }
-
-    if (finalConfig.boundaryEnclosesCamera !== undefined) {
-      cameraService.setBoundaryEnclosesCamera(
-        finalConfig.boundaryEnclosesCamera
-      );
-    }
-
-    if (finalConfig.enablePan !== undefined) {
-      cameraService.setEnablePan(finalConfig.enablePan);
-    }
+    cameraService.setConfig(finalConfig);
   }, [cameraService, activeRoom, config, autoConfigureForRoom, isEngineReady]);
 
   return null;

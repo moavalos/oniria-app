@@ -15,9 +15,9 @@ export interface LoaderSystemProps {
   timeout?: number;
   // Callbacks
   onLoadStart?: () => void;
-  onLoadProgress?: (progress: number) => void;
+  onLoadProgress?: (_progress: number) => void;
   onLoadComplete?: () => void;
-  onLoadError?: (error: Error) => void;
+  onLoadError?: (_error: Error) => void;
 }
 
 /**

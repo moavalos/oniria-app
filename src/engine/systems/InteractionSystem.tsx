@@ -143,6 +143,21 @@ export default function InteractionSystem({
     };
   }, [interactionService, handlers, isEngineReady]);
 
+  // Suscripción a eventos de navegación del nodo activo
+  useEffect(() => {
+    if (!isEngineReady || !activeNode) return;
+
+    // Suscribirse a los eventos del nodo
+    activeNode.on("onNextNode", handlers.handleNextNode);
+    activeNode.on("onPrevNode", handlers.handlePrevNode);
+
+    // Cleanup
+    return () => {
+      activeNode.off("onNextNode");
+      activeNode.off("onPrevNode");
+    };
+  }, [isEngineReady, activeNode]);
+
   // Actualizar interacciones en el loop
   useEffect(() => {
     if (!isEngineReady || !loopService || !interactionService || !activeRoom) {

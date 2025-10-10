@@ -43,7 +43,7 @@ export default function Home() {
 
       {/* layout principal */}
       <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
-        <LeftPanel />
+        <LeftPanel onNuevaFrase={() => engine.node?.next()} />
 
         {/* Canvas 3d*/}
         <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4 overflow-hidden relative">

@@ -47,6 +47,10 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
       uFresnelBright: { value: nodeUniforms.uFresnelBright },
       uFresnelBrightWidth: { value: nodeUniforms.uFresnelBrightWidth },
 
+      // Nuevos uniforms de dirección del humo/flujo
+      uSmokeTurbulence: { value: nodeUniforms.uSmokeTurbulence },
+      uSmokeDirectionOffset: { value: nodeUniforms.uSmokeDirectionOffset },
+
       // Nuevos uniforms de color del blob
       uPlasmaColor: { value: new THREE.Vector3(...nodeUniforms.uPlasmaColor) },
       uPlasmaColorIntensity: { value: nodeUniforms.uPlasmaColorIntensity },
@@ -107,6 +111,12 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
         nodeUniforms.uFresnelBright;
       materialRef.current.uniforms.uFresnelBrightWidth.value =
         nodeUniforms.uFresnelBrightWidth;
+
+      // Nuevos uniforms de dirección del humo/flujo
+      materialRef.current.uniforms.uSmokeTurbulence.value =
+        nodeUniforms.uSmokeTurbulence;
+      materialRef.current.uniforms.uSmokeDirectionOffset.value =
+        nodeUniforms.uSmokeDirectionOffset;
 
       // Nuevos uniforms de color
       materialRef.current.uniforms.uPlasmaColor.value.set(

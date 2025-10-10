@@ -2,11 +2,27 @@ import CameraControls from "camera-controls";
 import type { CameraControlsEventMap } from "camera-controls/dist/types";
 import * as THREE from "three";
 
+export type CameraConfig = {
+    minDistance?: number;
+    maxDistance?: number;
+    position?: THREE.Vector3;
+    target?: THREE.Vector3;
+    smoothTime?: number;
+    maxPolarAngle?: number;
+    minPolarAngle?: number;
+    maxAzimuthAngle?: number;
+    minAzimuthAngle?: number;
+    enablePan?: boolean;
+    boundaryEnclosesCamera?: boolean;
+};
+
 /**
  * Servicio para gestionar controles de cámara y transiciones suaves
  */
 export class CameraService {
     private static installed = false;
+
+    private defaultConfig: CameraConfig = {};
 
     private controls: CameraControls;
 
@@ -56,6 +72,44 @@ export class CameraService {
         this.controls.reset(smooth);
     }
 
+    setConfig(config: CameraConfig = {
+        minDistance: 3,
+        maxDistance: 6,
+        position: new THREE.Vector3(-3.5, 3, 6),
+        target: new THREE.Vector3(0, 1.8, 0),
+        smoothTime: 0.5,
+        maxPolarAngle: Math.PI / 2,
+        minPolarAngle: Math.PI / 3,
+        maxAzimuthAngle: 0,
+        minAzimuthAngle: -Math.PI / 2.5,
+        boundaryEnclosesCamera: true,
+        enablePan: false,
+    }) {
+
+        this.applyConfig(config);
+        this.defaultConfig = config;
+    }
+
+    resetToDefault() {
+        this.applyConfig(this.defaultConfig);
+    }
+
+    getDefaultConfig() {
+        return this.defaultConfig;
+    }
+
+    applyConfig(config: CameraConfig) {
+        this.setMinMaxDistance(config.minDistance!, config.maxDistance!);
+        this.setLookAt(config.position!, config.target!, false);
+        this.setSmoothTime(config.smoothTime!);
+        this.setMaxPolarAngle(config.maxPolarAngle!);
+        this.setMinPolarAngle(config.minPolarAngle!);
+        this.setAzimuthMaxAngle(config.maxAzimuthAngle!);
+        this.setAzimuthMinAngle(config.minAzimuthAngle!);
+        this.setBoundaryEnclosesCamera(!!config.boundaryEnclosesCamera);
+        this.setEnablePan(!!config.enablePan);
+    }
+
     setMinMaxDistance(min: number, max: number) {
         this.controls.minDistance = min;
         this.controls.maxDistance = max;
@@ -77,7 +131,7 @@ export class CameraService {
         this.controls.minPolarAngle = angle;
     }
 
-    setAximuthMaxAngle(angle: number) {
+    setAzimuthMaxAngle(angle: number) {
         this.controls.maxAzimuthAngle = angle;
     }
 
@@ -107,6 +161,10 @@ export class CameraService {
 
     setEnablePan(value: boolean) {
         this.controls.mouseButtons.right = value ? CameraControls.ACTION.TRUCK : CameraControls.ACTION.NONE;
+    }
+
+    setEnableZoom(value: boolean) {
+        this.controls.mouseButtons.wheel = value ? CameraControls.ACTION.DOLLY : CameraControls.ACTION.NONE;
     }
 
     addEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void) {

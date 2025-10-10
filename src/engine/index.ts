@@ -8,6 +8,7 @@ export { default as Engine } from "./Engine";
 // Componentes principales del core
 export { EngineCanvas } from "@engine/core/components/EngineCanvas";
 export { EngineCore } from "@engine/core/components/EngineCore";
+export { DefaultEngineIndicator } from "@engine/core/components/DefaultEngineIndicator";
 
 // Hooks principales del core
 export {
