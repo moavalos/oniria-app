@@ -1,11 +1,11 @@
-import Card from "../../shared/components/Card";
-import AuthTitle from "../features/auth/components/AuthTitle";
-import LoginForm from "../features/auth/login/LoginForm";
-import GoogleButton from "../features/auth/components/GoogleButton";
+import AuthTitle from "@features/auth/components/AuthTitle";
+import LoginForm from "@features/auth/login/LoginForm";
+import GoogleButton from "@features/auth/components/GoogleButton";
+import AuthLinks from "@features/auth/components/AuthLinks";
+import Card from "@shared/components/Card";
+import bgImage from "@assets/images/Screenshot_1.png";
 
-import bgImage from "../../assets/images/Screenshot_1.png";
 import { useTranslation } from "react-i18next";
-import AuthLinks from "../features/auth/components/AuthLinks";
 
 export default function Login() {
   const { t } = useTranslation();

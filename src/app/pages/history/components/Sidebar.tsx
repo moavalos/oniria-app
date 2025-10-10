@@ -1,7 +1,7 @@
 import Card from "@/shared/components/Card";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import CtaButton from "./CtaButton";
+import CtaButton from "../../../features/auth/components/CtaButton";
 
 export type TimelineItem = {
   id: number;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import LeftPanel from "@/app/features/auth/components/LeftPanel";
+import LeftPanel from "@/app/pages/home/components/LeftPanel";
 
 // Mock react-i18next
 vi.mock("react-i18next", () => ({

@@ -40,7 +40,10 @@ type EngineCoreAPI = {
   unregisterService: (_name: string) => void;
   registerService: (_name: string, _service: unknown) => void;
   registerRoom: (_roomId: string, _skinId: string) => void;
-  registerNode: (_nodeId: string, _nodeRef: THREE.Group<THREE.Object3DEventMap>) => void;
+  registerNode: (
+    _nodeId: string,
+    _nodeRef: THREE.Group<THREE.Object3DEventMap>
+  ) => void;
   registerSkin: (_skinId: string) => void;
   getAnimationService: () => AnimationService;
   getCameraService: () => CameraService;

@@ -10,21 +10,21 @@ export interface EngineCoreAPI {
     // Estados
     engineState: EngineState;
     setEngineState: (_state: EngineState) => void;
-    
+
     // Entidades activas
     activeRoom: Room | null;
     activeSkin: Skin | null;
     activeNode: Node | null;
-    
+
     // Servicios
     services: Record<string, unknown>;
-    
+
     // Métodos principales
     loadRoom: (_roomId: string, _skinId: string) => Promise<void>;
     setActiveNode: (_nodeId: string, _nodeRef: THREE.Group<THREE.Object3DEventMap>) => void;
     clearActiveNode: () => void;
     changeSkin: (_skinId: string) => Promise<void>;
-    
+
     // Gestión de servicios
     registerService: (_name: string, _service: unknown) => void;
     getService: <T>(_name: string) => T | null;

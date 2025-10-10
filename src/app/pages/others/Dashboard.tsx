@@ -1,4 +1,4 @@
-import { useAuth } from "../features/auth/hooks/useAuth";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 export default function Dashboard() {
   const { user, session, signOut } = useAuth();

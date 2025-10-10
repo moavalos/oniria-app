@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Button from "../../../../shared/components/Button";
-import { login } from "../services/authService";
 import { useTranslation } from "react-i18next";
+import Button from "@shared/components/Button";
+import { login } from "@features/auth/services/authService";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
