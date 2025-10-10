@@ -1,6 +1,6 @@
 // EngineApiProvider.tsx
 import { createContext, useContext, useMemo, useCallback } from "react";
-import { useEngineStore } from "@engine/store/engineStore";
+import { useEngineStore } from "../store/engineStore";
 
 type EngineContextAPI = {
   setRoom: (roomId: string, skinId: string) => void;

@@ -1,8 +1,8 @@
 import * as THREE from "three";
-import { useEngineCore } from "@/engine/Engine";
-import { useEngineStore } from "@/engine/store/engineStore";
+import { useEngineCore } from "@engine/core";
+import { useEngineStore } from "@engine/core";
 import { useEffect, useMemo, useRef } from "react";
-import { EngineState } from "@/engine/types";
+import { EngineState } from "@engine/core";
 import { Float } from "@react-three/drei";
 
 interface NodeRendererProps {

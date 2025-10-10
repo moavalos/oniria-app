@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import * as THREE from "three";
 import { useThreeLoader } from "../hooks/useThreeLoader";
 import { useProgress } from "../hooks/useProgress";
-import { useEngineCore } from "../Engine";
+import { useEngineCore } from "@engine/core";
 
 export interface AssetManagerProps {
   /** Assets a cargar */

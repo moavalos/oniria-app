@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Room } from "@engine/entities/Room";
 import { Skin } from "@engine/entities/Skin";
 import type { ColorRepresentation } from "three";

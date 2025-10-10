@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import type { AnimationAction } from "../config/room.type";
-import { useEngineCore } from "@engine/Engine";
+import { useEngineCore } from "@engine/core";
 import { useRoomVersion } from "../hooks";
-import { EngineState } from "../types";
+import { EngineState } from "@engine/core";
 
 export type AnimationConfig = {
   animations?: Record<string, AnimationAction>;

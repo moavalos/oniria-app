@@ -1,5 +1,5 @@
 import { Room } from '../entities/Room';
-import { useEngineCore, useRoomVersionFromEngine } from '../Engine';
+import { useEngineCore, useRoomVersionFromEngine } from '@engine/core';
 
 /**
  * Hook que detecta cambios en el Room activo usando el sistema centralizado de versiones

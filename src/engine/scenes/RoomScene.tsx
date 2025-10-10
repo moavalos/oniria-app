@@ -1,5 +1,5 @@
-import { useEngineCore } from "../Engine";
-import { useEngineAPI } from "../context/EngineApiProvider";
+import { useEngineCore } from "@engine/core";
+import { useEngineAPI } from "../core/context/EngineApiProvider";
 import { useEffect, useState } from "react";
 import { RoomRenderer } from "../systems";
 

@@ -46,8 +46,7 @@ export default function Home() {
         <LeftPanel />
 
         {/* Canvas 3d*/}
-        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4">
-          {/* barra superior del panel (pills + insignias) */}
+        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           <LoaderSystem />
 
           {roomId && skinId && (
@@ -61,8 +60,6 @@ export default function Home() {
               </Engine.Core>
             </Engine.Canvas>
           )}
-
-          {/* marco / contenedor del orbe con “esquinas” */}
         </Card>
       </main>
     </div>

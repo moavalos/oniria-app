@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { useEffect, useState } from "react";
-import { useEngineCore } from "../Engine";
+import { useEngineCore } from "@engine/core";
 import { useHandlers } from "../hooks";
 import type { ObjectEventArray } from "../config/room.type";
-import { EngineState } from "../types";
+import { EngineState } from "@engine/core";
 import { Node } from "../entities/Node";
 
 // Tipos para EventArgs (importar o redefinir según la estructura)

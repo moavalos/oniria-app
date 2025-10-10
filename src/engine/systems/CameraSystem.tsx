@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useEffect } from "react";
-import { useEngineCore } from "@engine/Engine";
-import { EngineState } from "../types";
+import { useEngineCore } from "@engine/core";
+import { EngineState } from "@engine/core/";
 
 export type CameraConfig = {
   minDistance?: number;

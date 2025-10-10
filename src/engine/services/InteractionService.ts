@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { Room } from "../entities/Room";
-import { Node } from "../entities/Node";
+import { Room } from "@engine/entities/Room";
+import { Node } from "@engine/entities/Node";
 import type { ObjectEventArray } from "../config/room.type";
 import { EventEmitter } from "../utils/EventEmitter";
 

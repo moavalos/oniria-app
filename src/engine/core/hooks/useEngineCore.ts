@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { EngineCoreContext } from "../context/EngineContext";
+import { EngineCoreContext, RoomVersionContext } from "../context/EngineContext";
 
 export function useEngineCore() {
     const context = useContext(EngineCoreContext);
@@ -11,7 +11,7 @@ export function useEngineCore() {
     return context;
 }
 
+// ✅ Hook separado para roomVersion
 export function useRoomVersionFromEngine() {
-    const core = useEngineCore();
-    return core.activeRoom?.id ? 1 : 0; // Fallback simple mientras no hay versión
+    return useContext(RoomVersionContext);
 }

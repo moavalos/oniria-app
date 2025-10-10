@@ -1,5 +1,5 @@
-import { EngineCore } from "@engine/core/components/EngineCore";
-import { EngineCanvas } from "@engine/core/components/EngineCanvas";
+import { EngineCore } from "../components/EngineCore";
+import { EngineCanvas } from "../components/EngineCanvas";
 
 // Namespace para agrupar los componentes del Engine
 export interface EngineNamespace {

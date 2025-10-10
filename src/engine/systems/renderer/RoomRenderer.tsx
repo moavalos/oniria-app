@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useEngineCore } from "@engine/Engine";
+import { useEngineCore } from "@engine/core";
 import { AssetManager } from "@engine/components";
 import { Room } from "@engine/entities";
-import { EngineState } from "@/engine/types";
+import { EngineState } from "@engine/core";
 import { PortalRenderer } from "./PortalRenderer";
 
 export default function RoomRenderer() {

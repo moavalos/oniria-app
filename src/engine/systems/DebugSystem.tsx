@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { button, useControls } from "leva";
-import { useEngineCore } from "../Engine";
-import { useEngineStore } from "../store/engineStore";
+import { useEngineCore } from "@engine/core";
+import { useEngineStore } from "@engine/core/store/engineStore";
 import { useTransitions } from "../hooks";
-import { EngineState } from "../types";
+import { EngineState } from "@engine/core/types/engine.types";
 import * as THREE from "three";
 
 export interface DebugSystemProps {

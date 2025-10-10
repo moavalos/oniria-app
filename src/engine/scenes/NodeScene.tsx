@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { NodeRenderer } from "../systems/renderer/NodeRenderer";
 import { useRef, useEffect } from "react";
-import { useEngineCore } from "../Engine";
+import { useEngineCore } from "@engine/core";
 
 export default function NodeScene() {
   const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { useCallback } from 'react';
-import { useEngineCore } from '../Engine';
+import { useEngineCore } from '@engine/core';
 
 
 export function useTransitions() {

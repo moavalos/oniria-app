@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import { useEngineCore } from "@/engine/Engine";
-import { EngineState } from "@/engine/types";
+import { useEngineCore } from "@engine/core";
+import { EngineState } from "@engine/core";
 import NodeScene from "@/engine/scenes/NodeScene";
 
 interface PortalRendererProps {

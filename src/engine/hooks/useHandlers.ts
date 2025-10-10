@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { useCallback } from "react";
-import { useEngineCore } from "../Engine";
+import { useEngineCore } from "@engine/core";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 import type { EventArgs } from "../services";
 import { Node } from "../entities/Node";

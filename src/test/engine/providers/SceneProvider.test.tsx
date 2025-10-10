@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   useEngineAPI,
   EngineApiProvider,
-} from "@/engine/context/EngineApiProvider";
+} from "@/engine/core/context/EngineApiProvider";
 
 // Mock de useThree de @react-three/fiber
 vi.mock("@react-three/fiber", () => ({

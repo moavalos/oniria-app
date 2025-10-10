@@ -1,4 +1,4 @@
-import { useEngineStore } from "@engine/store/engineStore";
+import { useEngineStore } from "@engine/core/store/engineStore";
 
 /**
  * Hook useProgress propio que reemplaza al de Drei
