@@ -5,22 +5,28 @@
     "description": "Explora el mundo de los sueños con Oniria."
   },
   "login": {
-    "link": "Iniciar sesión",
-    "title": "Iniciar sesión",
+    "link": "Iniciá sesión",
+    "subtitle": "Iniciá sesión con tu cuenta",
     "email": "Correo electrónico",
     "password": "Contraseña",
-    "button": "Iniciar sesión",
-    "google": "Continuar con Google"
+    "button": "Ingresar",
+    "forgot": "Olvidé mi contraseña",
+    "or": "o",
+    "google": "Continuar con Google",
+    "register": "¿No tenés cuenta? <1>Registrate</1>",
+    "error": "Credenciales inválidas"
   },
   "register": {
-    "link": "Registrarse",
-    "title": "Crear Cuenta",
-    "fullName": "Nombre completo",
+    "link": "Registrate",
+    "subtitle": "Creá tu cuenta",
+    "username": "Nombre de usuario",
     "email": "Correo electrónico",
     "password": "Contraseña",
-    "dateOfBirth": "Fecha de nacimiento",
+    "confirmPassword": "Confirmar contraseña",
     "button": "Registrarse",
-    "success": "¡Revisa tu correo para confirmar tu cuenta!"
+    "errorPasswordMatch": "Las contraseñas no coinciden",
+    "text": "¿Ya tenés una cuenta?",
+    "textLink": "Iniciá sesión"
   },
   "notFound": {
     "link": "404",

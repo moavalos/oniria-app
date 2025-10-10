@@ -1,0 +1,84 @@
+{
+  "objects": {
+    "led_1": { "color": "#FF00FF" },
+    "led_2": { "color": "#FFFFFF" },
+    "led_ball": { "color": "#FFFFFF" },
+    "light_bed": { "color": "#FFFFFF" },
+    "floor_led": { "color": "#FFFFFF" },
+    "pc_emissive": { "color": "#1AFFFF" },
+    "portal": {
+      "color": "#FFFFFF",
+      "interceptable": true,
+      "event": { "type": "none", "name": "none" },
+      "lookAtOffset": [-1, 0, 3]
+    },
+    "neon_text": { "color": "#FFFFFF", "lookAtOffset": [-1.2, -1.0, 3] },
+    "dog_handler": {
+      "animation": {
+        "target": "dog_handler",
+        "type": "pendulum",
+        "params": {
+          "axis": [0, 1, 0],
+          "angle": 30,
+          "D_right": 0.8,
+          "D_left": 1.2,
+          "T_rest": 1.8
+        },
+        "loop": true
+      },
+      "lookAtOffset": [-1.2, 1.5, 1]
+    },
+    "top_chair": {
+      "lookAtOffset": [-1.2, 1, 2.5]
+    },
+    "chair_handler": {
+      "lookAtOffset": [-1.2, 3, 2.5],
+      "interceptable": true,
+      "event": [
+        {
+          "type": "animation",
+          "action": [
+            {
+              "on": "hoverEnter",
+              "target": "chair_handler",
+              "type": "rotateTo",
+              "params": {
+                "axis": [0, 1, 0],
+                "to": 60,
+                "duration": 0.6,
+                "ease": "power2.out"
+              },
+              "loop": false,
+              "autoPlay": false
+            },
+            {
+              "on": "hoverLeave",
+              "target": "chair_handler",
+              "type": "rotateTo",
+              "params": {
+                "axis": [0, 1, 0],
+                "to": 15,
+                "duration": 0.8,
+                "ease": "elastic.out(1, 0.5)"
+              },
+              "loop": false,
+              "autoPlay": false
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "action": [{ "on": "click", "function": "openChairDrawer" }]
+        }
+      ]
+    },
+    "cooler": {
+      "animation": {
+        "target": "cooler",
+        "type": "rotate",
+        "params": { "axis": [0, 0, 1], "angle": -360, "duration": 1 },
+        "loop": true
+      }
+    }
+  }
+}

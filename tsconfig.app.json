@@ -6,9 +6,14 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+     "types": [
+      "vite-plugin-glsl/ext"
+    ],
+    "resolveJsonModule": true,
      "paths": {
       "@/*": ["./src/*"],
       "@pages/*": ["./src/app/pages/*"],
+      "@features/*": ["./src/app/features/*"],
       "@assets/*": ["./src/assets/*"],
       "@shared/*": ["./src/shared/*"],
       "@config/*": ["./src/config/*"],
@@ -30,7 +35,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
+    "erasableSyntaxOnly": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
