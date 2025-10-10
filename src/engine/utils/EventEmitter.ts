@@ -7,8 +7,8 @@ interface Name {
 // Tipo genérico para mapa de eventos
 type EventMap = Record<string, unknown>;
 
-// Tipo para callback función genérica
-type CallbackFunction = (..._args: unknown[]) => unknown;
+// Tipo para callback función genérica - mejorado para compatibilidad con tipos específicos
+type CallbackFunction<T = unknown> = (_data: T) => unknown;
 
 export class EventEmitter<T extends EventMap = EventMap> {
     callbacks: Record<string, Record<string, CallbackFunction[]>> = {}
@@ -18,7 +18,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
         this.callbacks.base = {}
     }
 
-    on(_names: string, callback: CallbackFunction): this {
+    on<K extends keyof T>(_names: K | string, callback: CallbackFunction<T[K]>): this {
         // Errors
         if (typeof _names === 'undefined' || _names === '') {
             console.warn('wrong names')
@@ -31,7 +31,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
         }
 
         // Resolve names
-        const names = this.resolveNames(_names)
+        const names = this.resolveNames(_names as string)
 
         // Each name
         names.forEach((_name) => {
@@ -46,7 +46,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
                 this.callbacks[name.namespace][name.value] = []
 
             // Add callback
-            this.callbacks[name.namespace][name.value].push(callback)
+            this.callbacks[name.namespace][name.value].push(callback as CallbackFunction)
         })
 
         return this
@@ -134,7 +134,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
                     this.callbacks[namespace][name.value].forEach((callback: CallbackFunction) => {
-                        result = callback.apply(this, args)
+                        result = callback(args[0])
 
                         if (typeof finalResult === 'undefined') {
                             finalResult = result
@@ -152,7 +152,7 @@ export class EventEmitter<T extends EventMap = EventMap> {
             }
 
             this.callbacks[name.namespace][name.value].forEach((callback: CallbackFunction) => {
-                result = callback.apply(this, args)
+                result = callback(args[0])
 
                 if (typeof finalResult === 'undefined') finalResult = result
             })

@@ -9,11 +9,11 @@ import {
   DebugSystem,
 } from "@/engine";
 
-import Starfield from "../features/auth/components/Starfield";
-import Header from "../features/auth/components/Header";
+import Starfield from "../../../shared/components/Starfield";
+import Header from "../../../shared/components/Header";
 import Card from "@/shared/components/Card";
 import { useEffect } from "react";
-import LeftPanel from "../features/auth/components/LeftPanel";
+import LeftPanel from "./components/LeftPanel";
 
 export default function Home() {
   //const { t } = useTranslation();

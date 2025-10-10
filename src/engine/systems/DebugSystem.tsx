@@ -177,7 +177,7 @@ function CameraDebugPanel() {
           new THREE.Vector3(0, 1.8, 0),
           true
         );
-        viewNodes({});
+        viewNodes();
       }),
     }),
     [options, cameraService, viewNodes]

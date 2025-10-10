@@ -21,6 +21,7 @@ export default defineConfig({
             "@styles": path.resolve(__dirname, "./src/styles"),
             "@utils": path.resolve(__dirname, "./src/shared/utils"),
             "@locales": path.resolve(__dirname, "./src/i18n/locales")
+
         }
     },
 });

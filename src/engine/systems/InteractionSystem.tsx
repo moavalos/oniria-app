@@ -14,18 +14,18 @@ interface EventArgs<T = any, D = any> {
 
 export interface InteractionSystemProps {
   // Event callbacks actualizados para usar EventArgs
-  onObjectHoverEnter?: (args: EventArgs<string, ObjectEventArray>) => void;
-  onObjectHoverLeave?: (args: EventArgs<string, ObjectEventArray>) => void;
-  onObjectClick?: (args: EventArgs<string, ObjectEventArray>) => void;
-  onInteractionStateChange?: (hoveredObjects: string[]) => void;
+  onObjectHoverEnter?: (_args: EventArgs<string, ObjectEventArray>) => void;
+  onObjectHoverLeave?: (_args: EventArgs<string, ObjectEventArray>) => void;
+  onObjectClick?: (_args: EventArgs<string, ObjectEventArray>) => void;
+  onInteractionStateChange?: (_hoveredObjects: string[]) => void;
   onNodeHoverEnter?: (
-    args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
+    _args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
   ) => void;
   onNodeHoverLeave?: (
-    args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
+    _args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
   ) => void;
   onNodeClick?: (
-    args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
+    _args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>
   ) => void;
 
   // Configuration
@@ -110,6 +110,9 @@ export default function InteractionSystem({
     onObjectHoverEnter,
     onObjectHoverLeave,
     onObjectClick,
+    onNodeHoverEnter,
+    onNodeHoverLeave,
+    onNodeClick,
     isEngineReady,
   ]);
 
@@ -157,6 +160,7 @@ export default function InteractionSystem({
     loopService,
     interactionService,
     activeRoom,
+    activeNode,
     isEngineReady,
     interceptableObjects,
   ]);
