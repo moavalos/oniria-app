@@ -1,6 +1,6 @@
 import type { TimelineItem } from "@/app/pages/history/model/TimelineItem";
 
-const DB_URL = "/example.json";
+const DB_URL = "/historial.json";
 
 async function loadTimeline(): Promise<TimelineItem[]> {
     const response = await fetch(DB_URL);

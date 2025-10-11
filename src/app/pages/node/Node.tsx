@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next";
 import Card from "@/shared/components/Card";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Starfield from "@/shared/components/Starfield";
-import Header from "@/shared/components/Header";
-import LeftPanel from "../../home/components/LeftPanel";
-import DreamCardModal from "./DreamCardModal";
+import DreamCardModal from "./modal/DreamCardModal";
+import LeftPanel from "../home/components/LeftPanel";
+import HeaderContainer from "@/shared/components/header/HeaderContainer";
 
 export default function Node() {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ export default function Node() {
       <Starfield />
 
       {/* top bar */}
-      <Header />
+      <HeaderContainer />
 
       {/* layout principal */}
       <main className="relative z-0 mx-auto container px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 md:grid-cols-12 gap-6">

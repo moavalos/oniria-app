@@ -1,6 +1,6 @@
 import type { Quote, QuotesResponse } from "@/app/pages/home/model/Quotes";
 
-const DB_URL = "/example2.json";
+const DB_URL = "/frases.json";
 
 async function fetchQuotes(): Promise<Quote[]> {
     const res = await fetch(DB_URL, { cache: "no-store" });

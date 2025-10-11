@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import Header from "@/shared/components/Header";
+import Header from "@/shared/components/header/Header";
 
 describe("Header", () => {
   it("render the component correctly", () => {

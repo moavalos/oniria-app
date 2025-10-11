@@ -25,5 +25,7 @@ dist-ssr
 
 .env
 
-example.json
-example2.json
+historial.json
+frases.json
+usuarios.json
+nodos.json
