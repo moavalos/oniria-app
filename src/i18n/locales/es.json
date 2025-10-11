@@ -33,6 +33,8 @@
     "message": "Página no encontrada"
   },
   "historial": {
+    "link": "Historial",
+    "verSuenos": "Ver tus sueños guardados",
     "title": "Explora tus Nodos",
     "description": "Selecciona entre las plantillas que más te gusten",
     "oniriaPro": "Probá Oniria PRO",
@@ -55,6 +57,11 @@
     "personalizar": "Personalizar",
     "toque": "Dale tu toque al espacio",
     "insignia": "Mis insignias",
-    "descriptionInsignia": "Gestioná tus logros dentro de Oniria."
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria.",
+    "suenoDelNodo": "Sueño del nodo",
+    "cerrar": "Cerrar",
+    "guardar": "Guardar",
+    "reinterpretar": "Reinterpretar",
+    "acaAparecera": "Acá aparecerá el contenido del sueño..."
   }
 }
