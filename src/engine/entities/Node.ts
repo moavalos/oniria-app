@@ -1,13 +1,32 @@
 import * as THREE from 'three';
+import { EventEmitter } from '../utils/EventEmitter';
 
-export class Node {
+// Definir los tipos de eventos que puede emitir el Node
+interface NodeEventMap {
+    onNextNode: { nodeId: string };
+    onPrevNode: { nodeId: string };
+    [key: string]: unknown; // Index signature para satisfacer EventMap
+}
+
+/**
+ * Entidad que representa un nodo 3D con un grupo de objetos Three.js
+ * Extiende EventEmitter para emitir eventos de navegación
+ */
+export class Node extends EventEmitter<NodeEventMap> {
     public readonly id: string;
 
     private group: THREE.Group<THREE.Object3DEventMap> | null = null;
 
     private _version: number = 0;
 
+    /**
+     * Crea una nueva instancia de Node
+     * 
+     * @param id - Identificador único del nodo
+     */
     constructor(id: string) {
+        super(); // Llamar al constructor de EventEmitter
+
         if (!id?.trim()) {
             throw new Error('El ID del nodo no puede estar vacío');
         }
@@ -17,17 +36,21 @@ export class Node {
 
     /**
      * Establece el grupo Three.js para este nodo
+     * 
+     * @param group - Grupo de Three.js a asociar
      */
     setGroup(group: THREE.Group<THREE.Object3DEventMap>): void {
         if (!group) {
             throw new Error('El grupo no puede ser nulo');
         }
         this.group = group;
-        this._version++; // Incrementar versión cuando cambia el grupo
+        this._version++;
     }
 
     /**
      * Obtiene el grupo Three.js de este nodo
+     * 
+     * @returns Grupo asociado al nodo o null si no existe
      */
     getGroup(): THREE.Group<THREE.Object3DEventMap> | null {
         return this.group;
@@ -35,6 +58,8 @@ export class Node {
 
     /**
      * Obtiene la versión actual del nodo para tracking de cambios
+     * 
+     * @returns Número de versión actual
      */
     getVersion(): number {
         return this._version;
@@ -190,5 +215,23 @@ export class Node {
             rotation: this.getRotation(),
             scale: this.getScale()
         };
+    }
+
+    /**
+     * Navegar al siguiente nodo
+     * Emite el evento 'onNextNode' para disparar animaciones
+     */
+    next(): void {
+        console.log(`📍 Navegando al siguiente nodo desde: ${this.id}`);
+        this.emit('onNextNode', { nodeId: this.id });
+    }
+
+    /**
+     * Navegar al nodo anterior  
+     * Emite el evento 'onPrevNode' para disparar animaciones
+     */
+    prev(): void {
+        console.log(`📍 Navegando al nodo anterior desde: ${this.id}`);
+        this.emit('onPrevNode', { nodeId: this.id });
     }
 }

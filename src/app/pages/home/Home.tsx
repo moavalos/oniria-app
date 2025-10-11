@@ -14,9 +14,12 @@ import Card from "@/shared/components/Card";
 import { useEffect } from "react";
 import LeftPanel from "./components/LeftPanel";
 import HeaderContainer from "@/shared/components/header/HeaderContainer";
+import useDreams from "@/app/hooks/useDreams";
 
 export default function Home() {
   //const { t } = useTranslation();
+  const { fetchDreams } = useDreams();
+
   const engine = useEngine();
   //algo asi seria la respuesta del backend
   //y se lo pasariamos al engine
@@ -33,21 +36,31 @@ export default function Home() {
     console.log("hovered", args.objectName || args);
   };
 
+  const handleInterpretar = async (dream: string) => {
+    const response = await fetchDreams(dream);
+
+    console.log("dreams:", response);
+    //navegar a otra pagina con el resultado
+    //navigate("/interpretacion");
+  };
+
   return (
     <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
       {/* fondo de estrellas */}
       <Starfield />
 
       {/* top bar */}
-      < HeaderContainer />
+      <HeaderContainer />
 
       {/* layout principal */}
       <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
-        <LeftPanel />
+        <LeftPanel
+          onNuevaFrase={() => engine.node?.next()}
+          onInterpretar={handleInterpretar}
+        />
 
         {/* Canvas 3d*/}
-        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4">
-          {/* barra superior del panel (pills + insignias) */}
+        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           <LoaderSystem />
 
           {roomId && skinId && (
@@ -61,8 +74,6 @@ export default function Home() {
               </Engine.Core>
             </Engine.Canvas>
           )}
-
-          {/* marco / contenedor del orbe con “esquinas” */}
         </Card>
       </main>
     </div>

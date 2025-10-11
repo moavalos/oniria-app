@@ -5,8 +5,8 @@ import type { AnimationAction } from "../../config/room.type";
  * Handler para una animación específica
  */
 export type AnimationHandler = (
-    target: THREE.Object3D,
-    config: AnimationAction
+    _target: THREE.Object3D,
+    _config: AnimationAction
 ) => any; // Timeline de GSAP
 
 /**
@@ -31,12 +31,12 @@ export interface IAnimationRepository {
     /**
      * Registra una nueva animación en el repositorio
      */
-    registerAnimation(name: string, handler: AnimationHandler): void;
+    registerAnimation(_name: string, _handler: AnimationHandler): void;
 
     /**
      * Obtiene un handler de animación por nombre
      */
-    getAnimation(name: string): AnimationHandler | undefined;
+    getAnimation(_name: string): AnimationHandler | undefined;
 
     /**
      * Obtiene todos los nombres de animaciones disponibles
@@ -46,17 +46,17 @@ export interface IAnimationRepository {
     /**
      * Verifica si existe una animación con el nombre dado
      */
-    hasAnimation(name: string): boolean;
+    hasAnimation(_name: string): boolean;
 
     /**
      * Crea un timeline personalizado para animaciones manuales
      */
-    createCustomTimeline(config?: Partial<CustomAnimationConfig>): any; // Timeline de GSAP
+    createCustomTimeline(_config?: Partial<CustomAnimationConfig>): any; // Timeline de GSAP
 
     /**
      * Elimina una animación del repositorio
      */
-    removeAnimation(name: string): boolean;
+    removeAnimation(_name: string): boolean;
 
     /**
      * Limpia todas las animaciones registradas

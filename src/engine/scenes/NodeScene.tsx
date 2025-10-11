@@ -1,21 +1,43 @@
 import * as THREE from "three";
-import { NodeRenderer } from "../systems/renderer/NodeRenderer";
 import { useRef, useEffect } from "react";
-import { useEngineCore } from "../Engine";
 
+import { NodeRenderer } from "../systems/renderer/NodeRenderer";
+import { useEngineCore } from "@engine/core";
+import { useTransitions } from "../hooks";
+
+/**
+ * Escena para renderizar nodos 3D.
+ * Gestiona la renderización de nodos especiales en la escena.
+ */
 export default function NodeScene() {
   const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
   const core = useEngineCore();
+  const { viewNodes } = useTransitions();
 
   // Registrar el nodo cuando la referencia esté disponible
   useEffect(() => {
     if (nodeRef.current) {
       // Registrar el nodo con un ID por defecto o dinámico
       //despues lo vemos despues
-
       core.registerNode("default-node", nodeRef.current);
     }
   }, [core, nodeRef]);
+
+  /**
+   * useEffect separado para manejar el evento controlend
+   * este effecto hace que luego de mover la camara y soltarla
+   * la camara enfoque al nodo nuevamente
+   */
+  useEffect(() => {
+    const cameraService = core.getCameraService();
+    if (!cameraService) return;
+
+    cameraService.addEventListener("controlend", viewNodes);
+
+    return () => {
+      cameraService.removeEventListener("controlend", viewNodes);
+    };
+  }, [core.getCameraService, viewNodes]);
 
   return (
     <>

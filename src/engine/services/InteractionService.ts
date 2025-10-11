@@ -1,16 +1,21 @@
 import * as THREE from "three";
-import { Room } from "../entities/Room";
-import { Node } from "../entities/Node";
+
+import { Room } from "@engine/entities/Room";
+import { Node } from "@engine/entities/Node";
 import type { ObjectEventArray } from "../config/room.type";
 import { EventEmitter } from "../utils/EventEmitter";
 
-// Tipos para callbacks personalizados
+/**
+ * Tipos para argumentos de eventos
+ */
 export type EventArgs<T = any, D = any> = {
     target: T;
     data: D;
 }
 
-// Mapa de tipos de eventos para inferencia automática
+/**
+ * Mapa de tipos de eventos para inferencia automática de TypeScript
+ */
 export interface InteractionEventMap extends Record<string, unknown> {
     // Eventos de Room
     objectEnter: EventArgs<string, ObjectEventArray>;
@@ -26,8 +31,6 @@ export interface InteractionEventMap extends Record<string, unknown> {
 
 type InteractionCallback = (_args: EventArgs<string, ObjectEventArray>) => void;
 type NodeInteractionCallback = (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
-
-// Configuraciones para diferentes tipos de entidades
 interface RoomInteractionConfig {
     interceptableObjects: Record<string, ObjectEventArray>;
 }
@@ -39,7 +42,9 @@ interface NodeInteractionConfig {
 // Tipos de entidad para el genérico
 type InteractionConfig<T> = T extends Room ? RoomInteractionConfig : T extends Node ? NodeInteractionConfig : never;
 
-
+/**
+ * Servicio para gestionar interacciones con objetos 3D mediante raycasting
+ */
 export class InteractionService extends EventEmitter<InteractionEventMap> {
     private raycaster = new THREE.Raycaster();
 
@@ -53,7 +58,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
 
     private isWithinNodeRadius: boolean = false;
 
-    private currentNode: Node | null = null; // Referencia al nodo actual
+    private currentNode: Node | null = null;
 
     // Callbacks personalizados para Room
     private onObjectEnterCallback?: InteractionCallback;

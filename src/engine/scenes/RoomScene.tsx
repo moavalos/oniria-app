@@ -1,6 +1,7 @@
-import { useEngineCore } from "../Engine";
-import { useEngineAPI } from "../context/EngineApiProvider";
+import { useEngineCore } from "@engine/core";
+import { useEngineAPI } from "../core/context/EngineApiProvider";
 import { useEffect, useState } from "react";
+
 import { RoomRenderer } from "../systems";
 
 interface RoomSceneProps {
@@ -8,6 +9,10 @@ interface RoomSceneProps {
   onLoad?: () => void;
 }
 
+/**
+ * Escena principal para renderizar salas 3D.
+ * Gestiona la carga y renderizado de salas con sus respectivos skins.
+ */
 export default function RoomScene({ onError, onLoad }: RoomSceneProps) {
   const core = useEngineCore();
   const { skinId, roomId } = useEngineAPI();

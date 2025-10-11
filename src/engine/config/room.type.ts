@@ -1,3 +1,7 @@
+/**
+ * Tipos de configuración para salas y objetos del motor 3D.
+ */
+
 // Tipos de animación soportados
 export type AnimationType = "pendulum" | "rotate" | "rotateTo" | string;
 
@@ -16,16 +20,14 @@ export type FunctionAction = {
     function: string; // nombre de la función a ejecutar
 };
 
-
-//Tipos de eventos que se pueden disparar
+// Tipos de eventos que se pueden disparar
 export type ObjectEvent =
     | { type: "animation"; action: AnimationAction[] }// dispara otra animación
     | { type: "function"; action: FunctionAction[] } // ejecuta callback registrada
 
 export type ObjectEventArray = ObjectEvent[];
 
-
-//Configuración de un objeto en la room
+// Configuración de un objeto en la room
 export interface RoomObjectConfig {
     color?: string;
     animation?: AnimationAction;
@@ -34,7 +36,7 @@ export interface RoomObjectConfig {
     lookAtOffset?: [number, number, number]; // offset para la cámara al hacer lookAt
 }
 
-//Configuración completa de una room
+// Configuración completa de una room
 export interface RoomConfig {
     objects: Record<string, RoomObjectConfig>;
 }

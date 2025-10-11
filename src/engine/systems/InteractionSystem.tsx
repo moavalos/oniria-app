@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { useEffect, useState } from "react";
-import { useEngineCore } from "../Engine";
+
+import { useEngineCore } from "@engine/core";
 import { useHandlers } from "../hooks";
 import type { ObjectEventArray } from "../config/room.type";
-import { EngineState } from "../types";
+import { EngineState } from "@engine/core";
 import { Node } from "../entities/Node";
 
 // Tipos para EventArgs (importar o redefinir según la estructura)
@@ -32,6 +33,10 @@ export interface InteractionSystemProps {
   enableInteractions?: boolean;
 }
 
+/**
+ * Sistema de interacciones del motor 3D.
+ * Gestiona las interacciones con objetos y nodos en la escena mediante raycasting.
+ */
 export default function InteractionSystem({
   onObjectHoverEnter,
   onObjectHoverLeave,
@@ -137,6 +142,21 @@ export default function InteractionSystem({
       interactionService.off("nodeClick");
     };
   }, [interactionService, handlers, isEngineReady]);
+
+  // Suscripción a eventos de navegación del nodo activo
+  useEffect(() => {
+    if (!isEngineReady || !activeNode) return;
+
+    // Suscribirse a los eventos del nodo
+    activeNode.on("onNextNode", handlers.handleNextNode);
+    activeNode.on("onPrevNode", handlers.handlePrevNode);
+
+    // Cleanup
+    return () => {
+      activeNode.off("onNextNode");
+      activeNode.off("onPrevNode");
+    };
+  }, [isEngineReady, activeNode]);
 
   // Actualizar interacciones en el loop
   useEffect(() => {

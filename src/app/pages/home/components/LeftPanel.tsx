@@ -1,9 +1,9 @@
 import Card from "@/shared/components/Card";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { getRandomQuote } from "@/services/home/home.service";
-import '../styles/LeftPanel.css';
+import "../styles/LeftPanel.css";
 import DreamTextarea from "@/shared/components/DreamTextarea";
 import BadgeIcon from "@/assets/icons/BadgeIcon";
 import SettingsIcon from "@/assets/icons/SettingsIcon";
@@ -41,6 +41,7 @@ export default function LeftPanel({
   const isTooLong = dream.length > maxChars;
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const dreamRef = useRef<HTMLTextAreaElement>(null);
 
   const [quoteText, setQuoteText] = useState(quote);
   const [isLoadingQ, setIsLoadingQ] = useState(loadingQuote || false);
@@ -56,13 +57,20 @@ export default function LeftPanel({
     }
   };
 
+  const handleTextChange = (value: string) => {
+    if (value.length <= maxChars) {
+      setDream(value);
+    }
+  };
+
   return (
     <Card className="col-span-12 md:col-span-3 min-w-[300px] p-6 h-[88vh] overflow-y-auto text-[15px] space-y-4">
       {/* Dream Input Section */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-black/15">
         <DreamTextarea
+          ref={dreamRef}
           value={dream}
-          onChange={setDream}
+          onChange={handleTextChange}
           maxChars={maxChars}
           charsLeft={charsLeft}
           isTooLong={isTooLong}
@@ -71,8 +79,8 @@ export default function LeftPanel({
         <button
           onClick={() => {
             if (!isEmpty && !isTooLong) {
-              onInterpretar?.(dream.trim());
-              navigate("/node", { state: { dream: dream.trim() } });
+              onInterpretar?.(dreamRef.current?.value || "");
+              // navigate("/node", { state: { dream: dream.trim() } });
             }
           }}
           disabled={isEmpty || isTooLong}
@@ -107,14 +115,14 @@ export default function LeftPanel({
           icon={<SettingsIcon />}
           title={t("node.personalizar")}
           description={t("node.toque")}
-          onClick={onPersonalizar || (() => { })}
+          onClick={onPersonalizar || (() => {})}
         />
 
         <MenuButton
           icon={<BadgeIcon />}
           title={t("node.insignia")}
           description={t("node.descriptionInsignia")}
-          onClick={onInsignias || (() => { })}
+          onClick={onInsignias || (() => {})}
         />
 
         <MenuButton
