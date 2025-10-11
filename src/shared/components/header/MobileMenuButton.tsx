@@ -1,4 +1,4 @@
-import MenuIcon from "@/app/features/components/icons/MenuIcon";
+import MenuIcon from "@/assets/icons/MenuIcon";
 
 type MobileMenuButtonProps = {
     onClick?: () => void;

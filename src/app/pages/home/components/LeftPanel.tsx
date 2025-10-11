@@ -4,13 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { getRandomQuote } from "@/services/home/home.service";
 import '../styles/LeftPanel.css';
-import DreamTextarea from "@/app/features/components/DreamTextarea";
-import QuoteCard from "@/app/features/components/QuoteCard";
-import BadgeIcon from "@/app/features/components/icons/BadgeIcon";
-import SettingsIcon from "@/app/features/components/icons/SettingsIcon";
-import MenuButton from "@/app/features/components/MenuButton";
-import ClockIcon from "@/app/features/components/icons/ClockIcon";
-import CtaButton from "@/app/features/components/CtaButton";
+import DreamTextarea from "@/shared/components/DreamTextarea";
+import BadgeIcon from "@/assets/icons/BadgeIcon";
+import SettingsIcon from "@/assets/icons/SettingsIcon";
+import MenuButton from "@/shared/components/MenuButton";
+import ClockIcon from "@/assets/icons/ClockIcon";
+import CtaButton from "@/shared/components/CtaButton";
+import QuoteCard from "@/shared/components/QuoteCard";
 
 type LeftPanelProps = {
   onInterpretar?: (_dream: string) => void;
