@@ -18,7 +18,7 @@ import useDreams from "@/app/hooks/useDreams";
 
 export default function Home() {
   //const { t } = useTranslation();
-  const { fetchDreams, dreams } = useDreams();
+  const { fetchDreams } = useDreams();
 
   const engine = useEngine();
   //algo asi seria la respuesta del backend

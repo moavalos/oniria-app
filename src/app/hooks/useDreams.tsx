@@ -16,8 +16,8 @@ export default function useDreams() {
       setDreams([response]);
       console.log(response);
       return response;
-    } catch (err) {
-      setError("Failed to fetch dream interpretation");
+    } catch (err: any) {
+      setError("Failed to fetch dream interpretation: " + err.message);
     } finally {
       setLoading(false);
     }
