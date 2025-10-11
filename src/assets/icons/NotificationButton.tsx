@@ -1,4 +1,4 @@
-import BellIcon from "../icons/BellIcon";
+import BellIcon from "./BellIcon";
 
 type NotificationButtonProps = {
     onClick?: () => void;

@@ -1,4 +1,4 @@
-import NotificationButton from "@/app/features/components/icons/NotificationButton";
+import NotificationButton from "@/assets/icons/NotificationButton";
 import UserProfile from "../UserProfile";
 import MobileMenuButton from "../MobileMenuButton";
 

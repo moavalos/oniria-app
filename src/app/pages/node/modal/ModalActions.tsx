@@ -1,5 +1,5 @@
-import SaveIcon from "@/app/features/components/icons/SaveIcon";
-import SparklesIcon from "@/app/features/components/icons/SparklesIcon";
+import SaveIcon from "@/assets/icons/SaveIcon";
+import SparklesIcon from "@/assets/icons/SparklesIcon";
 import { useTranslation } from "react-i18next";
 
 type ModalActionsProps = {

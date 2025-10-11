@@ -1,7 +1,7 @@
-import AuthTitle from "@/app/features/components/AuthTitle";
+import AuthTitle from "@/app/features/auth/components/AuthTitle";
 import LoginForm from "@features/auth/login/LoginForm";
-import GoogleButton from "@/app/features/components/GoogleButton";
-import AuthLinks from "@/app/features/components/AuthLinks";
+import GoogleButton from "@/app/features/auth/components/GoogleButton";
+import AuthLinks from "@/app/features/auth/components/AuthLinks";
 import Card from "@shared/components/Card";
 import bgImage from "@assets/images/Screenshot_1.png";
 

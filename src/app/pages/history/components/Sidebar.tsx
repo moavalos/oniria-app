@@ -6,7 +6,7 @@ import { useTimelineKeyboard } from "./timeLine/hooks/useTimelineKeyboard";
 import SidebarHeader from "./SidebarHeader";
 import TimelineProgressBar from "./timeLine/TimelineProgressBar";
 import TimelineList from "./timeLine/TimelineList";
-import CtaButton from "@/app/features/components/CtaButton";
+import CtaButton from "@/shared/components/CtaButton";
 import './styles/Sidebar.css';
 
 type SidebarProps = {

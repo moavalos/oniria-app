@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import ChevronRightIcon from "./icons/ChevronRightIcon";
+import ChevronRightIcon from "../../assets/icons/ChevronRightIcon";
 
 type MenuButtonProps = {
     icon: ReactNode;

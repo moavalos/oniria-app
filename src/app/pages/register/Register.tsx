@@ -1,7 +1,7 @@
 import Card from "@shared/components/Card";
-import AuthTitle from "@/app/features/components/AuthTitle";
+import AuthTitle from "@/app/features/auth/components/AuthTitle";
 import RegisterForm from "@features/auth/register/RegisterForm";
-import AuthLinks from "@/app/features/components/AuthLinks";
+import AuthLinks from "@/app/features/auth/components/AuthLinks";
 import bgImage from "@assets/images/Screenshot_1.png";
 import { useTranslation } from "react-i18next";
 
