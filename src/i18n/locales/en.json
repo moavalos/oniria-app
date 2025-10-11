@@ -33,6 +33,8 @@
     "message": "Page not found"
   },
   "historial": {
+    "link": "History",
+    "verSuenos": "See your saved dreams",
     "title": "Explore your Nodes",
     "description": "Select from the templates you like best",
     "oniriaPro": "Try Oniria PRO",
@@ -55,6 +57,11 @@
     "personalizar": "Customize",
     "toque": "Add your touch to the space",
     "insignia": "My badges",
-    "descriptionInsignia": "Manage your achievements within Oniria."
+    "descriptionInsignia": "Manage your achievements within Oniria.",
+    "suenoDelNodo": "Node's dream",
+    "cerrar": "Close",
+    "guardar": "Save",
+    "reinterpretar": "Reinterpret",
+    "acaAparecera": "Here will appear the content of the dream..."
   }
 }

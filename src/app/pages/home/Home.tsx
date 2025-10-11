@@ -10,10 +10,10 @@ import {
 } from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
-import Header from "../../../shared/components/Header";
 import Card from "@/shared/components/Card";
 import { useEffect } from "react";
 import LeftPanel from "./components/LeftPanel";
+import HeaderContainer from "@/shared/components/header/HeaderContainer";
 
 export default function Home() {
   //const { t } = useTranslation();
@@ -39,7 +39,7 @@ export default function Home() {
       <Starfield />
 
       {/* top bar */}
-      <Header />
+      < HeaderContainer />
 
       {/* layout principal */}
       <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
