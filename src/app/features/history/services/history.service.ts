@@ -36,6 +36,9 @@ export class HistoryService {
       throw new Error(`Error fetching history: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("Data in service: ", data);
+
+    return data;
   }
 }

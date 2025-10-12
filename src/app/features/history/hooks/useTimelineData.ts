@@ -13,10 +13,10 @@ export function useTimelineData() {
         let mounted = true;
 
         const loadHistory = async () => {
-            try {
-                const data = await fetchHistory();
-                if (mounted) {
-                    setTimeline(
+        try {
+            const data = await fetchHistory();
+            if (mounted) {
+                setTimeline(
                         Array.isArray(data)
                             ? data.map(item => ({
                                 ...item,
@@ -41,7 +41,7 @@ export function useTimelineData() {
         return () => {
             mounted = false;
         };
-    }, [fetchHistory]);
+    }, []);
 
     return { timeline, loading, error };
 }
