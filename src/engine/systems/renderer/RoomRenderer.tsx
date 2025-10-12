@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { useEngineCore } from "@engine/Engine";
+
+import { useEngineCore } from "@engine/core";
 import { AssetManager } from "@engine/components";
 import { Room } from "@engine/entities";
-import { EngineState } from "@/engine/types";
+import { EngineState } from "@engine/core";
 import { PortalRenderer } from "./PortalRenderer";
 
+/**
+ * Renderer principal para salas 3D.
+ * Gestiona la carga de modelos, texturas y la renderización completa de las salas.
+ */
 export default function RoomRenderer() {
   const core = useEngineCore();
   const { setEngineState } = core;
@@ -40,7 +45,7 @@ export default function RoomRenderer() {
 
   // Callback cuando los assets están cargados
   const handleAssetsLoaded = (assets: { [key: string]: any }) => {
-    console.log("🏠 RoomRenderer - handleAssetsLoaded called", {
+    console.log("RoomRenderer - handleAssetsLoaded called", {
       roomId: core.activeRoom?.id,
       assetsKeys: Object.keys(assets),
       timestamp: Date.now(),
@@ -85,7 +90,7 @@ export default function RoomRenderer() {
         const materialService = core.getMaterialService();
         await materialService.applyMaterialsToRoom(loadedRoom);
       } catch (error) {
-        console.error("Failed to apply materials:", error);
+        console.error("Error al aplicar materiales:", error);
       }
     };
 
@@ -106,7 +111,7 @@ export default function RoomRenderer() {
   // Portal del room cargado
   const portal = useMemo(() => {
     const foundPortal = loadedRoom?.getPortal();
-    console.log("🏠 RoomRenderer - Portal from loadedRoom:", {
+    console.log("RoomRenderer - Portal from loadedRoom:", {
       hasLoadedRoom: !!loadedRoom,
       hasPortal: !!foundPortal,
       portalName: foundPortal?.name,

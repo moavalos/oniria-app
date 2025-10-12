@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CtaButton from '@/app/features/auth/components/CtaButton';
+import CtaButton from '@/shared/components/CtaButton';
 
 describe('CtaButton', () => {
 

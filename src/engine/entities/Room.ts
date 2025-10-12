@@ -1,14 +1,20 @@
 import * as THREE from 'three';
+
 import { type AnimationAction, type ObjectEventArray } from '../config/room.type';
 import { Skin } from './Skin';
 import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager';
 import { EventEmitter } from '../utils/EventEmitter';
 
-// Eventos que puede emitir Room
+/**
+ * Eventos que puede emitir la entidad Room
+ */
 interface RoomEventMap extends Record<string, unknown> {
     'change': { room: Room; changeType: 'scene' | 'skin' | 'textures' };
 }
 
+/**
+ * Entidad que representa una sala 3D con su geometría, materiales y configuración
+ */
 export class Room extends EventEmitter<RoomEventMap> {
     public readonly id: string;
 
@@ -26,14 +32,20 @@ export class Room extends EventEmitter<RoomEventMap> {
 
     private configManager: ConfigManager;
 
+    /**
+     * Crea una nueva instancia de Room
+     * 
+     * @param id - Identificador único de la sala
+     * @param skin - Skin asociado a la sala
+     */
     constructor(id: string, skin: Skin) {
-        super(); // ✅ Llamar constructor de EventEmitter
+        super();
 
         if (!id?.trim()) {
-            throw new Error('Room ID cannot be empty');
+            throw new Error('El ID de la sala no puede estar vacío');
         }
         if (!skin) {
-            throw new Error('Skin is required');
+            throw new Error('El skin es requerido');
         }
 
         this.id = id;
@@ -41,80 +53,92 @@ export class Room extends EventEmitter<RoomEventMap> {
         this.meshUrl = `models/${id}.gltf`;
         this.configManager = ConfigManager.getInstance();
 
-        console.log(`🏠 Room[${this.id}] - Constructor called (EventEmitter)`, {
+        console.log(`Room[${this.id}] - Constructor llamado (EventEmitter)`, {
             skinId: skin.id,
             stack: new Error().stack?.split('\n')[1]?.trim()
         });
     }
 
-    // Método para cargar la configuración cuando sea necesario
+    /**
+     * Carga la configuración de la sala de forma asíncrona
+     * 
+     * @returns Promesa con los objetos procesados de la sala
+     */
     async loadConfig(): Promise<ProcessedRoomObjects> {
         try {
             return await this.configManager.getProcessedObjects(this.id);
         } catch (error) {
-            console.error(`Failed to load config for room ${this.id}:`, error);
-            throw new Error(`Configuration could not be loaded: ${error}`);
+            console.error(`Error al cargar configuración de la sala ${this.id}:`, error);
+            throw new Error(`No se pudo cargar la configuración: ${error}`);
         }
     }
 
+    /**
+     * Obtiene la URL del modelo 3D de la sala
+     * 
+     * @returns URL del archivo GLTF
+     */
     getMeshUrl(): string {
         return this.meshUrl;
     }
 
+    /**
+     * Aplica un nuevo skin a la sala
+     * 
+     * @param skin - Nuevo skin a aplicar
+     */
     applySkin(skin: Skin): void {
         if (!skin) {
-            throw new Error('Skin cannot be null');
+            throw new Error('El skin no puede ser nulo');
         }
         this.skin = skin;
     }
 
     setScene(scene: THREE.Group<THREE.Object3DEventMap>): void {
         if (!scene) {
-            throw new Error('Scene cannot be null');
+            throw new Error('La escena no puede ser nula');
         }
         this.scene = scene;
-        this.portal = scene.getObjectByName("portal") || undefined;
 
-        // ✅ Solo emitir evento change
+        // Buscar y asignar el portal en la escena
+        this.portal = scene.getObjectByName('portal') || undefined;
+
         this.emit('change', { room: this, changeType: 'scene' });
 
-        console.log(`🏠 Room[${this.id}] - setScene() emitted change event`, {
-            scene: scene.name || 'unnamed',
-            portal: !!this.portal,
+        console.log(`Room[${this.id}] - setScene() emitió evento change`, {
+            sceneId: scene.uuid,
         });
     }
 
     setSkin(skin: Skin): void {
         if (!skin) {
-            throw new Error('Skin cannot be null');
+            throw new Error('El skin no puede ser nulo');
         }
         this.skin = skin;
 
-        // ✅ Solo emitir evento change
         this.emit('change', { room: this, changeType: 'skin' });
 
-        console.log(`🏠 Room[${this.id}] - setSkin() emitted change event`, {
+        console.log(`Room[${this.id}] - setSkin() emitió evento change`, {
             skin: skin.id,
         });
     }
 
-    setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture, environmentTexture: THREE.Texture }): void {
+    setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture; environmentTexture: THREE.Texture }): void {
         if (!objectTexture || !environmentTexture) {
-            throw new Error('Both objectTexture and environmentTexture are required');
+            throw new Error('Ambas texturas (objeto y ambiente) son requeridas');
         }
         this.objectTexture = objectTexture;
         this.environmentTexture = environmentTexture;
 
-        // ✅ Solo emitir evento change
         this.emit('change', { room: this, changeType: 'textures' });
 
-        console.log(`🏠 Room[${this.id}] - setTextures() emitted change event`, {
+        console.log(`Room[${this.id}] - setTextures() emitió evento change`, {
             objectTexture: objectTexture.name || 'unnamed',
             environmentTexture: environmentTexture.name || 'unnamed',
         });
     }
 
-    // ❌ Método deprecado - El core manejará las versiones centralmente
+    // Método deprecado - El core manejará las versiones centralmente
     // getVersion(): number {
     //     return this._version;
     // }
@@ -242,7 +266,7 @@ export class Room extends EventEmitter<RoomEventMap> {
         this.environmentTexture = null;
         this.portal = undefined;
 
-        // ✅ Remover todos los listeners del EventEmitter
+        // Remover todos los listeners del EventEmitter
         this.removeAllListeners();
     }
 }

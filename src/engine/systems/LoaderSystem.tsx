@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+
 import { useProgress } from "../hooks/useProgress";
 
 // Interfaces
@@ -14,12 +15,14 @@ export interface LoaderSystemProps {
   timeout?: number;
   // Callbacks
   onLoadStart?: () => void;
-  onLoadProgress?: (progress: number) => void;
+  onLoadProgress?: (_progress: number) => void;
   onLoadComplete?: () => void;
-  onLoadError?: (error: Error) => void;
+  onLoadError?: (_error: Error) => void;
 }
 
-// Loader por defecto
+/**
+ * Loader por defecto con interfaz visual para estados de carga.
+ */
 function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
   // Solo mostrar si está cargando o hay error
   if (!isLoading && !error) return null;
@@ -27,11 +30,11 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
   return (
     <div
       style={{
-        position: "fixed",
+        position: "absolute",
         top: 0,
         left: 0,
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         backgroundColor: "rgba(0, 0, 0, 0.95)",
         display: "flex",
         flexDirection: "column",
@@ -60,7 +63,7 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
             onClick={() => window.location.reload()}
             style={{
               padding: "12px 24px",
-              backgroundColor: "#007AFF",
+              backgroundColor: "var(--color-primary)",
               color: "white",
               border: "none",
               borderRadius: "8px",
@@ -79,10 +82,11 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
               width: "48px",
               height: "48px",
               border: "4px solid rgba(255, 255, 255, 0.2)",
-              borderTop: "4px solid #007AFF",
+              borderTop: "4px solid var(--color-primary)",
               borderRadius: "50%",
               animation: "LoaderSpin 1s linear infinite",
               marginBottom: "24px",
+              margin: "0 auto 24px auto",
             }}
           />
 
@@ -105,7 +109,7 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
               style={{
                 width: `${progress}%`,
                 height: "100%",
-                backgroundColor: "#007AFF",
+                backgroundColor: "var(--color-primary)",
                 borderRadius: "2px",
                 transition: "width 0.3s ease",
               }}
@@ -121,7 +125,10 @@ function DefaultLoader({ progress, isLoading, error }: LoaderProps) {
   );
 }
 
-// Componente principal
+/**
+ * Sistema de carga del motor 3D.
+ * Gestiona el estado de carga de recursos y muestra una interfaz visual apropiada.
+ */
 export default function LoaderSystem({
   customLoader: CustomLoader = DefaultLoader,
   showProgress = true,

@@ -1,7 +1,8 @@
 import { EngineApiProvider } from "@/engine";
 import { Leva } from "leva";
 import { createBrowserRouter } from "react-router";
-import { History, Home, Login, NotFound, Register } from "./pages";
+import { Dashboard, History, Home, Login, NotFound, Register } from "./pages";
+import Node from "./pages/node/Node";
 
 export const routes = createBrowserRouter([
   {
@@ -28,5 +29,9 @@ export const routes = createBrowserRouter([
   {
     path: "/historial",
     element: <History />,
+  },
+    {
+    path: "/node",
+    element: <Node />,
   },
 ]);

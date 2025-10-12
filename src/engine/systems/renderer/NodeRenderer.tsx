@@ -1,9 +1,10 @@
 import * as THREE from "three";
-import { useEngineCore } from "@/engine/Engine";
-import { useEngineStore } from "@/engine/store/engineStore";
 import { useEffect, useMemo, useRef } from "react";
-import { EngineState } from "@/engine/types";
 import { Float } from "@react-three/drei";
+
+import { useEngineCore } from "@engine/core";
+import { useEngineStore } from "@engine/core";
+import { EngineState } from "@engine/core";
 
 interface NodeRendererProps {
   ref: React.Ref<THREE.Group<THREE.Object3DEventMap> | null>;
@@ -12,6 +13,10 @@ interface NodeRendererProps {
   position?: [number, number, number];
 }
 
+/**
+ * Renderer para nodos 3D con efectos de plasma y vidrio.
+ * Gestiona la renderización de nodos especiales con shaders avanzados.
+ */
 export function NodeRenderer({ ref }: NodeRendererProps) {
   const { loopService, engineState, getMaterialService } = useEngineCore();
   // Obtener uniforms del store para sincronización con debug
@@ -20,7 +25,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
   // Solo funcionar cuando el engine está listo
   const isEngineReady = engineState === EngineState.READY;
 
-  //referencia al nodo
+  // Referencia al nodo
   const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
   // Referencia al material para actualizaciones eficientes
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
@@ -41,6 +46,10 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
       uOnlyMask: { value: nodeUniforms.uOnlyMask },
       uFresnelBright: { value: nodeUniforms.uFresnelBright },
       uFresnelBrightWidth: { value: nodeUniforms.uFresnelBrightWidth },
+
+      // Nuevos uniforms de dirección del humo/flujo
+      uSmokeTurbulence: { value: nodeUniforms.uSmokeTurbulence },
+      uSmokeDirectionOffset: { value: nodeUniforms.uSmokeDirectionOffset },
 
       // Nuevos uniforms de color del blob
       uPlasmaColor: { value: new THREE.Vector3(...nodeUniforms.uPlasmaColor) },
@@ -102,7 +111,13 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
         nodeUniforms.uFresnelBright;
       materialRef.current.uniforms.uFresnelBrightWidth.value =
         nodeUniforms.uFresnelBrightWidth;
-      console.log(nodeUniforms.uFresnelBrightWidth);
+
+      // Nuevos uniforms de dirección del humo/flujo
+      materialRef.current.uniforms.uSmokeTurbulence.value =
+        nodeUniforms.uSmokeTurbulence;
+      materialRef.current.uniforms.uSmokeDirectionOffset.value =
+        nodeUniforms.uSmokeDirectionOffset;
+
       // Nuevos uniforms de color
       materialRef.current.uniforms.uPlasmaColor.value.set(
         ...nodeUniforms.uPlasmaColor
@@ -146,7 +161,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
       materialRef.current.uniforms.uGammaCorrection.value =
         nodeUniforms.uGammaCorrection;
     }
-  }, [nodeUniforms, uniforms]); // Aplicar materiales cuando el engine esté listo
+  }, [nodeUniforms, uniforms]);
 
   // Aplicar material al nodo cuando esté listo
   useEffect(() => {
@@ -165,7 +180,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
     return () => {
       materialRef.current = null;
     };
-  }, [isEngineReady, getMaterialService]); // Quitamos uniforms de las dependencias
+  }, [isEngineReady, getMaterialService]);
 
   // Loop para actualizar uniforms
   useEffect(() => {
@@ -179,7 +194,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
 
     loopService.subscribe(renderBackgroundShader);
     return () => loopService.unsubscribe(renderBackgroundShader);
-  }, [isEngineReady, loopService]); // Quitamos uniforms de las dependencias
+  }, [isEngineReady, loopService]);
 
   return (
     <>

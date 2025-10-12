@@ -34,7 +34,39 @@
     "link": "404",
     "message": "Página no encontrada"
   },
-  "header": {
+  "historial": {
+    "link": "Historial",
+    "verSuenos": "Ver tus sueños guardados",
+    "title": "Explora tus Nodos",
+    "description": "Selecciona entre las plantillas que más te gusten",
+    "oniriaPro": "Probá Oniria PRO",
+    "visibility": "Visibilidad",
+    "public": "Público",
+    "insignia": "Insignias",
+    "emocion": "Emoción",
+    "soporte": "Soporte",
+    "atajos": "Atajos",
+    "salir": "Salir"
+  },
+  "node": {
+    "title": "¿Qué soñaste?",
+    "descriptionLabel": "Escribí tu sueño",
+    "placeholderNode": "Escribí tu sueño acá…",
+    "character1": "Te pasaste del máximo de ",
+    "character2": "caracteres",
+    "interpretar": "Interpretar",
+    "myroom": "Mi habitación",
+    "personalizar": "Personalizar",
+    "toque": "Dale tu toque al espacio",
+    "insignia": "Mis insignias",
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria.",
+    "suenoDelNodo": "Sueño del nodo",
+    "cerrar": "Cerrar",
+    "guardar": "Guardar",
+    "reinterpretar": "Reinterpretar",
+    "acaAparecera": "Acá aparecerá el contenido del sueño..."
+  },
+    "header": {
     "logout": "Cerrar sesión"
   }
 }

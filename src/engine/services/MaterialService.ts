@@ -1,10 +1,16 @@
 import * as THREE from "three";
+
 import type { Room } from "@engine/entities/Room";
 import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
 import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
 import blobFragmentShader from "@engine/shaders/nodes/blob/fragmentShader.glsl";
 import maskFragmentShader from "@engine/shaders/nodes/blob/fragmentShaderMask.glsl";
 import blobVertexShader from "@engine/shaders/nodes/blob/vertexShader.glsl";
+
+/**
+ * Servicio para gestión de materiales y texturas en el motor 3D.
+ * Maneja la aplicación de materiales a objetos, portales y nodos.
+ */
 export class MaterialService {
     private scene: THREE.Scene | THREE.Group = null as any;
 
@@ -12,7 +18,10 @@ export class MaterialService {
 
     constructor() { }
 
-    /** Aplica materiales básicos con texturas - versión con carga bajo demanda */
+    /**
+     * Aplica materiales básicos con texturas - versión con carga bajo demanda.
+     * @param room - La sala a la que aplicar los materiales
+     */
     async applyMaterialsToRoom(room: Room) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.getScene()!;
@@ -44,13 +53,17 @@ export class MaterialService {
                 }
             }
         } catch (error) {
-            console.warn('Failed to load colorable objects for materials:', error);
+            console.warn('Error al cargar objetos coloreables para materiales:', error);
         }
 
         this.applyToScene();
     }
 
-    /** Aplica materiales cuando ya tienes los objetos coloreables cargados */
+    /**
+     * Aplica materiales cuando ya tienes los objetos coloreables cargados.
+     * @param room - La sala a la que aplicar los materiales
+     * @param colorableObjects - Objetos coloreables ya cargados
+     */
     applyMaterialsWithColorables(room: Room, colorableObjects: Record<string, string>) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.getScene()!;
@@ -81,10 +94,15 @@ export class MaterialService {
         this.applyToScene();
     }
 
+    /**
+     * Aplica material con shaders al portal.
+     * @param portal - El objeto 3D del portal
+     * @param uniforms - Uniformes para el shader
+     */
     applyMaterialsToPortal(portal: THREE.Object3D | undefined, uniforms = {}) {
         if (!portal) return;
 
-        console.log("🔧 MaterialService - Applying portal material:", {
+        console.log("MaterialService - Aplicando material al portal:", {
             hasPortal: !!portal,
             hasVertexShader: !!portalVertexShader,
             hasFragmentShader: !!portalFragmentShader,
@@ -102,10 +120,14 @@ export class MaterialService {
             colorWrite: true,
             side: THREE.DoubleSide,
         });
-
-        console.log("🔧 MaterialService - Portal material applied successfully");
     }
 
+    /**
+     * Aplica materiales con shaders a los nodos.
+     * @param node - El grupo de nodos
+     * @param uniforms - Uniformes para el shader
+     * @returns El material principal creado
+     */
     applyMaterialsToNodes(node: THREE.Group<THREE.Object3DEventMap> | undefined, uniforms: Record<string, any> = {}): THREE.ShaderMaterial | null {
         if (!node) return null;
 
@@ -127,7 +149,6 @@ export class MaterialService {
                 uMaskRadius: { value: uniforms.uMaskRadius }, // controla el tamaño del círculo visible
                 uMaskEdgeSmooth: { value: uniforms.uMaskEdgeSmooth }, // suaviza el borde del fade
             },
-
         });
 
         node.traverse((child) => {
@@ -146,7 +167,9 @@ export class MaterialService {
         return mat;
     }
 
-    /** Limpia todos los materiales cuando se cambia de habitación */
+    /**
+     * Limpia todos los materiales cuando se cambia de habitación.
+     */
     clearMaterials() {
         // Disponer de materiales personalizados para liberar memoria
         Object.values(this.materialMap).forEach(material => {
@@ -159,22 +182,31 @@ export class MaterialService {
         this.scene = null as any;
     }
 
-    /** Obtiene un material específico por nombre */
+    /**
+     * Obtiene un material específico por nombre.
+     * @param name - Nombre del material
+     * @returns El material encontrado o undefined
+     */
     getMaterial(name: string): THREE.Material | undefined {
         return this.materialMap[name];
     }
 
-    /** Verifica si tiene materiales cargados */
+    /**
+     * Verifica si tiene materiales cargados.
+     * @returns True si hay materiales cargados
+     */
     hasMaterials(): boolean {
         return Object.keys(this.materialMap).length > 0;
     }
 
-    /** Recorre la escena y asigna materiales */
+    /**
+     * Recorre la escena y asigna materiales.
+     */
     private applyToScene() {
         this.scene.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
-                // console.log(mesh)
+                //console.log(mesh)
                 if (mesh.name === "portal") return; // skip portal
 
                 if (this.materialMap[mesh.name]) {

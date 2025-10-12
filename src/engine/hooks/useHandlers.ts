@@ -1,33 +1,26 @@
 import * as THREE from "three";
-import { useCallback } from "react";
-import { useEngineCore } from "../Engine";
+import { useCallback, useRef } from "react";
+
+import { useEngineCore } from "@engine/core";
 import type { AnimationAction, FunctionAction, ObjectEvent, ObjectEventArray } from "../config/room.type";
 import type { EventArgs } from "../services";
 import { Node } from "../entities/Node";
 
-
 /**
- * Hook que demuestra el sistema de tipos tipados para eventos.
+ * Hook que proporciona handlers tipados para eventos del motor
  * 
- * La inferencia automática funciona cuando usas InteractionService directamente:
+ * @returns Objeto con métodos para manejar diferentes tipos de eventos
  * 
  * @example
- * // TypeScript infiere automáticamente los tipos
- * interactionService.on('objectClick', (event) => {
- *   // event es automáticamente EventArgs<string, ObjectEventArray>
- *   console.log(event.target); // string
- *   console.log(event.data);   // ObjectEventArray
- * });
- * 
- * interactionService.on('nodeClick', (event) => {
- *   // event es automáticamente EventArgs<Node, { distance: number; position: Vector3 }>
- *   console.log(event.target);     // Node
- *   console.log(event.data.distance); // number
- * });
+ * const { handleObjectEvent } = useHandlers();
+ * handleObjectEvent('click', objectId, eventData);
  */
 export function useHandlers() {
     const services = useEngineCore();
     const animationService = services.getAnimationService();
+
+    // Estado para controlar si hay una animación de navegación en curso
+    const isNavigationAnimating = useRef(false);
 
 
     // Callbacks para eventos de interacción en Room
@@ -137,15 +130,263 @@ export function useHandlers() {
         timeline?.play();
     }, [animationService]);
 
+    /**
+     * Handler para cuando el cursor entra en un nodo
+     * @param _event - Evento con datos del nodo y posición
+     */
     const onNodeEnter = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
-        // Node entered
         console.log("Node entered:", _event.target.id);
     }, []);
 
+    /**
+     * Handler para cuando el cursor sale de un nodo
+     * @param _event - Evento con datos del nodo y posición
+     */
     const onNodeLeave = useCallback((_event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => {
-        // Node left
         console.log("Node left:", _event.target.id);
     }, []);
 
-    return { onObjectsEnter, onObjectsLeave, onObjectsClick, onNodeClick, onNodeEnter, onNodeLeave };
+    /**
+    * Handler para animación al siguiente nodo
+    * El nodo sale hacia arriba y reentra por abajo
+    */
+    const handleNextNode = useCallback(() => {
+        // Prevenir múltiples animaciones simultáneas
+        if (isNavigationAnimating.current) return;
+
+        const activeNode = services.activeNode;
+        const group = activeNode?.getGroup();
+
+        if (!group || !animationService) {
+            return;
+        }
+
+        // Marcar animación como en curso
+        isNavigationAnimating.current = true;
+
+        // Guardar posición original
+        const originalY = group.position.y;
+        const originalX = group.position.x;
+
+        // Obtener el material para animar los uniforms
+        const nodeGroup = group.children[0] as THREE.Group; // nodeRef group
+        const blobMesh = nodeGroup?.children.find((child: THREE.Object3D) => child.name === "blob") as THREE.Mesh;
+        const material = blobMesh?.material as THREE.ShaderMaterial;
+
+        // Debug: verificar si encontramos los uniforms
+        console.log("🔍 Debug uniforms (next):", {
+            groupChildren: group.children.length,
+            nodeGroupExists: !!nodeGroup,
+            blobMeshExists: !!blobMesh,
+            materialExists: !!material,
+            uniformsExists: !!material?.uniforms,
+            uSmokeDirectionOffset: material?.uniforms?.uSmokeDirectionOffset?.value,
+            uSmokeDirection: material?.uniforms?.uSmokeDirection?.value,
+            uSmokeTurbulence: material?.uniforms?.uSmokeTurbulence?.value
+        });
+
+        // Crear timeline para la animación compleja
+        const timeline = animationService.createCustomTimeline();
+
+        timeline
+            // Fase 1: Salir hacia arriba con movimiento senoidal lateral + uniforms
+            ?.to(group.position, {
+                y: originalY + 6, // Sale por arriba
+                duration: 2.,
+                ease: "back.in(.4)",
+                onUpdate: function () {
+                    // Crear movimiento senoidal en X mientras sube
+                    const progress = this.progress(); // 0 a 1
+                    const sineWave = Math.sin(progress * Math.PI * 3) * 0.1; // 3 oscilaciones completas
+                    group.position.x = originalX + sineWave;
+                }
+            });
+
+        // Animar uniforms durante la salida (en paralelo)
+        if (material?.uniforms?.uSmokeDirectionOffset && material?.uniforms?.uSmokeTurbulence) {
+            console.log("✅ Animando uniforms durante salida (next)");
+
+            timeline
+                ?.to(material.uniforms.uSmokeDirectionOffset, {
+                    value: 0.151, // Offset va a 0.16 cuando sale
+                    duration: .8, // Duración de la animación
+                    ease: "back.out(.2)"
+                }, "<") // Sincronizar con la animación de posición
+                .to(material.uniforms.uSmokeTurbulence, {
+                    value: 0.37, // Turbulencia aumenta ligeramente cuando sale (0.35 -> 0.37)
+                    duration: 1.8, // Duración más larga para efecto gradual
+                    ease: "expoScale"
+                }, "<"); // Sincronizar con la animación de posición
+        } else {
+            console.warn("❌ No se encontraron uniforms para animar durante salida (next)");
+        } timeline
+            // Fase 2: Teleportar instantáneamente abajo (fuera de vista)
+            ?.set(group.position, {
+                y: originalY - 6, // Aparece por debajo
+                x: originalX // Vuelve al centro en X
+            })
+            // Fase 3: Entrar desde abajo (más suave)
+            .to(group.position, {
+                y: originalY, // Vuelve a posición original
+                duration: 1.6,
+                ease: "back.out(.6)",
+                onComplete: () => {
+                    // Liberar el flag cuando termine la animación
+                    isNavigationAnimating.current = false;
+                }
+            });
+
+        // Animar uniforms durante la entrada (en paralelo)
+        if (material?.uniforms?.uSmokeDirectionOffset && material?.uniforms?.uSmokeTurbulence) {
+            console.log("✅ Animando uniforms durante entrada (next)");
+
+            timeline
+                ?.to(material.uniforms.uSmokeDirectionOffset, {
+                    value: 0.15, // Offset vuelve a valor normal cuando entra
+                    duration: 1.6, // Misma duración que la animación de posición
+                    ease: "back.out(.6)"
+                }, "<") // Sincronizar con la entrada
+                .to(material.uniforms.uSmokeTurbulence, {
+                    value: 0.35, // Turbulencia vuelve al valor por defecto cuando entra
+                    duration: 1.6, // Misma duración que la animación de posición
+                    ease: "back.out(.6)"
+                }, "<"); // Sincronizar con la entrada
+        } else {
+            console.warn("❌ No se encontraron uniforms para animar durante entrada (next)");
+        }
+
+        timeline?.play();
+    }, [animationService, services]);
+
+    /**
+     * Handler para animación al nodo anterior
+     * El nodo sale hacia arriba y reentra por abajo (mismo comportamiento)
+     */
+    const handlePrevNode = useCallback(({ nodeId }: { nodeId: string }) => {
+        // Prevenir múltiples animaciones simultáneas
+        if (isNavigationAnimating.current) {
+            console.log("⏸️ Animación en curso, ignorando nueva llamada a prev");
+            return;
+        }
+
+        console.log(`🎬 Iniciando animación prev desde nodo: ${nodeId}`);
+
+        const activeNode = services.activeNode;
+        const group = activeNode?.getGroup();
+
+        if (!group || !animationService) {
+            console.warn("No se pudo obtener el grupo del nodo o animationService para animación prev");
+            return;
+        }
+
+        // Marcar animación como en curso
+        isNavigationAnimating.current = true;
+
+        // Guardar posición original
+        const originalY = group.position.y;
+        const originalX = group.position.x;
+
+        // Obtener el material para animar los uniforms
+        const nodeGroup = group.children[0] as THREE.Group; // nodeRef group
+        const blobMesh = nodeGroup?.children.find((child: THREE.Object3D) => child.name === "blob") as THREE.Mesh;
+        const material = blobMesh?.material as THREE.ShaderMaterial;
+
+        // Debug: verificar si encontramos los uniforms
+        console.log("🔍 Debug uniforms (prev):", {
+            groupChildren: group.children.length,
+            nodeGroupExists: !!nodeGroup,
+            blobMeshExists: !!blobMesh,
+            materialExists: !!material,
+            uniformsExists: !!material?.uniforms,
+            uSmokeDirectionOffset: material?.uniforms?.uSmokeDirectionOffset?.value,
+            uSmokeDirection: material?.uniforms?.uSmokeDirection?.value
+        });
+
+        // Valores originales de los uniforms
+        const originalDirection = material?.uniforms?.uSmokeDirection?.value || 0.0;
+
+        // Crear timeline para la animación (mismo comportamiento que next)
+        const timeline = animationService.createCustomTimeline();
+
+        timeline
+            // Fase 1: Salir hacia arriba con movimiento senoidal lateral
+            ?.to(group.position, {
+                y: originalY + 8, // Sale por arriba
+                duration: 0.4,
+                ease: "power2.in",
+                onUpdate: function () {
+                    // Crear movimiento senoidal en X mientras sube (dirección opuesta)
+                    const progress = this.progress(); // 0 a 1
+                    const sineWave = Math.sin(progress * Math.PI * 2) * 0.25; // 2 oscilaciones más rápidas
+                    group.position.x = originalX - sineWave; // Dirección opuesta a next
+                }
+            });
+
+        // Animar uniforms durante la salida (en paralelo)
+        if (material?.uniforms?.uSmokeDirectionOffset && material?.uniforms?.uSmokeTurbulence) {
+            console.log("✅ Animando uniforms durante salida (prev)");
+
+            timeline
+                // Reset suave de uTime con interpolación
+                ?.to(material.uniforms.uTime, {
+                    value: 0.0,
+                    duration: 0.2, // Interpolación suave de 200ms
+                    ease: "power2.out"
+                }, 0.1) // Pequeño delay de 100ms
+                .to(material.uniforms.uSmokeDirectionOffset, {
+                    value: 0.0, // Offset va a 0 cuando sale
+                    duration: 0.4, // Misma duración que la animación de posición
+                    ease: "power2.in"
+                }, "<") // Sincronizar con la animación de posición
+
+                .to(material.uniforms.uSmokeTurbulence, {
+                    value: 0.37, // Turbulencia aumenta ligeramente cuando sale (igual que next)
+                    duration: 0.4, // Misma duración que otras animaciones
+                    ease: "power2.in"
+                }, "<"); // Sincronizar con la animación de posición
+        } else {
+            console.warn("❌ No se encontraron uniforms para animar durante salida (prev)");
+        }
+
+        timeline
+            // Fase 2: Teleportar instantáneamente abajo
+            ?.set(group.position, {
+                y: originalY - 8, // Aparece por debajo
+                x: originalX // Vuelve al centro en X
+            })
+            // Fase 3: Entrar desde abajo
+            .to(group.position, {
+                y: originalY, // Vuelve a posición original
+                duration: 0.6,
+                ease: "power2.out",
+                onComplete: () => {
+                    // Liberar el flag cuando termine la animación
+                    isNavigationAnimating.current = false;
+                    console.log("✅ Animación prev completada");
+                }
+            });
+
+        // Animar uniforms durante la entrada (en paralelo)
+        if (material?.uniforms?.uSmokeDirectionOffset && material?.uniforms?.uSmokeTurbulence) {
+            console.log("✅ Animando uniforms durante entrada (prev)");
+            timeline
+                ?.to(material.uniforms.uSmokeDirectionOffset, {
+                    value: originalDirection, // Offset = originalDirection cuando entra
+                    duration: 0.6, // Misma duración que la animación de posición
+                    ease: "power2.out"
+                }, "<") // Sincronizar con la entrada
+
+                .to(material.uniforms.uSmokeTurbulence, {
+                    value: 0.35, // Turbulencia vuelve al valor por defecto cuando entra
+                    duration: 0.6, // Misma duración que la animación de posición
+                    ease: "power2.out"
+                }, "<"); // Sincronizar con la entrada
+        } else {
+            console.warn("❌ No se encontraron uniforms para animar durante entrada (prev)");
+        }
+
+        timeline?.play();
+    }, [animationService, services]);
+
+    return { onObjectsEnter, onObjectsLeave, onObjectsClick, onNodeClick, onNodeEnter, onNodeLeave, handleNextNode, handlePrevNode };
 }
