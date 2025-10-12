@@ -32,7 +32,8 @@
     "error": "Error creating account"
   },
   "notFound": {
-    "message": "Page not found"
+    "message": "Page not found",
+    "link": "Back to Home"
   },
   "historial": {
     "link": "History",

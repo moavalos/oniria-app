@@ -31,7 +31,7 @@
     "success": "Registro exitoso. Revisa tu email para verificar la cuenta."
   },
   "notFound": {
-    "link": "404",
+    "link": "Ir al inicio",
     "message": "Página no encontrada"
   },
   "historial": {
