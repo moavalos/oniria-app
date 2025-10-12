@@ -1,50 +1,20 @@
 import Starfield from "@shared/components/Starfield";
-import Card from "@/shared/components/Card";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import type { TimelineItem } from "../../features/history/model/TimelineItem";
 import HeaderContainer from "@/shared/components/users/HeaderContainer";
-import { getTimeline } from "@/app/features/history/services/history.service";
 import UnifiedSidePanel from "../home/components/Panel";
+import { useTimelineData } from "@/app/features/history/hooks/useTimelineData";
+import HistoryContent from "./components/HistoryContent";
 
 export default function History() {
   const { t } = useTranslation();
-  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const data = await getTimeline();
-        if (mounted) setTimeline(
-          data.map(item => ({
-            ...item,
-            id: typeof item.id === "string" ? Number(item.id) : item.id
-          }))
-        );
-      } catch (e: any) {
-        if (mounted) setErr(e?.message ?? "Error cargando historial");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+  const { timeline, loading, error } = useTimelineData();
 
   return (
     <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
-      {/* fondo de estrellas */}
       <Starfield />
-
-      {/* top bar */}
       <HeaderContainer />
 
-      {/* layout principal */}
-      <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
-        {/* ===== sidebar izquierdo ===== */}
-
+      <main className="relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6 lg:py-5">
         <UnifiedSidePanel
           variant="history"
           title={t("historial.title")}
@@ -54,16 +24,7 @@ export default function History() {
           loading={loading}
         />
 
-        <Card className="col-span-12 md:col-span-8 xl:col-span-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-6">
-          <div className="mb-3 flex items-center justify-between">
-            {loading && <span className="text-sm text-white/70">Cargando…</span>}
-            {err && <span className="text-sm text-red-300">{err}</span>}
-          </div>
-
-          {!loading && !err && timeline.length === 0 && (
-            <div className="text-white/60 text-sm">No hay sueños guardados todavía.</div>
-          )}
-        </Card>
+        <HistoryContent timeline={timeline} loading={loading} error={error} />
       </main>
     </div>
   );

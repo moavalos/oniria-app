@@ -1,18 +1,24 @@
-import type { TimelineItem } from "@/app/features/history/model/TimelineItem";
-
-const DB_URL = "/historial.json";
-
-async function loadTimeline(): Promise<TimelineItem[]> {
-    const response = await fetch(DB_URL);
-    const data = await response.json();
-    return data.timeline || [];
+export type HistoryApiResponse = {
+    id: string;
+    date: string;
+    title: string;
 }
 
-export async function getTimeline(): Promise<TimelineItem[]> {
-    return loadTimeline();
-}
+export class HistoryService {
 
-export async function getDreamById(id: number): Promise<TimelineItem | undefined> {
-    const timeline = await loadTimeline();
-    return timeline.find((item) => item.id === id);
+    async fetchHistory(): Promise<HistoryApiResponse[]> {
+        const response = await fetch('http://localhost:3000/api/dreams/history', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching history: ${response.statusText}`);
+        }
+
+        const data: HistoryApiResponse[] = await response.json();
+        return data;
+    }
 }

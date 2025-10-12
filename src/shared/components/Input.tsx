@@ -12,8 +12,13 @@ export default function Input({ type = "text", placeholder, value, onChange }: I
             placeholder={placeholder}
             value={value}
             onChange={onChange}
-            className="w-full p-3 rounded bg-black/60 text-white border border-gray-600 
-                    focus:border-purple-500 focus:outline-none"
+            className="w-full p-3 rounded text-[var(--color-text-primary)] focus:outline-none transition-colors duration-200"
+            style={{
+                backgroundColor: "var(--input-bg-strong)",
+                border: "1px solid var(--input-border)",
+            }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--input-border-focus)")}
+            onBlur={(e) => (e.currentTarget.style.borderColor = "var(--input-border)")}
         />
     );
 }

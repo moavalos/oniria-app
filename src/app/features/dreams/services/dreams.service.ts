@@ -5,14 +5,7 @@ export type DreamAPIResponse = {
     emotion: string;
 };
 
-
-
-
 export class DreamsService {
-
-
-    constructor() {
-    }
 
     async fetchDreamInterpretation(description: string): Promise<DreamAPIResponse> {
         const response = await fetch('http://localhost:3000/api/dreams/interpret', {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DreamsService, type DreamAPIResponse } from "../services/DreamsService";
+import { DreamsService, type DreamAPIResponse } from "../services/dreams.service";
 
 export default function useDreams() {
   const [dreams, setDreams] = useState<DreamAPIResponse[]>([]);
@@ -14,7 +14,7 @@ export default function useDreams() {
       const service = new DreamsService();
       const response = await service.fetchDreamInterpretation(description);
       setDreams([response]);
-      console.log(response);
+      
       return response;
     } catch (err: any) {
       setError("Failed to fetch dream interpretation: " + err.message);

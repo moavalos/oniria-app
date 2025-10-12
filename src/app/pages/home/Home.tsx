@@ -43,9 +43,18 @@ export default function Home() {
     //navegar a otra pagina con el resultado
     //navigate("/interpretacion");
   };
+  const canvasBg =
+    typeof window !== "undefined"
+      ? (getComputedStyle(document.documentElement)
+        .getPropertyValue("--canvas-bg")
+        .trim() || "#000000")
+      : "#000000";
 
   return (
-    <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
+    <div
+      className="min-h-screen w-full text-[var(--color-text-primary)] overflow-hidden"
+      style={{ background: "var(--app-bg)" }}
+    >
       {/* fondo de estrellas */}
       <Starfield />
 
@@ -53,19 +62,21 @@ export default function Home() {
       <HeaderContainer />
 
       {/* layout principal */}
-      <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
+      <main className="relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6 lg:py-5">
         <UnifiedSidePanel
           variant="home"
           onNuevaFrase={() => engine.node?.next()}
           onInterpretar={handleInterpretar}
         />
 
-        {/* Canvas 3d*/}
-        <Card className="col-span-12  sm:col-span-9 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
+        {/* Canvas 3d */}
+        <Card
+          className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative"
+        >
           <LoaderSystem />
 
           {roomId && skinId && (
-            <Engine.Canvas engineSettings={{ backgroundColor: "#000000" }}>
+            <Engine.Canvas engineSettings={{ backgroundColor: canvasBg }}>
               <Engine.Core>
                 <DebugSystem enabled={true} />
                 <InteractionSystem onObjectHoverEnter={hoverHandler} />

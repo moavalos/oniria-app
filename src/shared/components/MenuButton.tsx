@@ -12,18 +12,44 @@ export default function MenuButton({ icon, title, description, onClick }: MenuBu
     return (
         <button
             onClick={onClick}
-            className="w-full mb-3 flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-3 py-3 hover:bg-white/[0.08] transition-colors duration-200"
+            className="w-full mb-3 flex items-center justify-between rounded-xl border px-3 py-3 transition-colors duration-200"
+            style={{
+                backgroundColor: "var(--menu-bg)",
+                borderColor: "var(--menu-border)",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--menu-hover-bg)")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--menu-bg)")}
         >
             <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-full grid place-items-center bg-white/10 border border-white/10">
+                <div
+                    className="h-9 w-9 rounded-full grid place-items-center border"
+                    style={{
+                        backgroundColor: "var(--menu-icon-bg)",
+                        borderColor: "var(--menu-icon-border)",
+                    }}
+                >
                     {icon}
                 </div>
+
                 <div className="leading-tight text-left">
-                    <div className="text-[12px] font-semibold">{title}</div>
-                    <div className="text-[11px] text-white/60">{description}</div>
+                    <div
+                        className="text-[12px] font-semibold"
+                        style={{ color: "var(--menu-text-title)" }}
+                    >
+                        {title}
+                    </div>
+                    <div
+                        className="text-[11px]"
+                        style={{ color: "var(--menu-text-description)" }}
+                    >
+                        {description}
+                    </div>
                 </div>
             </div>
-            <ChevronRightIcon className="text-white/60" />
+
+            <ChevronRightIcon
+                className="transition-colors duration-200"
+            />
         </button>
     );
 }
