@@ -13,6 +13,7 @@ import MenuButton from "@/shared/components/MenuButton";
 import SettingsIcon from "@/assets/icons/SettingsIcon";
 import BadgeIcon from "@/assets/icons/BadgeIcon";
 import ClockIcon from "@/assets/icons/ClockIcon";
+import { useState } from "react";
 
 type HistoryVariantProps = {
     variant: "history";
@@ -110,6 +111,7 @@ function HistoryPanel(props: HistoryVariantProps) {
 function HomePanel(props: HomeVariantProps) {
     const { showQuoteCard = true } = props;
     const { t } = useTranslation();
+    const [expanded, setExpanded] = useState(false);
 
     const {
         dream,
@@ -137,87 +139,124 @@ function HomePanel(props: HomeVariantProps) {
         onInsignias: props.onInsignias,
     });
 
+    const onInterpretarClick = async () => {
+        if (isEmpty || isTooLong) return;
+        setExpanded(true);
+        await handleInterpretar();
+    };
+
+    const onBackHome = () => setExpanded(false);
+
     return (
-        <Card className="col-span-12 md:col-span-3 min-w-[300px] p-6 text-[15px] space-y-4 -my-4">
-            {/* Dream Input Section */}
+        <Card
+            className={`col-span-12 md:col-span-3 min-w-[300px] p-6 text-[15px] space-y-4 -my-4 transition-all duration-300`}
+        >
+            {/* Flechita volver a home solo en modo expandido */}
+            {expanded && (
+                <button
+                    type="button"
+                    onClick={onBackHome}
+                    className="mb-3 -mt-2 inline-flex items-center gap-2 text-[12px] font-semibold rounded-lg px-2 py-1
+                     transition-colors duration-200"
+                    style={{ color: "var(--text-80)", backgroundColor: "var(--surface-subtle)" }}
+                    aria-label={t("volverHome") || "Volver a home"}
+                >
+                    ← {t("volverHome", "Volver a home")}
+                </button>
+            )}
+
+            {/* Dream Input Section - se hace largo cuando expanded */}
             <div
-                className="p-4 sm:p-5 rounded-2xl border"
+                className={`
+          rounded-2xl border transition-all duration-300
+          ${expanded ? "p-5 sm:p-6" : "p-4 sm:p-5"}
+        `}
                 style={{ backgroundColor: "var(--surface-subtle)", borderColor: "var(--border-strong)" }}
             >
-                <DreamTextarea
-                    ref={dreamRef}
-                    value={dream}
-                    onChange={handleTextChange}
-                    maxChars={props.maxChars ?? 1200}
-                    charsLeft={charsLeft}
-                    isTooLong={isTooLong}
-                />
-
-                <button
-                    onClick={handleInterpretar}
-                    disabled={isEmpty || isTooLong}
-                    className="tap-button mt-4 w-full rounded-xl px-4 py-3 text-[14px] font-bold
-                     disabled:opacity-60 disabled:cursor-not-allowed
-                     transition-transform duration-200"
-                    style={{
-                        background: `linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to))`,
-                        border: `1px solid var(--btn-primary-border)`,
-                        boxShadow: `var(--btn-primary-glow)`,
-                    }}
+                <div
+                    className={`
+            overflow-hidden transition-all duration-300
+            ${expanded ? "min-h-[48vh]" : "min-h-[160px]"}
+          `}
                 >
-                    <span className="inline-flex items-center gap-2">
-                        {t("node.interpretar")}
-                    </span>
-                </button>
+                    <DreamTextarea
+                        ref={dreamRef}
+                        value={dream}
+                        onChange={handleTextChange}
+                        maxChars={props.maxChars ?? 1200}
+                        charsLeft={charsLeft}
+                        isTooLong={isTooLong}
+                    />
+                </div>
+
+                {!expanded && (
+                    <button
+                        onClick={onInterpretarClick}
+                        disabled={isEmpty || isTooLong}
+                        className="tap-button mt-4 w-full rounded-xl px-4 py-3 text-[14px] font-bold
+                       disabled:opacity-60 disabled:cursor-not-allowed
+                       transition-transform duration-200"
+                        style={{
+                            background: `linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to))`,
+                            border: `1px solid var(--btn-primary-border)`,
+                            boxShadow: `var(--btn-primary-glow)`,
+                        }}
+                    >
+                        <span className="inline-flex items-center gap-2">
+                            {t("node.interpretar")}
+                        </span>
+                    </button>
+                )}
             </div>
 
-            {/* Quote Card */}
-            {showQuoteCard && (
+            {/*SOLO si NO esta expandido */}
+            {!expanded && showQuoteCard && (
                 <QuoteCard quote={quoteText} isLoading={isLoadingQuote} onRefresh={handleNuevaFrase} />
             )}
 
-            {/* Menu Section */}
-            <div
-                className="px-4 sm:px-5 pb-[45px] rounded-2xl border"
-                style={{ backgroundColor: "var(--surface-subtle)", borderColor: "var(--border-subtle)" }}
-            >
-                <div className="text-[12px] mt-4 font-semibold mb-3" style={{ color: "var(--text-80)" }}>
-                    {t("node.myroom")}
+            {!expanded && (
+                <div
+                    className="px-4 sm:px-5 pb-[45px] rounded-2xl border"
+                    style={{ backgroundColor: "var(--surface-subtle)", borderColor: "var(--border-subtle)" }}
+                >
+                    <div className="text-[12px] mt-4 font-semibold mb-3" style={{ color: "var(--text-80)" }}>
+                        {t("node.myroom")}
+                    </div>
+
+                    <MenuButton
+                        icon={<SettingsIcon />}
+                        title={t("node.personalizar")}
+                        description={t("node.toque")}
+                        onClick={handlePersonalizar}
+                    />
+
+                    <MenuButton
+                        icon={<BadgeIcon />}
+                        title={t("node.insignia")}
+                        description={t("node.descriptionInsignia")}
+                        onClick={handleInsignias}
+                    />
+
+                    <MenuButton
+                        icon={<ClockIcon />}
+                        title={t("historial.link")}
+                        description={t("historial.verSuenos")}
+                        onClick={handleNavigateHistory}
+                    />
                 </div>
+            )}
 
-                <MenuButton
-                    icon={<SettingsIcon />}
-                    title={t("node.personalizar")}
-                    description={t("node.toque")}
-                    onClick={handlePersonalizar}
+            {!expanded && (
+                <CtaButton
+                    ctaText={t("historial.oniriaPro")}
+                    onClick={handleCtaClick}
+                    disabled={false}
+                    pressed={false}
                 />
-
-                <MenuButton
-                    icon={<BadgeIcon />}
-                    title={t("node.insignia")}
-                    description={t("node.descriptionInsignia")}
-                    onClick={handleInsignias}
-                />
-
-                <MenuButton
-                    icon={<ClockIcon />}
-                    title={t("historial.link")}
-                    description={t("historial.verSuenos")}
-                    onClick={handleNavigateHistory}
-                />
-            </div>
-
-            {/* CTA PRO */}
-            <CtaButton
-                ctaText={t("historial.oniriaPro")}
-                onClick={handleCtaClick}
-                disabled={false}
-                pressed={false}
-            />
+            )}
         </Card>
     );
 }
-
 export default function UnifiedSidePanel(props: UnifiedSidePanelProps) {
     return props.variant === "history" ? (
         <HistoryPanel {...props} />
