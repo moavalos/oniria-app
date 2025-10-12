@@ -67,6 +67,8 @@
     "acaAparecera": "Here will appear the content of the dream..."
   },
   "header": {
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "loading": "Loading...",
+    "guest": "Guest"
   }
 }
