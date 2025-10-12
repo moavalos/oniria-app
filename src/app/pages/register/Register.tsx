@@ -1,6 +1,6 @@
 import Card from "@shared/components/Card";
 import AuthTitle from "@/app/features/auth/components/AuthTitle";
-import RegisterForm from "@features/auth/register/RegisterForm";
+import RegisterForm from "@/app/features/auth/components/RegisterForm";
 import AuthLinks from "@/app/features/auth/components/AuthLinks";
 import bgImage from "@assets/images/Screenshot_1.png";
 import { useTranslation } from "react-i18next";
@@ -13,13 +13,13 @@ export default function Register() {
       <img
         src={bgImage}
         alt="background"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
-      <Card>
+      <Card className="p-7 min-w-sm">
         <AuthTitle title="Oniria" subtitle={t("register.subtitle")} />
         <RegisterForm />
-        <AuthLinks href="/register" section="register" />
+        <AuthLinks href="/login" section="register" />
       </Card>
     </div>
   );

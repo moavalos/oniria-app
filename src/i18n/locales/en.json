@@ -27,10 +27,13 @@
     "button": "Sign Up",
     "errorPasswordMatch": "Passwords do not match",
     "text": "Already have an account?",
-    "textLink": "Log In"
+    "textLink": "Log In",
+    "success": "Account created successfully. Please check your email to confirm your account.",
+    "error": "Error creating account"
   },
   "notFound": {
-    "message": "Page not found"
+    "message": "Page not found",
+    "link": "Back to Home"
   },
   "historial": {
     "link": "History",
@@ -63,5 +66,12 @@
     "guardar": "Save",
     "reinterpretar": "Reinterpret",
     "acaAparecera": "Here will appear the content of the dream..."
+  },
+  "header": {
+    "loading": "Loading...",
+    "guest": "Guest"
+  },
+  "private_route": {
+    "loading": "Loading..."
   }
 }

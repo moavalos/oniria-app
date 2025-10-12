@@ -1,22 +1,28 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@shared/components/Button";
-import { login } from "@features/auth/services/authService";
+import { useAuth } from "@features/auth/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { t } = useTranslation();
+  const { signIn } = useAuth();
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const data = await login(email, password);
-      localStorage.setItem("token", data.token);
-      // redirect
-    } catch {
-      setError(t("login.error"));
+    setError("");
+
+    const { error } = await signIn(email, password);
+
+    if (error) {
+      setError(t("login.error", { defaultValue: "Error al iniciar sesión" }));
+    } else {
+      navigate("/home");
     }
   };
 
