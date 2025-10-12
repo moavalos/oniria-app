@@ -22,7 +22,7 @@ export default function LoginForm() {
     if (error) {
       setError(t("login.error", { defaultValue: "Error al iniciar sesión" }));
     } else {
-      navigate("/");
+      navigate("/home");
     }
   };
 

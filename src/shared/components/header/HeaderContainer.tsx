@@ -3,7 +3,7 @@ import Header from "./Header";
 import { useAuth } from "@features/auth/context/AuthContext";
 
 export default function HeaderContainer() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const { t } = useTranslation();
 
   return (
@@ -11,6 +11,7 @@ export default function HeaderContainer() {
       logoText="Oniria"
       userName={loading ? (t("header.loading")) : user?.user_metadata.full_name ?? (t("header.guest"))}
       userEmail={loading ? "..." : user?.email ?? ""}
+      onProfileClick={signOut}
     />
   );
 }
