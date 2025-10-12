@@ -13,10 +13,10 @@ export default function Register() {
       <img
         src={bgImage}
         alt="background"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
-      <Card>
+      <Card className="p-7 min-w-sm">
         <AuthTitle title="Oniria" subtitle={t("register.subtitle")} />
         <RegisterForm />
         <AuthLinks href="/login" section="register" />
