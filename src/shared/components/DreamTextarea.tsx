@@ -23,23 +23,6 @@ export default function DreamTextarea({
 
   return (
     <>
-      <div className="flex items-center justify-between mb-2">
-        <div
-          className="text-[12px] font-semibold"
-          style={{ color: "var(--text-80)" }}
-        >
-          {t("node.title")}
-        </div>
-        <div
-          className="text-[11px]"
-          style={{
-            color: isTooLong ? "var(--danger-300)" : "var(--color-text-50)",
-          }}
-        >
-          {charsLeft}
-        </div>
-      </div>
-
       <label className="sr-only" htmlFor="dream-input">
         {t("node.descriptionLabel")}
       </label>
@@ -64,6 +47,16 @@ export default function DreamTextarea({
           borderColor: isFocused ? "var(--focus-ring)" : "var(--input-border)",
         }}
       />
+      <div className="flex items-center justify-end">
+        <div
+          className="text-[11px]"
+          style={{
+            color: isTooLong ? "var(--danger-300)" : "var(--color-text-50)",
+          }}
+        >
+          {charsLeft}
+        </div>
+      </div>
 
       {isTooLong && (
         <div

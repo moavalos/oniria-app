@@ -66,7 +66,7 @@ function HistoryPanel(props: HistoryVariantProps) {
   });
 
   return (
-    <Card className="col-span-12 md:col-span-4 xl:col-span-4 p-6 h-[88vh] flex flex-col text-[15px]">
+    <Card.Container className="col-span-12 md:col-span-4 xl:col-span-4 p-6 h-[88vh] flex flex-col text-[15px]">
       <SidebarHeader title={title} description={description} />
 
       {loading ? (
@@ -105,7 +105,7 @@ function HistoryPanel(props: HistoryVariantProps) {
           </div>
         </>
       )}
-    </Card>
+    </Card.Container>
   );
 }
 
@@ -149,7 +149,7 @@ function HomePanel(props: HomeVariantProps) {
   const onBackHome = () => setExpanded(false);
 
   return (
-    <Card
+    <Card.Container
       className={`col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden`}
       scrollable={props.scrollable}
     >
@@ -171,17 +171,10 @@ function HomePanel(props: HomeVariantProps) {
       )}
 
       {/* Dream Input Section - se hace largo cuando expanded */}
-      <div
-        className={`
-          rounded-2xl border transition-all duration-300
-          ${expanded ? "p-5 sm:p-6" : "p-4 sm:p-5"}
-        `}
-        style={{
-          backgroundColor: "var(--surface-subtle)",
-          borderColor: "var(--border-strong)",
-        }}
-      >
-        <div
+      <Card.Root>
+        <Card.Title>{t("node.title")}</Card.Title>
+        <Card.Description>{t("node.descriptionLabel")}</Card.Description>
+        <Card.Body
           className={`
             overflow-hidden transition-all duration-300
             ${expanded ? "min-h-[48vh]" : "min-h-[160px]"}
@@ -195,27 +188,27 @@ function HomePanel(props: HomeVariantProps) {
             charsLeft={charsLeft}
             isTooLong={isTooLong}
           />
-        </div>
 
-        {!expanded && (
-          <button
-            onClick={onInterpretarClick}
-            disabled={isEmpty || isTooLong}
-            className="tap-button mt-4 w-full rounded-xl px-4 py-3 text-[14px] font-bold
+          {!expanded && (
+            <button
+              onClick={onInterpretarClick}
+              disabled={isEmpty || isTooLong}
+              className="tap-button mt-4 w-full rounded-xl px-4 py-3 text-[14px] font-bold
                        disabled:opacity-60 disabled:cursor-not-allowed
                        transition-transform duration-200"
-            style={{
-              background: `linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to))`,
-              border: `1px solid var(--btn-primary-border)`,
-              boxShadow: `var(--btn-primary-glow)`,
-            }}
-          >
-            <span className="inline-flex items-center gap-2">
-              {t("node.interpretar")}
-            </span>
-          </button>
-        )}
-      </div>
+              style={{
+                background: `linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to))`,
+                border: `1px solid var(--btn-primary-border)`,
+                boxShadow: `var(--btn-primary-glow)`,
+              }}
+            >
+              <span className="inline-flex items-center gap-2">
+                {t("node.interpretar")}
+              </span>
+            </button>
+          )}
+        </Card.Body>
+      </Card.Root>
 
       {/*SOLO si NO esta expandido */}
       {!expanded && showQuoteCard && (
@@ -227,41 +220,33 @@ function HomePanel(props: HomeVariantProps) {
       )}
 
       {!expanded && (
-        <div
-          className="px-4 sm:px-5 pb-[45px] rounded-2xl border"
-          style={{
-            backgroundColor: "var(--surface-subtle)",
-            borderColor: "var(--border-subtle)",
-          }}
-        >
-          <div
-            className="text-[12px] mt-4 font-semibold mb-3"
-            style={{ color: "var(--text-80)" }}
-          >
-            {t("node.myroom")}
-          </div>
+        <Card.Root>
+          <Card.Title>{t("node.myroom")}</Card.Title>
+          <Card.Description>{t("node.myroomDesc")}</Card.Description>
 
-          <MenuButton
-            icon={<SettingsIcon />}
-            title={t("node.personalizar")}
-            description={t("node.toque")}
-            onClick={handlePersonalizar}
-          />
+          <Card.Body>
+            <MenuButton
+              icon={<SettingsIcon />}
+              title={t("node.personalizar")}
+              description={t("node.toque")}
+              onClick={handlePersonalizar}
+            />
 
-          <MenuButton
-            icon={<BadgeIcon />}
-            title={t("node.insignia")}
-            description={t("node.descriptionInsignia")}
-            onClick={handleInsignias}
-          />
+            <MenuButton
+              icon={<BadgeIcon />}
+              title={t("node.insignia")}
+              description={t("node.descriptionInsignia")}
+              onClick={handleInsignias}
+            />
 
-          <MenuButton
-            icon={<ClockIcon />}
-            title={t("historial.link")}
-            description={t("historial.verSuenos")}
-            onClick={handleNavigateHistory}
-          />
-        </div>
+            <MenuButton
+              icon={<ClockIcon />}
+              title={t("historial.link")}
+              description={t("historial.verSuenos")}
+              onClick={handleNavigateHistory}
+            />
+          </Card.Body>
+        </Card.Root>
       )}
 
       {!expanded && (
@@ -272,7 +257,7 @@ function HomePanel(props: HomeVariantProps) {
           pressed={false}
         />
       )}
-    </Card>
+    </Card.Container>
   );
 }
 export default function UnifiedSidePanel(props: UnifiedSidePanelProps) {

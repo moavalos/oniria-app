@@ -71,7 +71,7 @@ export default function Home() {
         />
 
         {/* Canvas 3d */}
-        <Card className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
+        <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           <LoaderSystem />
 
           {roomId && skinId && (
@@ -85,7 +85,7 @@ export default function Home() {
               </Engine.Core>
             </Engine.Canvas>
           )}
-        </Card>
+        </Card.Container>
       </main>
     </div>
   );

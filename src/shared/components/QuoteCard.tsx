@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import '@pages/home/styles/LeftPanel.css';
 import QuoteIcon from "@/assets/icons/QuoteIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
+import Card from "./Card";
 
 type QuoteCardProps = {
     quote: string;
@@ -13,51 +14,53 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
     const { t } = useTranslation();
 
     return (
-        <div
-            className="p-4 sm:p-5 rounded-2xl border"
+        <Card.Root
             style={{
                 backgroundColor: "var(--quote-bg)",
                 borderColor: "var(--quote-border)",
             }}
         >
-            <div className="text-[12px] font-semibold mb-1" style={{ color: "var(--quote-title)" }}>
+            <Card.Title style={{ color: "var(--quote-title)" }}>
                 {t("node.fraseHoy", "Frase de hoy")}
-            </div>
-            <p className="text-[11px] mb-3" style={{ color: "var(--quote-hint)" }}>
+            </Card.Title>
+            
+            <Card.Description style={{ color: "var(--quote-hint)" }}>
                 {t("node.fraseHint", "Un guiño simbólico para arrancar..")}
-            </p>
+            </Card.Description>
 
-            <div
-                className="rounded-xl border px-3 py-4 mb-3"
-                style={{
-                    backgroundColor: "var(--quote-box-bg)",
-                    borderColor: "var(--quote-box-border)",
-                }}
-            >
-                <div className="flex items-start gap-2 justify-center text-center">
-                    <QuoteIcon className="mt-0.5 opacity-70 shrink-0" />
-                    <span className="text-[13px] leading-snug" style={{ color: "var(--quote-text)" }}>
-                        {quote}
-                    </span>
-                    <QuoteIcon className="rotate-180 mt-0.5 opacity-70 shrink-0" />
+            <Card.Body>
+                <div
+                    className="rounded-xl border px-3 py-4 mb-3"
+                    style={{
+                        backgroundColor: "var(--quote-box-bg)",
+                        borderColor: "var(--quote-box-border)",
+                    }}
+                >
+                    <div className="flex items-start gap-2 justify-center text-center">
+                        <QuoteIcon className="mt-0.5 opacity-70 shrink-0" />
+                        <span className="text-[13px] leading-snug" style={{ color: "var(--quote-text)" }}>
+                            {quote}
+                        </span>
+                        <QuoteIcon className="rotate-180 mt-0.5 opacity-70 shrink-0" />
+                    </div>
                 </div>
-            </div>
 
-            <button
-                onClick={onRefresh}
-                disabled={isLoading}
-                className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{
-                    background: `linear-gradient(to right, var(--btn-refresh-from), var(--btn-refresh-to))`,
-                    borderColor: "var(--btn-refresh-border)",
-                    boxShadow: "var(--btn-refresh-shadow)",
-                }}
-            >
-                <span className="inline-flex items-center gap-2">
-                    <RefreshIcon spinning={isLoading} />
-                    {t("node.nuevaFrase", "Nueva frase")}
-                </span>
-            </button>
-        </div>
+                <button
+                    onClick={onRefresh}
+                    disabled={isLoading}
+                    className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{
+                        background: `linear-gradient(to right, var(--btn-refresh-from), var(--btn-refresh-to))`,
+                        borderColor: "var(--btn-refresh-border)",
+                        boxShadow: "var(--btn-refresh-shadow)",
+                    }}
+                >
+                    <span className="inline-flex items-center gap-2">
+                        <RefreshIcon spinning={isLoading} />
+                        {t("node.nuevaFrase", "Nueva frase")}
+                    </span>
+                </button>
+            </Card.Body>
+        </Card.Root>
     );
 }
