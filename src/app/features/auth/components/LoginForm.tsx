@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@shared/components/Button";
 import { useAuth } from "@features/auth/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
