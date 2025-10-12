@@ -13,18 +13,32 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
     const { t } = useTranslation();
 
     return (
-        <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/15">
-            <div className="text-[12px] font-semibold text-white/80 mb-1">
+        <div
+            className="p-4 sm:p-5 rounded-2xl border"
+            style={{
+                backgroundColor: "var(--quote-bg)",
+                borderColor: "var(--quote-border)",
+            }}
+        >
+            <div className="text-[12px] font-semibold mb-1" style={{ color: "var(--quote-title)" }}>
                 {t("node.fraseHoy", "Frase de hoy")}
             </div>
-            <p className="text-[11px] text-white/50 mb-3">
+            <p className="text-[11px] mb-3" style={{ color: "var(--quote-hint)" }}>
                 {t("node.fraseHint", "Un guiño simbólico para arrancar..")}
             </p>
 
-            <div className="rounded-xl border border-fuchsia-400/25 bg-black/20 px-3 py-4 mb-3">
+            <div
+                className="rounded-xl border px-3 py-4 mb-3"
+                style={{
+                    backgroundColor: "var(--quote-box-bg)",
+                    borderColor: "var(--quote-box-border)",
+                }}
+            >
                 <div className="flex items-start gap-2 justify-center text-center">
                     <QuoteIcon className="mt-0.5 opacity-70 shrink-0" />
-                    <span className="text-[13px] text-fuchsia-200 leading-snug">{quote}</span>
+                    <span className="text-[13px] leading-snug" style={{ color: "var(--quote-text)" }}>
+                        {quote}
+                    </span>
                     <QuoteIcon className="rotate-180 mt-0.5 opacity-70 shrink-0" />
                 </div>
             </div>
@@ -32,11 +46,12 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
             <button
                 onClick={onRefresh}
                 disabled={isLoading}
-                className="tap-button w-full rounded-xl bg-gradient-to-r from-fuchsia-700 to-fuchsia-600
-                   px-4 py-3 text-[14px] font-semibold border border-fuchsia-400/30
-                   shadow-[0_0_22px_rgba(217,70,239,0.25)]
-                   disabled:opacity-60 disabled:cursor-not-allowed
-                   transition-transform duration-200"
+                className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                    background: `linear-gradient(to right, var(--btn-refresh-from), var(--btn-refresh-to))`,
+                    borderColor: "var(--btn-refresh-border)",
+                    boxShadow: "var(--btn-refresh-shadow)",
+                }}
             >
                 <span className="inline-flex items-center gap-2">
                     <RefreshIcon spinning={isLoading} />

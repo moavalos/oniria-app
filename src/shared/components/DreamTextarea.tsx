@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 type DreamTextareaProps = {
   value: string;
@@ -18,17 +19,22 @@ export default function DreamTextarea({
   ref,
 }: DreamTextareaProps) {
   const { t } = useTranslation();
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <>
       <div className="flex items-center justify-between mb-2">
-        <div className="text-[12px] font-semibold text-white/80">
+        <div
+          className="text-[12px] font-semibold"
+          style={{ color: "var(--text-80)" }}
+        >
           {t("node.title")}
         </div>
         <div
-          className={`text-[11px] ${
-            isTooLong ? "text-red-300" : "text-white/50"
-          }`}
+          className="text-[11px]"
+          style={{
+            color: isTooLong ? "var(--danger-300)" : "var(--color-text-50)",
+          }}
         >
           {charsLeft}
         </div>
@@ -42,14 +48,28 @@ export default function DreamTextarea({
         id="dream-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={t("node.placeholderNode")}
-        className="min-h-[160px] w-full resize-y rounded-xl bg-black/20 text-white/90 placeholder:text-white/40
-                   border border-white/15 focus:outline-none focus:ring-2 focus:ring-fuchsia-400/50
-                   px-3 py-3 text-[13px] leading-relaxed"
+        className={`
+          min-h-[160px] w-full resize-y rounded-xl
+          border focus:outline-none focus:ring-1
+          px-3 py-3 text-[13px] leading-relaxed
+          placeholder:text-[var(--placeholder-text)]
+          focus:ring-[var(--focus-ring)]
+          bg-[var(--input-bg)] text-[var(--color-text-90)]
+          transition-colors duration-200
+        `}
+        style={{
+          borderColor: isFocused ? "var(--focus-ring)" : "var(--input-border)",
+        }}
       />
 
       {isTooLong && (
-        <div className="mt-2 text-[11px] text-red-300">
+        <div
+          className="mt-2 text-[11px]"
+          style={{ color: "var(--danger-300)" }}
+        >
           {t("node.character1")} {maxChars} {t("node.character2")}
         </div>
       )}

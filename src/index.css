@@ -14,7 +14,179 @@
     background-color: black;
 }
 
-@theme{
+@theme {
+    /* Container */
+     --container-max: 1840px;
+    /* Brand */
     --color-primary: #6050b4;
     --color-primary-dark: #4B3780;
+
+    /* App background */
+    --bg-1: #1b0f2a;
+    --bg-2: #0b0810;
+    --bg-3: #06050b;
+    --app-bg: radial-gradient(60% 80% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+
+    /* Canvas */
+    --canvas-bg: #000000;
+
+    /* Text (consolidado) */
+    --color-text-primary: rgba(255, 255, 255, 1);
+    /* blanco puro */
+    --text-80: rgba(255, 255, 255, 0.80);
+    /* títulos secundarios */
+    --color-text-muted: rgba(255, 255, 255, 0.60);
+    /* descripción / hints */
+    --placeholder-text: rgba(255, 255, 255, 0.40);
+    /* placeholders */
+
+    /* Surfaces */
+    --surface-subtle: rgba(255, 255, 255, 0.05);
+    /* bg-white/5 */
+    --surface-weak: rgba(255, 255, 255, 0.10);
+    /* bg-white/10 */
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.15);
+    /* white/15 */
+    --border-strong: rgba(0, 0, 0, 0.15);
+    /* black/15 */
+
+    /* Timeline */
+    --color-active-bar: rgba(232, 121, 249, 0.7);
+    /* fuchsia-400/70 */
+    --color-timeline-ring: rgba(255, 255, 255, 0.3);
+    --color-timeline-ring-focus: rgba(232, 121, 249, 0.5);
+    --color-timeline-active-bg: rgb(232, 121, 249);
+    --color-timeline-active-glow: rgba(232, 121, 249, 0.6);
+    --color-timeline-base: rgba(255, 255, 255, 0.15);
+    --color-timeline-progress-from: rgb(217, 70, 239);
+    --color-timeline-progress-via: rgb(232, 121, 249);
+    --color-timeline-progress-to: rgb(240, 171, 252);
+    --color-timeline-progress-shadow: 0 0 10px rgba(232, 121, 249, 0.5);
+
+    --color-scroll-thumb: rgba(255, 255, 255, 0.5);
+
+    /* Primary button / CTA */
+    --btn-primary-from: rgb(162, 28, 175);
+    /* fuchsia-700 */
+    --btn-primary-to: rgb(192, 38, 211);
+    /* fuchsia-600 */
+    --btn-primary-border: rgba(232, 121, 249, 0.30);
+    --btn-primary-glow: 0 0 22px rgba(217, 70, 239, 0.35);
+    --btn-primary-hover-from: var(--btn-primary-to);
+    --btn-primary-hover-to: var(--btn-primary-to);
+    --btn-shadow-strong: 0 0 25px rgba(217, 70, 239, 0.35);
+    --btn-star: #f5d0fe;
+    /* fuchsia-200 */
+
+    /* Inputs */
+    --input-bg: rgba(0, 0, 0, 0.20);
+    /* textarea/light input */
+    --input-bg-strong: rgba(0, 0, 0, 0.60);
+    /* input oscuro */
+    --input-border: rgba(75, 85, 99, 1);
+    /* gray-600 */
+    --input-border-focus: rgb(168, 85, 247);
+    /* purple-500 */
+    --focus-ring: rgba(232, 121, 249, 0.50);
+
+    /* States */
+    --danger-300: rgb(252, 165, 165);
+    /* red-300 */
+
+    /* User Profile */
+    --user-bg: var(--surface-subtle);
+    --user-border: var(--border-subtle);
+    --user-hover-bg: rgba(232, 121, 249, 0.2);
+    --user-hover-border: rgba(232, 121, 249, 0.3);
+    --user-icon-bg: rgba(255, 255, 255, 0.2);
+    --user-icon-hover-bg: rgba(232, 121, 249, 0.3);
+    --user-text-primary: var(--color-text-primary);
+    --user-text-muted: rgba(255, 255, 255, 0.7);
+
+    /* Menu Button */
+    --menu-bg: var(--surface-subtle);
+    --menu-border: var(--border-subtle);
+    --menu-hover-bg: rgba(255, 255, 255, 0.08);
+    --menu-icon-bg: var(--surface-weak);
+    --menu-icon-border: var(--border-subtle);
+    --menu-text-title: var(--color-text-primary);
+    --menu-text-description: var(--color-text-muted);
+    --menu-chevron: var(--color-text-muted);
+
+    /* Quote Card */
+    --quote-bg: var(--surface-subtle);
+    --quote-border: var(--border-subtle);
+    --quote-hint: var(--color-text-muted);
+    --quote-title: var(--text-80);
+    --quote-box-bg: rgba(0, 0, 0, 0.20);
+    --quote-box-border: rgba(232, 121, 249, 0.25);
+    --quote-text: #f5d0fe;
+
+    /* Refresh button (mapea a primary) */
+    --btn-refresh-from: var(--btn-primary-from);
+    --btn-refresh-to: var(--btn-primary-to);
+    --btn-refresh-border: var(--btn-primary-border);
+    --btn-refresh-shadow: 0 0 22px rgba(217, 70, 239, 0.25);
+
+
 }
+
+@utility container {
+  margin-inline: auto;
+  width: 100%;
+  padding-inline: 8px;
+
+  @media (min-width: 768px) {
+    padding-inline: 12px;
+  }
+
+  @media (min-width: 1024px) {
+    padding-inline: 24px;
+  }
+
+  max-width: var(--container-max);
+}
+
+
+@utility container-header {
+  margin-inline: auto;
+  width: 100%;
+  padding-inline: 24px;
+
+  @media (min-width: 768px) {
+    padding-inline: 32px;
+  }
+
+  @media (min-width: 1024px) {
+    padding-inline: 48px;
+  }
+
+  max-width: var(--container-max);
+}
+
+/* Scrollbar base */
+@utility scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--color-scroll-thumb) transparent; /* thumb y track */
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(156 163 175); /* gray-400 */
+    border-radius: 9999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(107 114 128); /* gray-500 */
+  }
+}
+
