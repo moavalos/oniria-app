@@ -50,12 +50,13 @@
   },
   "node": {
     "title": "¿Qué soñaste?",
-    "descriptionLabel": "Escribí tu sueño",
+    "descriptionLabel": "Descubri el significado de tus sueños con nuestra IA.",
     "placeholderNode": "Escribí tu sueño acá…",
     "character1": "Te pasaste del máximo de ",
     "character2": "caracteres",
     "interpretar": "Interpretar",
     "myroom": "Mi habitación",
+    "myroomDesc": "Gestiona tu espacio.",
     "personalizar": "Personalizar",
     "toque": "Dale tu toque al espacio",
     "insignia": "Mis insignias",
@@ -66,6 +67,7 @@
     "reinterpretar": "Reinterpretar",
     "acaAparecera": "Acá aparecerá el contenido del sueño..."
   },
+
   "header": {
     "loading": "Cargando...",
     "guest": "Invitado"

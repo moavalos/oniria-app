@@ -130,6 +130,9 @@
     --btn-refresh-border: var(--btn-primary-border);
     --btn-refresh-shadow: 0 0 22px rgba(217, 70, 239, 0.25);
 
+    /* Cards */
+    --card-tilte-size: 14px;
+
 
 }
 
