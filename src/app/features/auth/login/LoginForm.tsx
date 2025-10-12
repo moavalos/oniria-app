@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Button from "../../../../shared/components/Button";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@features/auth/context";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,8 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const { t } = useTranslation();
   const { signIn } = useAuth();
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +22,7 @@ export default function LoginForm() {
     if (error) {
       setError(t("login.error", { defaultValue: "Error al iniciar sesión" }));
     } else {
-      window.location.href = "/";
+      navigate("/");
     }
   };
 

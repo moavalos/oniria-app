@@ -33,5 +33,8 @@
   "notFound": {
     "link": "404",
     "message": "Página no encontrada"
+  },
+  "header": {
+    "logout": "Cerrar sesión"
   }
 }

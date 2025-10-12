@@ -58,5 +58,8 @@
     "toque": "Add your touch to the space",
     "insignia": "My badges",
     "descriptionInsignia": "Manage your achievements within Oniria."
+  },
+  "header": {
+    "logout": "Log Out"
   }
 }

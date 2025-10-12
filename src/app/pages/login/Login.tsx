@@ -1,5 +1,5 @@
 import AuthTitle from "@features/auth/components/AuthTitle";
-import LoginForm from "@features/auth/login/LoginForm";
+import LoginForm from "@features/auth/components/LoginForm";
 import GoogleButton from "@features/auth/components/GoogleButton";
 import AuthLinks from "@features/auth/components/AuthLinks";
 import Card from "@shared/components/Card";
@@ -26,7 +26,7 @@ export default function Login() {
           <div className="flex-1 h-px bg-gray-600" />
         </div>
         <GoogleButton />
-        <AuthLinks href="/register" section="register" />
+        <AuthLinks href="/register" section="login" />
       </Card>
     </div>
   );
