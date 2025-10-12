@@ -45,14 +45,14 @@ export default function Home() {
   };
   const canvasBg =
     typeof window !== "undefined"
-      ? (getComputedStyle(document.documentElement)
-        .getPropertyValue("--canvas-bg")
-        .trim() || "#000000")
+      ? getComputedStyle(document.documentElement)
+          .getPropertyValue("--canvas-bg")
+          .trim() || "#000000"
       : "#000000";
 
   return (
     <div
-      className="min-h-screen w-full text-[var(--color-text-primary)] overflow-hidden"
+      className="w-full h-dvh text-[var(--color-text-primary)] overflow-hidden flex flex-col"
       style={{ background: "var(--app-bg)" }}
     >
       {/* fondo de estrellas */}
@@ -61,18 +61,17 @@ export default function Home() {
       {/* top bar */}
       <HeaderContainer />
 
-      {/* layout principal */}
-      <main className="relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6 lg:py-5">
+      {/* layout principal - ocupa el resto del espacio disponible */}
+      <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
           onNuevaFrase={() => engine.node?.next()}
           onInterpretar={handleInterpretar}
+          scrollable
         />
 
         {/* Canvas 3d */}
-        <Card
-          className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative"
-        >
+        <Card className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           <LoaderSystem />
 
           {roomId && skinId && (
