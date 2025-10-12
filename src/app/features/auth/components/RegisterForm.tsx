@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../../../../shared/components/Button";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@features/auth/context";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 
 export default function RegisterForm() {

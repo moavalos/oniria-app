@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@features/auth/context";
+import { useAuth } from "@features/auth/hooks/useAuth";
 export default function GoogleButton() {
     const { signInWithGoogle } = useAuth();
     const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "@shared/components/Button";
-import { useAuth } from "@features/auth/context";
+import { useAuth } from "@features/auth/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {

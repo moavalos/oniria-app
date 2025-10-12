@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "../../../../shared/components/Button";
-import { useAuth } from "@features/auth/context";
+import { useAuth } from "@features/auth/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import Header from "./Header";
-import { useAuth } from "@features/auth/context/AuthContext";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 export default function HeaderContainer() {
   const { user, loading, signOut } = useAuth();
