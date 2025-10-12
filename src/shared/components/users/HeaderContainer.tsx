@@ -1,33 +1,21 @@
-import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Header from "./Header";
-import { fetchUsers, type UserData } from "@/app/features/users/services/header.service";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 export default function HeaderContainer() {
-    const [user, setUser] = useState<UserData | null>(null);
-    const [loading, setLoading] = useState(true);
+  const { user, loading, signOut } = useAuth();
+  const { t } = useTranslation();
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        (async () => {
-            try {
-                const users = await fetchUsers(controller.signal);
-                setUser(users[0]);
-            } catch (err) {
-                console.error("Error cargando usuario:", err);
-            } finally {
-                setLoading(false);
-            }
-        })();
-
-        return () => controller.abort();
-    }, []);
-
-    return (
-        <Header
-            logoText="Oniria"
-            userName={loading ? "Cargando..." : user?.name ?? "Invitado"}
-            userEmail={loading ? "..." : user?.email ?? ""}
-        />
-    );
+  return (
+    <Header
+      logoText="Oniria"
+      userName={
+        loading
+          ? t("header.loading")
+          : user?.user_metadata.full_name ?? t("header.guest")
+      }
+      userEmail={loading ? "..." : user?.email ?? ""}
+      onProfileClick={signOut}
+    />
+  );
 }

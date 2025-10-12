@@ -26,10 +26,12 @@
     "button": "Registrarse",
     "errorPasswordMatch": "Las contraseñas no coinciden",
     "text": "¿Ya tenés una cuenta?",
-    "textLink": "Iniciá sesión"
+    "textLink": "Iniciá sesión",
+    "error": "Error al registrarse",
+    "success": "Registro exitoso. Revisa tu email para verificar la cuenta."
   },
   "notFound": {
-    "link": "404",
+    "link": "Ir al inicio",
     "message": "Página no encontrada"
   },
   "historial": {
@@ -63,5 +65,12 @@
     "guardar": "Guardar",
     "reinterpretar": "Reinterpretar",
     "acaAparecera": "Acá aparecerá el contenido del sueño..."
+  },
+  "header": {
+    "loading": "Cargando...",
+    "guest": "Invitado"
+  },
+  "private_route": {
+    "loading": "Cargando..."
   }
 }

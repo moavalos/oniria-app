@@ -1,7 +1,7 @@
-import AuthTitle from "@/app/features/auth/components/AuthTitle";
-import LoginForm from "@features/auth/login/LoginForm";
-import GoogleButton from "@/app/features/auth/components/GoogleButton";
-import AuthLinks from "@/app/features/auth/components/AuthLinks";
+import AuthTitle from "@features/auth/components/AuthTitle";
+import LoginForm from "@features/auth/components/LoginForm";
+import GoogleButton from "@features/auth/components/GoogleButton";
+import AuthLinks from "@features/auth/components/AuthLinks";
 import Card from "@shared/components/Card";
 import bgImage from "@assets/images/Screenshot_1.png";
 
@@ -15,7 +15,7 @@ export default function Login() {
       <img
         src={bgImage}
         alt="background"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
+        className="absolute inset-0 w-full h-full object-cover"
       />
       <Card className="p-7 min-w-sm">
         <AuthTitle title="Oniria" subtitle={t("login.subtitle")} />
@@ -26,7 +26,7 @@ export default function Login() {
           <div className="flex-1 h-px bg-gray-600" />
         </div>
         <GoogleButton />
-        <AuthLinks href="/register" section="register" />
+        <AuthLinks href="/register" section="login" />
       </Card>
     </div>
   );
