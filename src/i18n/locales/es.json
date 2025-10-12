@@ -67,8 +67,10 @@
     "acaAparecera": "Acá aparecerá el contenido del sueño..."
   },
   "header": {
-    "logout": "Cerrar sesión",
     "loading": "Cargando...",
     "guest": "Invitado"
+  },
+  "private_route": {
+    "loading": "Cargando..."
   }
 }
