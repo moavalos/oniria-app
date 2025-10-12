@@ -6,22 +6,15 @@ type UseTimelineKeyboardProps = {
     items: TimelineItemType[];
     selectedIndex: number;
     onSelect: (_id: number) => void;
-    onCta: () => void;
 };
 
-export function useTimelineKeyboard({
-    listRef,
-    items,
-    selectedIndex,
-    onSelect,
-    onCta,
-}: UseTimelineKeyboardProps) {
+export function useTimelineKeyboard({ listRef, items, selectedIndex, onSelect }: UseTimelineKeyboardProps) {
     useEffect(() => {
         const el = listRef.current;
         if (!el) return;
 
         const onKey = (e: KeyboardEvent) => {
-            if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+            if (!["ArrowUp", "ArrowDown"].includes(e.key)) return;
             e.preventDefault();
 
             if (e.key === "ArrowUp") {
@@ -30,12 +23,10 @@ export function useTimelineKeyboard({
             } else if (e.key === "ArrowDown") {
                 const idx = Math.min(items.length - 1, selectedIndex + 1);
                 onSelect(items[idx]?.id);
-            } else if (e.key === "Enter") {
-                onCta();
             }
         };
 
         el.addEventListener("keydown", onKey);
         return () => el.removeEventListener("keydown", onKey);
-    }, [items, selectedIndex, onSelect, onCta, listRef]);
+    }, [items, selectedIndex, onSelect, listRef]);
 }

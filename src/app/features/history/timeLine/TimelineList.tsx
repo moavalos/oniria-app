@@ -1,27 +1,26 @@
 import type { MutableRefObject, RefObject } from "react";
-import TimelineItem, { type TimelineItemType } from "./TimelineItem";
+import { TimelineItem, type TimelineItemType } from "./TimelineItem";
 
-type TimelineListProps = {
+export function TimelineList({
+    items,
+    selectedId,
+    onSelect,
+    listRef,
+    itemRefs,
+}: {
     items: TimelineItemType[];
     selectedId?: number;
     onSelect: (_id: number) => void;
     listRef: RefObject<HTMLUListElement | null>;
     itemRefs: MutableRefObject<Map<number, HTMLLIElement>>;
-};
-
-export default function TimelineList({
-    items,
-    selectedId,
-    onSelect,
-    listRef,
-    itemRefs
-}: TimelineListProps) {
+}) {
     return (
         <ul
             ref={listRef}
             tabIndex={0}
-            className="space-y-6 pl-10 pr-2 outline-none"
+            className="space-y-8 pl-12 pr-4 outline-none"
             aria-label="Línea de tiempo"
+            style={{ scrollBehavior: "smooth" }}
         >
             {items.map((item) => (
                 <TimelineItem

@@ -1,6 +1,6 @@
 import NotificationButton from "@/assets/icons/NotificationButton";
-import UserProfile from "../UserProfile";
-import MobileMenuButton from "../MobileMenuButton";
+import MobileMenuButton from "@/shared/components/users/MobileMenuButton";
+import UserProfile from "@/shared/components/users/UserProfile";
 
 type HeaderActionsProps = {
     userName: string;

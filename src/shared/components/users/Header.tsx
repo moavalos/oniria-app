@@ -1,6 +1,6 @@
-import HeaderActions from "./actions/HeaderActions";
 import "./styles/Header.css";
 import HeaderLogo from "./HeaderLogo";
+import HeaderActions from "@/app/features/users/actions/HeaderActions";
 
 type HeaderProps = {
     logoText?: string;

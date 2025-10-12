@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "./Header";
-import { fetchUsers, type UserData } from "@/services/header/header.service";
+import { fetchUsers, type UserData } from "@/app/features/users/services/header.service";
 
 export default function HeaderContainer() {
     const [user, setUser] = useState<UserData | null>(null);

@@ -12,9 +12,9 @@ import {
 import Starfield from "../../../shared/components/Starfield";
 import Card from "@/shared/components/Card";
 import { useEffect } from "react";
-import LeftPanel from "./components/LeftPanel";
-import HeaderContainer from "@/shared/components/header/HeaderContainer";
-import useDreams from "@/app/hooks/useDreams";
+import HeaderContainer from "@/shared/components/users/HeaderContainer";
+import useDreams from "@/app/features/dreams/hooks/useDreams";
+import UnifiedSidePanel from "./components/Panel";
 
 export default function Home() {
   //const { t } = useTranslation();
@@ -54,7 +54,8 @@ export default function Home() {
 
       {/* layout principal */}
       <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
-        <LeftPanel
+        <UnifiedSidePanel
+          variant="home"
           onNuevaFrase={() => engine.node?.next()}
           onInterpretar={handleInterpretar}
         />

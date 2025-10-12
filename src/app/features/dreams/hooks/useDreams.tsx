@@ -1,5 +1,5 @@
-import { DreamsService, type DreamAPIResponse } from "@/services/DreamsService";
 import { useState } from "react";
+import { DreamsService, type DreamAPIResponse } from "../services/DreamsService";
 
 export default function useDreams() {
   const [dreams, setDreams] = useState<DreamAPIResponse[]>([]);

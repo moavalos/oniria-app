@@ -1,11 +1,11 @@
-import Sidebar from "./components/Sidebar";
 import Starfield from "@shared/components/Starfield";
 import Card from "@/shared/components/Card";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import type { TimelineItem } from "./model/TimelineItem";
-import { getTimeline } from "@/services/history/history.service";
-import HeaderContainer from "@/shared/components/header/HeaderContainer";
+import type { TimelineItem } from "../../features/history/model/TimelineItem";
+import HeaderContainer from "@/shared/components/users/HeaderContainer";
+import { getTimeline } from "@/app/features/history/services/history.service";
+import UnifiedSidePanel from "../home/components/Panel";
 
 export default function History() {
   const { t } = useTranslation();
@@ -42,9 +42,11 @@ export default function History() {
       <HeaderContainer />
 
       {/* layout principal */}
-      <main className="relative z-0 mx-auto grid max-w-[1500px] grid-cols-12 gap-6 px-4 py-6 lg:px-8 lg:py-8">
+      <main className=" relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6  lg:py-5 ">
         {/* ===== sidebar izquierdo ===== */}
-        <Sidebar
+
+        <UnifiedSidePanel
+          variant="history"
           title={t("historial.title")}
           description={t("historial.description")}
           ctaText={t("historial.oniriaPro")}

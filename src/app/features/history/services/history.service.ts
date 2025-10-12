@@ -1,4 +1,4 @@
-import type { TimelineItem } from "@/app/pages/history/model/TimelineItem";
+import type { TimelineItem } from "@/app/features/history/model/TimelineItem";
 
 const DB_URL = "/historial.json";
 

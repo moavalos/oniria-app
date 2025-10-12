@@ -6,17 +6,12 @@ type UseTimelineScrollProps = {
     listRef: RefObject<HTMLUListElement | null>;
 };
 
-export function useTimelineScroll({
-    selectedId,
-    itemRefs,
-    listRef,
-}: UseTimelineScrollProps) {
+export function useTimelineScroll({ selectedId, itemRefs, listRef }: UseTimelineScrollProps) {
     useEffect(() => {
         if (selectedId === undefined) return;
 
         const itemElement = itemRefs.current.get(selectedId);
         const listElement = listRef.current;
-
         if (!itemElement || !listElement) return;
 
         const itemRect = itemElement.getBoundingClientRect();
@@ -26,10 +21,7 @@ export function useTimelineScroll({
         const isBelowView = itemRect.bottom > listRect.bottom;
 
         if (isAboveView || isBelowView) {
-            itemElement.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-            });
+            itemElement.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }, [selectedId, itemRefs, listRef]);
 }

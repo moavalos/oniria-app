@@ -1,4 +1,4 @@
-import type { Quote, QuotesResponse } from "@/app/pages/home/model/Quotes";
+import type { Quote, QuotesResponse } from "@/app/features/home/model/Quotes";
 
 const DB_URL = "/frases.json";
 
