@@ -1,27 +1,42 @@
 import { useState } from "react";
-import { HistoryService, type HistoryApiResponse } from "../services/history.service";
+import {
+  HistoryService,
+  type HistoryApiResponse,
+} from "../services/history.service";
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 export default function useHistory() {
-    const [history, setHistory] = useState<HistoryApiResponse[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryApiResponse>({
+    data: [],
+    pagination: {
+      currentPage: 0,
+      limit: 0,
+      total: 0,
+      totalPages: 0,
+      hasNext: false,
+      hasPrev: false,
+    },
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { session } = useAuth();
 
-    const fetchHistory = async () => {
-        setLoading(true);
-        setError(null);
+  const fetchHistory = async () => {
+    setLoading(true);
+    setError(null);
 
-        try {
-            const service = new HistoryService();
-            const response = await service.fetchHistory();
-            setHistory(response);
-            console.log(response);
-            return response;
-        } catch (err: any) {
-            setError("Failed to fetch history: " + err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      const service = new HistoryService();
+      const response = await service.fetchHistory(session);
+      setHistory(response);
+      console.log(response);
+      return response;
+    } catch (err: any) {
+      setError("Failed to fetch history: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return { history, loading, error, fetchHistory };
+  return { history, loading, error, fetchHistory };
 }
