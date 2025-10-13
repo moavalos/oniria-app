@@ -14,6 +14,7 @@ import SettingsIcon from "@/assets/icons/SettingsIcon";
 import BadgeIcon from "@/assets/icons/BadgeIcon";
 import ClockIcon from "@/assets/icons/ClockIcon";
 import { useState } from "react";
+import BackButton from "@/shared/components/BackButton";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -150,19 +151,7 @@ function HomePanel(props: HomeVariantProps) {
     >
       {/* Flechita volver a home solo en modo expandido */}
       {expanded && (
-        <button
-          type="button"
-          onClick={onBackHome}
-          className="mb-3 -mt-2 inline-flex items-center gap-2 text-[12px] font-semibold rounded-lg px-2 py-1
-                     transition-colors duration-200"
-          style={{
-            color: "var(--text-80)",
-            backgroundColor: "var(--surface-subtle)",
-          }}
-          aria-label={t("volverHome") || "Volver a home"}
-        >
-          ← {t("volverHome", "Volver a home")}
-        </button>
+        <BackButton onClick={onBackHome} />
       )}
 
       {/* Dream Input Section - se hace largo cuando expanded */}
