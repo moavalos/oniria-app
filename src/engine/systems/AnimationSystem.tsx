@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { AnimationAction } from "../config/room.type";
 import { useEngineCore } from "@engine/core";
-import { useRoomVersion } from "../hooks";
+import { useRoomVersion, useNodeAnimation } from "../hooks";
 import { EngineState } from "@engine/core";
 
 export type AnimationConfig = {
@@ -33,10 +33,12 @@ export default function AnimationSystem({
   autoConfigureForRoom = true,
 }: AnimationSystemProps) {
   const core = useEngineCore();
-  const { activeRoom, engineState } = core;
+  const { activeRoom, engineState, registerApiAction, unregisterApiAction } =
+    core;
   const roomVersion = useRoomVersion(activeRoom);
   const activeScene = activeRoom?.getScene();
   const animationService = core.getAnimationService();
+  const nodeAnimation = useNodeAnimation();
 
   const [animatables, setAnimatables] = useState<
     Record<string, AnimationAction>
@@ -129,6 +131,31 @@ export default function AnimationSystem({
     config.autoPlay,
     config.playOnMount,
     isEngineReady,
+  ]);
+
+  // Registrar acciones de nodo en la API del motor
+  useEffect(() => {
+    if (!isEngineReady) return;
+
+    // Crear objeto node con las acciones disponibles
+    const nodeActions = {
+      idle: nodeAnimation.idle,
+      setState: nodeAnimation.setState,
+    };
+
+    // Registrar el objeto node completo en la API
+    registerApiAction("node", nodeActions);
+
+    // Cleanup al desmontar
+    return () => {
+      unregisterApiAction("node");
+    };
+  }, [
+    isEngineReady,
+    registerApiAction,
+    unregisterApiAction,
+    nodeAnimation.idle,
+    nodeAnimation.setState,
   ]);
 
   return null;

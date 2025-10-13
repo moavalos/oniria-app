@@ -21,6 +21,7 @@ type EngineContextAPI = {
   skinId?: string | null;
   node?: NodeAPI;
   animation?: AnimationService;
+  actions?: Record<string, any>;
   // Método interno para que el core publique APIs
   _setAPI: (key: string, api: unknown) => void;
 };
@@ -72,6 +73,7 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
       skinId,
       node: dynamicAPIs.node as NodeAPI,
       animation: dynamicAPIs.animation as AnimationService | undefined,
+      actions: dynamicAPIs.actions as Record<string, any> | undefined,
       _setAPI,
     }),
     [setRoom, roomId, skinId, dynamicAPIs, _setAPI]

@@ -43,6 +43,7 @@ export function EngineCore({ children }: EngineCoreProps) {
     EngineState.INITIALIZING
   );
   const [roomVersion, setRoomVersion] = useState<number>(0);
+  const [apiActions, setApiActions] = useState<Record<string, any>>({});
 
   const { scene, camera, gl, size, clock } = useThree();
   const engineAPI = useEngineAPI();
@@ -80,6 +81,30 @@ export function EngineCore({ children }: EngineCoreProps) {
       const copy = { ...prev };
       delete copy[name];
       return copy;
+    });
+  }, []);
+
+  /**
+   * Registra una nueva acción en la API del motor
+   * @param actionName - Nombre de la acción (ej: 'viewNodes', 'node')
+   * @param actionHandler - Función que ejecutará la acción o objeto con funciones
+   */
+  const registerApiAction = useCallback(
+    (actionName: string, actionHandler: any) => {
+      setApiActions((prev) => ({ ...prev, [actionName]: actionHandler }));
+    },
+    []
+  );
+
+  /**
+   * Desregistra una acción de la API del motor
+   * @param actionName - Nombre de la acción a eliminar
+   */
+  const unregisterApiAction = useCallback((actionName: string) => {
+    setApiActions((prev) => {
+      const newActions = { ...prev };
+      delete newActions[actionName];
+      return newActions;
     });
   }, []);
 
@@ -216,6 +241,7 @@ export function EngineCore({ children }: EngineCoreProps) {
       setTimeout(() => {
         registerService("cameraService", service);
       }, 0);
+      //registrarlo en la API del motor
       return service;
     }
     return service;
@@ -266,6 +292,14 @@ export function EngineCore({ children }: EngineCoreProps) {
     }
   }, [activeRoom, updateActiveRoom]); // Solo depende de activeRoom
 
+  // Sincronizar las acciones con la API del motor (solo cuando hay cambios reales)
+  useEffect(() => {
+    // Solo actualizar si hay acciones registradas o si se eliminaron todas
+    if (Object.keys(apiActions).length > 0) {
+      engineAPI._setAPI("actions", apiActions);
+    }
+  }, [apiActions]);
+
   const value = useMemo(
     () => ({
       scene,
@@ -282,6 +316,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       setEngineState,
       unregisterService,
       registerService,
+      registerApiAction,
+      unregisterApiAction,
       registerRoom,
       registerSkin,
       registerNode,
@@ -305,6 +341,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       setEngineState,
       unregisterService,
       registerService,
+      registerApiAction,
+      unregisterApiAction,
       registerRoom,
       registerSkin,
       registerNode,

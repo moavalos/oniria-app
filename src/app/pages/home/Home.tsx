@@ -40,7 +40,8 @@ export default function Home() {
   };
 
   const handleInterpretar = async (dream: string) => {
-    const response = await fetchDreams(dream);
+    engine.actions.viewNodes?.();
+    //  const response = await fetchDreams(dream);
 
     console.log("dreams:", response);
     //navegar a otra pagina con el resultado
@@ -70,6 +71,7 @@ export default function Home() {
           variant="home"
           onNuevaFrase={() => engine.node?.next()}
           onInterpretar={handleInterpretar}
+          onPersonalizar={() => engine.actions?.viewReset?.()}
           scrollable
         />
 

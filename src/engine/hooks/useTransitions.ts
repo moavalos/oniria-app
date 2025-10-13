@@ -35,6 +35,12 @@ export function useTransitions() {
         );
     }, [cameraService, activeRoom]);
 
+    const viewReset = useCallback(() => {
+        if (!cameraService) return;
 
-    return { viewNodes };
+        cameraService.resetInitialPosition();
+
+    }, [cameraService]);
+
+    return { viewNodes, viewReset };
 }

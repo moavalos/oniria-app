@@ -9,7 +9,6 @@ export default function HudSystem({
   dreamModalVisible = false,
   onDreamModalClose,
 }: HudSystemProps) {
-  console.log("HudSystem rendering - dreamModalVisible:", dreamModalVisible);
   return (
     <div
       className={`absolute inset-0 flex items-center justify-center z-50 p-4 ${

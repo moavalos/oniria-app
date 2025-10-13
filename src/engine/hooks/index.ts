@@ -10,6 +10,7 @@ export * from "../core/hooks";
 
 // Hooks de características específicas
 export * from "./useHandlers";
+export * from "./useNodeAnimation";
 export * from "./useTransitions";
 export * from "./useThreeLoader";
 export * from "./useRoomVersion";
