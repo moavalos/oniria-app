@@ -40,6 +40,10 @@ export function useEngine() {
 
         // Métodos de configuración
         setRoom: api.setRoom,
+        setDream: api.setDream,
+
+        dream: api.dream,
+
 
         // Estado actual
         roomId: api.roomId,

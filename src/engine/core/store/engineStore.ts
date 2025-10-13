@@ -1,6 +1,14 @@
 
 import { create } from "zustand";
 
+// Tipo para los datos del sueño
+export interface Dream {
+    title: string;
+    description: string;
+    interpretation: string;
+    emotion: string;
+}
+
 type LoadingItem = {
     url: string;
     type: 'gltf' | 'texture' | 'ktx2' | 'audio' | 'binary';
@@ -88,6 +96,11 @@ type EngineStore = {
     setNodeUniforms: (_uniforms: Partial<EngineStore['nodeUniforms']>) => void;
     resetNodeUniforms: () => void;
 
+    // Dream state
+    dream: Dream | null;
+    setDream: (_dream: Dream) => void;
+    clearDream: () => void;
+
     // HUD state
     dreamModalVisible: boolean;
     setDreamModalVisible: (_visible: boolean) => void;
@@ -115,6 +128,11 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     skinId: null,
     setRoomId: (id) => set({ roomId: id }),
     setSkinId: (id) => set({ skinId: id }),
+
+    // Dream state
+    dream: null,
+    setDream: (dream) => set({ dream }),
+    clearDream: () => set({ dream: null }),
 
     // Node uniforms defaults
     nodeUniforms: { ...uniformDefaults },

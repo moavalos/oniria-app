@@ -174,6 +174,33 @@ export const modalElementEnterAnimation: AnimationHandler = (target, config) => 
 };
 
 /**
+ * Animación idle para el nodo - movimiento sutil hacia la izquierda
+ */
+export const nodeIdleAnimation: AnimationHandler = (target, config) => {
+    const {
+        offsetX = -0.2,
+        duration = 1.5,
+        ease = "power2.inOut"
+    } = config.params;
+
+    const originalX = target.position.x;
+    const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
+
+    tl.to(target.position, {
+        x: originalX + offsetX,
+        duration,
+        ease,
+    })
+        .to(target.position, {
+            x: originalX,
+            duration,
+            ease,
+        });
+
+    return tl;
+};
+
+/**
  * Metadatos de las animaciones por defecto
  */
 export const defaultAnimationsMetadata: Record<string, AnimationMetadata> = {
@@ -238,6 +265,16 @@ export const defaultAnimationsMetadata: Record<string, AnimationMetadata> = {
             ease: "power2.out"
         },
         requiredParams: []
+    },
+    nodeIdle: {
+        name: "nodeIdle",
+        description: "Animación idle para el nodo - movimiento sutil hacia la izquierda",
+        defaultParams: {
+            offsetX: -0.2,
+            duration: 1.5,
+            ease: "power2.inOut"
+        },
+        requiredParams: []
     }
 };
 
@@ -250,5 +287,6 @@ export const defaultAnimations: Record<string, AnimationHandler> = {
     rotateTo: rotateToAnimation,
     modalShow: modalShowAnimation,
     modalHide: modalHideAnimation,
-    modalElementEnter: modalElementEnterAnimation
+    modalElementEnter: modalElementEnterAnimation,
+    nodeIdle: nodeIdleAnimation
 };

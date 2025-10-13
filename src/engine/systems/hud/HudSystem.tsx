@@ -1,34 +1,42 @@
+import { useEngine, useEngineStore } from "@/engine/core";
 import DreamCardModal from "./components/DreamCardModal";
+import { useCallback } from "react";
 
-interface HudSystemProps {
-  dreamModalVisible?: boolean;
-  onDreamModalClose?: () => void;
-}
+interface HudSystemProps {}
 
-export default function HudSystem({
-  dreamModalVisible = false,
-  onDreamModalClose,
-}: HudSystemProps) {
+export default function HudSystem({}: HudSystemProps) {
+  // Acceder al dream directamente desde el store
+  const { dream } = useEngineStore();
+  const engine = useEngine();
+
+  // Función para cerrar el modal
+  const handleDreamModalClose = useCallback(() => {
+    // Opcionalmente limpiar el dream del store
+    // setDream(null);
+    console.log("closed");
+    engine.node?.rest?.();
+  }, [engine]);
+
   return (
     <div
       className={`absolute inset-0 flex items-center justify-center z-50 p-4 ${
-        dreamModalVisible ? "pointer-events-auto" : "pointer-events-none"
+        dream ? "pointer-events-auto" : "pointer-events-none"
       }`}
     >
       {/* Overlay de fondo cuando el modal está visible */}
-      {dreamModalVisible && (
+      {dream && (
         <div
           className="absolute inset-0 bg-black/20 backdrop-blur-[1px]"
-          onClick={onDreamModalClose}
+          onClick={handleDreamModalClose}
         />
       )}
 
       <DreamCardModal
-        visibility={dreamModalVisible}
-        title="Interpretación de Sueño"
-        text="Tu sueño revela aspectos profundos de tu subconsciente. Las imágenes y símbolos que experimentaste durante la noche tienen significados únicos que pueden ayudarte a comprender mejor tus emociones, deseos y preocupaciones internas."
+        visibility={!!dream}
+        title={dream?.title || "Tu sueño"}
+        text={dream?.interpretation || "Descripción del sueño..."}
         typingSpeed={80}
-        onClose={onDreamModalClose}
+        onClose={handleDreamModalClose}
         onSave={() => console.log("Guardar sueño")}
         onReinterpret={() => console.log("Reinterpretar")}
       />

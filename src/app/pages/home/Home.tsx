@@ -7,7 +7,6 @@ import {
   AnimationSystem,
   InteractionSystem,
   DebugSystem,
-  useEngineStore,
 } from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
@@ -17,11 +16,11 @@ import HeaderContainer from "@/shared/components/users/HeaderContainer";
 import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
 import HudSystem from "@/engine/systems/hud/HudSystem";
+import type { Dream } from "@/engine/core/store/engineStore";
 
 export default function Home() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
-  const { dreamModalVisible, setDreamModalVisible } = useEngineStore();
 
   const engine = useEngine();
   //algo asi seria la respuesta del backend
@@ -40,10 +39,19 @@ export default function Home() {
   };
 
   const handleInterpretar = async (dream: string) => {
+    console.log("handleInterpretar iniciado con dream:", dream);
     engine.actions.viewNodes?.();
-    //  const response = await fetchDreams(dream);
 
-    console.log("dreams:", response);
+    setTimeout(async () => {
+      console.log("Ejecutando fetchDreams...");
+      const response = await fetchDreams(dream);
+
+      console.log("fetchDreams response:", response);
+      console.log("Llamando engine.setDream...");
+      engine.setDream(response as Dream);
+      console.log("engine.setDream completado");
+    }, 500);
+
     //navegar a otra pagina con el resultado
     //navigate("/interpretacion");
   };
@@ -77,10 +85,7 @@ export default function Home() {
 
         {/* Canvas 3d */}
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
-          <HudSystem
-            dreamModalVisible={dreamModalVisible}
-            onDreamModalClose={() => setDreamModalVisible(false)}
-          />
+          <HudSystem />
           <LoaderSystem />
 
           {roomId && skinId && (

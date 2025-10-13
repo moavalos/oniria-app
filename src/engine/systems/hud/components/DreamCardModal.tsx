@@ -168,22 +168,24 @@ export default function DreamCardModal({
     []
   );
 
-  // Responder a cambios de visibility prop (solo para abrir)
+  // Responder a cambios de visibility prop
   useEffect(() => {
-    if (visibility && !isVisible) {
-      // Solo abrir si la prop es true y el modal no está visible
-      setIsVisible(true);
-      // Esperar a que el DOM esté listo y ejecutar animación
+    if (visibility) {
+      // Si visibility es true, asegurar que isVisible también sea true
+      if (!isVisible) {
+        setIsVisible(true);
+      }
+      // Siempre ejecutar animación cuando visibility es true
       setTimeout(() => {
         if (cardRef.current) {
           animateVisibility(true);
         }
       }, 0);
     } else if (!visibility && isVisible) {
-      // Si la prop cambia a false, solo actualizar estado (no animar)
+      // Si la prop cambia a false, ocultar modal
       setIsVisible(false);
     }
-  }, [visibility, isVisible, animateVisibility]);
+  }, [visibility]);
 
   // Handlers
   const handleClose = useCallback(() => {

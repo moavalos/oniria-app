@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-
 import type { AnimationAction } from "../config/room.type";
 import { useEngineCore } from "@engine/core";
-import { useRoomVersion, useNodeAnimation } from "../hooks";
 import { EngineState } from "@engine/core";
+import { useEngineStore } from "@engine/core";
+import { useNodeAnimation } from "../hooks/useNodeAnimation";
 
 export type AnimationConfig = {
   animations?: Record<string, AnimationAction>;
@@ -33,12 +33,19 @@ export default function AnimationSystem({
   autoConfigureForRoom = true,
 }: AnimationSystemProps) {
   const core = useEngineCore();
-  const { activeRoom, engineState, registerApiAction, unregisterApiAction } =
-    core;
-  const roomVersion = useRoomVersion(activeRoom);
+  const {
+    activeRoom,
+    engineState,
+    activeNode,
+    registerApiAction,
+    unregisterApiAction,
+  } = core;
   const activeScene = activeRoom?.getScene();
   const animationService = core.getAnimationService();
   const nodeAnimation = useNodeAnimation();
+
+  // Acceder al dream directamente desde el store
+  const dream = useEngineStore((s) => s.dream);
 
   const [animatables, setAnimatables] = useState<
     Record<string, AnimationAction>
@@ -70,7 +77,6 @@ export default function AnimationSystem({
 
     loadAnimatables();
   }, [
-    roomVersion,
     activeScene,
     config.animations,
     autoConfigureForRoom,
@@ -125,7 +131,6 @@ export default function AnimationSystem({
   }, [
     animationService,
     animatables,
-    roomVersion,
     activeScene,
     enableAnimations,
     config.autoPlay,
@@ -140,7 +145,7 @@ export default function AnimationSystem({
     // Crear objeto node con las acciones disponibles
     const nodeActions = {
       idle: nodeAnimation.idle,
-      setState: nodeAnimation.setState,
+      rest: nodeAnimation.rest,
     };
 
     // Registrar el objeto node completo en la API
@@ -155,8 +160,35 @@ export default function AnimationSystem({
     registerApiAction,
     unregisterApiAction,
     nodeAnimation.idle,
-    nodeAnimation.setState,
+    nodeAnimation.rest,
   ]);
+
+  // Reaccionar cuando el dream cambia en el store para ejecutar animación idle
+  useEffect(() => {
+    if (dream && isEngineReady && animationService && activeNode) {
+      // Obtener el grupo del activeNode
+      //   const group = activeNode.getGroup();
+      //   if (!group) {
+      //     console.warn("No se pudo obtener el grupo del activeNode");
+      //     return;
+      //   }
+
+      //   // Crear timeline personalizado para animación idle
+      //   const timeline = animationService.createCustomTimeline();
+      //   const originalPosition = group.position.x;
+
+      //   timeline?.to(group.position, {
+      //     x: originalPosition - 0.2,
+      //     duration: 1.5,
+      //     ease: "power2.inOut",
+      //   });
+
+      //   // Ejecutar la animación
+      //   timeline?.play();
+      // }
+      nodeAnimation.idle();
+    }
+  }, [isEngineReady, dream, animationService, activeNode]);
 
   return null;
 }

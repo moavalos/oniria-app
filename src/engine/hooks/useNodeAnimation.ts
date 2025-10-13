@@ -1,42 +1,77 @@
-import { useCallback } from 'react';
-import { useEngineCore } from '@engine/core';
+import { useCallback } from "react";
+import { useEngineCore } from "@engine/core";
 
 /**
- * Hook que proporciona métodos para animaciones de nodos
+ * Hook que proporciona animaciones específicas para el nodo activo
  */
 export function useNodeAnimation() {
     const core = useEngineCore();
-    const { activeNode } = core;
+    const animationService = core.getAnimationService();
+    const activeNode = core.activeNode;
 
     /**
-     * Animación idle - mueve el nodo suavemente a la derecha
+     * Animación idle: mueve el nodo hacia la izquierda y permanece ahí
      */
     const idle = useCallback(() => {
-        if (!activeNode) {
-            console.warn('No hay nodo activo para animar');
+        if (!activeNode || !animationService) {
+            console.warn("useNodeAnimation.idle: activeNode o animationService no disponible");
             return;
         }
 
-        // TODO: Implementar animación suave hacia la derecha
-        console.log('Ejecutando animación idle del nodo');
-    }, [activeNode]);
+        const group = activeNode.getGroup();
+        if (!group) {
+            console.warn("useNodeAnimation.idle: No se pudo obtener el grupo del activeNode");
+            return;
+        }
+
+        // Crear timeline personalizado para animación idle
+        const timeline = animationService.createCustomTimeline();
+        const originalPosition = group.position.x;
+
+        timeline?.to(group.position, {
+            x: originalPosition - 0.2,
+            duration: 1.5,
+            ease: "power2.inOut"
+        });
+
+        // Ejecutar la animación
+        timeline?.play();
+    }, [activeNode, animationService]);
 
     /**
-     * Cambia el estado emocional del nodo (color)
-     * @param state - Estado emocional ('tristeza', 'alegria', etc.)
+     * Animación rest: regresa el nodo a su posición original
      */
-    const setState = useCallback((state: string) => {
-        if (!activeNode) {
-            console.warn('No hay nodo activo para cambiar estado');
+    const rest = useCallback(() => {
+        console.log("rest-animation")
+        if (!activeNode || !animationService) {
+            console.warn("useNodeAnimation.rest: activeNode o animationService no disponible");
             return;
         }
 
-        // TODO: Implementar cambio suave de color según el estado
-        console.log(`Cambiando estado del nodo a: ${state}`);
-    }, [activeNode]);
+        const group = activeNode.getGroup();
+        if (!group) {
+            console.warn("useNodeAnimation.rest: No se pudo obtener el grupo del activeNode");
+            return;
+        }
+
+        // Crear timeline personalizado para animación rest
+        const timeline = animationService.createCustomTimeline();
+
+        // Asumir que la posición original es 0 (ajustar según sea necesario)
+        const originalPosition = 0;
+
+        timeline?.to(group.position, {
+            x: originalPosition,
+            duration: 1.5,
+            ease: "power2.inOut"
+        });
+
+        // Ejecutar la animación
+        timeline?.play();
+    }, [activeNode, animationService]);
 
     return {
         idle,
-        setState,
+        rest
     };
 }

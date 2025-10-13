@@ -205,6 +205,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
         floatIntensity={0.6}
       >
         <group
+          name="Node"
           ref={ref}
           scale={2}
           rotation={[0, 0, 0]}

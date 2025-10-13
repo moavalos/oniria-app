@@ -6,17 +6,21 @@ import {
   useState,
 } from "react";
 
-import { useEngineStore } from "../store/engineStore";
+import { useEngineStore, type Dream } from "../store/engineStore";
 import { AnimationService } from "@/engine/services";
 
 // Definir el tipo del objeto node que se expondrá en la API
 type NodeAPI = {
   next: () => void;
   prev: () => void;
+  idle: () => void;
+  rest: () => void;
 };
 
 type EngineContextAPI = {
   setRoom: (roomId: string, skinId: string) => void;
+  setDream: (dream: Dream) => void;
+  dream: Dream | null;
   roomId?: string | null;
   skinId?: string | null;
   node?: NodeAPI;
@@ -38,6 +42,8 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
   const skinId = useEngineStore((s) => s.skinId);
   const setRoomId = useEngineStore((s) => s.setRoomId);
   const setSkinId = useEngineStore((s) => s.setSkinId);
+  const setDreamStore = useEngineStore((s) => s.setDream);
+  const dream = useEngineStore((s) => s.dream);
 
   // Estado para APIs dinámicas
   const [dynamicAPIs, setDynamicAPIs] = useState<Record<string, unknown>>({});
@@ -57,6 +63,20 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
   );
 
   /**
+   * Configura un nuevo sueño en el motor
+   *
+   * @param dream - Objeto Dream con los datos del sueño
+   */
+  const setDream = useCallback(
+    (dream: Dream) => {
+      console.log("EngineApiProvider - setDream llamado con:", dream);
+      setDreamStore(dream);
+      console.log("EngineApiProvider - setDreamStore ejecutado");
+    },
+    [setDreamStore]
+  );
+
+  /**
    * Método interno para que el core publique APIs dinámicamente
    *
    * @param key - Clave de la API (ej: 'node')
@@ -69,6 +89,8 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
   const value = useMemo(
     () => ({
       setRoom,
+      setDream,
+      dream,
       roomId,
       skinId,
       node: dynamicAPIs.node as NodeAPI,
@@ -76,7 +98,7 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
       actions: dynamicAPIs.actions as Record<string, any> | undefined,
       _setAPI,
     }),
-    [setRoom, roomId, skinId, dynamicAPIs, _setAPI]
+    [setRoom, setDream, roomId, skinId, dynamicAPIs, _setAPI]
   );
 
   return (
