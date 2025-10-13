@@ -2,20 +2,17 @@ import './styles/CtaButton.css';
 
 type CtaButtonProps = {
     ctaText: string;
-    onClick: () => void;
     disabled?: boolean;
     pressed?: boolean;
 };
 
 export default function CtaButton({
     ctaText,
-    onClick,
     disabled = false,
 }: CtaButtonProps) {
     return (
         <div className="mt-5">
             <button
-                onClick={onClick}
                 disabled={disabled}
                 className={`cta-button group flex w-full items-center justify-center gap-1 rounded-xl
           bg-gradient-to-r from-[var(--btn-primary-from)] to-[var(--btn-primary-to)]

@@ -51,8 +51,6 @@ function HistoryPanel(props: HistoryVariantProps) {
     items,
     selectedId,
     handleSelect,
-    handleCTA,
-    ctaPressed,
     listRef,
     itemRefs,
     progress,
@@ -98,9 +96,7 @@ function HistoryPanel(props: HistoryVariantProps) {
           >
             <CtaButton
               ctaText={ctaText}
-              onClick={handleCTA}
               disabled={props.ctaDisabled}
-              pressed={ctaPressed}
             />
           </div>
         </>
@@ -128,7 +124,6 @@ function HomePanel(props: HomeVariantProps) {
     handlePersonalizar,
     handleInsignias,
     handleNavigateHistory,
-    handleCtaClick,
   } = useHomePanel({
     initialDream: props.initialDream,
     maxChars: props.maxChars,
@@ -252,7 +247,6 @@ function HomePanel(props: HomeVariantProps) {
       {!expanded && (
         <CtaButton
           ctaText={t("historial.oniriaPro")}
-          onClick={handleCtaClick}
           disabled={false}
           pressed={false}
         />

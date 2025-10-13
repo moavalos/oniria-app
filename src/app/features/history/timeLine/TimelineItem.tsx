@@ -3,7 +3,7 @@ import { TimelinePoint } from "./TimelinePoint";
 
 export type TimelineItemType = {
     id: number;
-    date: string;
+    creationDate: string;
     title: string;
 };
 
@@ -22,7 +22,7 @@ export function TimelineItem({
         <li className="relative" ref={itemRef}>
             <TimelinePoint isActive={isActive} onSelect={() => onSelect(item.id)} />
             <TimelineItemContent
-                date={item.date}
+                creationDate={item.creationDate}
                 title={item.title}
                 isActive={isActive}
                 onSelect={() => onSelect(item.id)}
