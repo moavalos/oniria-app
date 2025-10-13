@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import { useEngineStore } from "../store/engineStore";
+import { AnimationService } from "@/engine/services";
 
 // Definir el tipo del objeto node que se expondrá en la API
 type NodeAPI = {
@@ -19,6 +20,7 @@ type EngineContextAPI = {
   roomId?: string | null;
   skinId?: string | null;
   node?: NodeAPI;
+  animation?: AnimationService;
   // Método interno para que el core publique APIs
   _setAPI: (key: string, api: unknown) => void;
 };
@@ -69,6 +71,7 @@ export function EngineApiProvider({ children }: React.PropsWithChildren) {
       roomId,
       skinId,
       node: dynamicAPIs.node as NodeAPI,
+      animation: dynamicAPIs.animation as AnimationService | undefined,
       _setAPI,
     }),
     [setRoom, roomId, skinId, dynamicAPIs, _setAPI]

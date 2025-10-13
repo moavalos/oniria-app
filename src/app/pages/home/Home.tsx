@@ -7,6 +7,7 @@ import {
   AnimationSystem,
   InteractionSystem,
   DebugSystem,
+  useEngineStore,
 } from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
@@ -15,10 +16,12 @@ import { useEffect } from "react";
 import HeaderContainer from "@/shared/components/users/HeaderContainer";
 import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
+import HudSystem from "@/engine/systems/hud/HudSystem";
 
 export default function Home() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
+  const { dreamModalVisible, setDreamModalVisible } = useEngineStore();
 
   const engine = useEngine();
   //algo asi seria la respuesta del backend
@@ -72,6 +75,10 @@ export default function Home() {
 
         {/* Canvas 3d */}
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
+          <HudSystem
+            dreamModalVisible={dreamModalVisible}
+            onDreamModalClose={() => setDreamModalVisible(false)}
+          />
           <LoaderSystem />
 
           {roomId && skinId && (

@@ -1,13 +1,10 @@
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
-import { Float, Html } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 
 import { useEngineCore } from "@engine/core";
 import { useEngineStore } from "@engine/core";
 import { EngineState } from "@engine/core";
-import Card from "@/shared/components/Card";
-import ModalHeader from "@/app/pages/node/modal/ModalHeader";
-import ModalActions from "@/app/pages/node/modal/ModalActions";
 
 interface NodeRendererProps {
   ref: React.Ref<THREE.Group<THREE.Object3DEventMap> | null>;
@@ -201,31 +198,6 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
 
   return (
     <>
-      <Html className="z-10" position={[-1.3, 3.5, -6]}>
-        <Card className="relative origin-center w-[450px] border  border-white/15 bg-white/10 backdrop-blur-md p-4 sm:p-5 shadow-[0_0_35px_rgba(217,70,239,0.25)]">
-          <ModalHeader title={"test"} />
-
-          <div className="modal-content max-h-96 overflow-y-scroll scrollbar ">
-            es simplemente el texto de relleno de las imprentas y archivos de
-            texto. Lorem Ipsum ha sido el texto de relleno estándar de las
-            industrias desde el año 1500, cuando un impresor (N. del T. persona
-            que se dedica a la imprenta) desconocido usó una galería de textos y
-            los mezcló de tal manera que logró hacer un libro de textos
-            especimen. No sólo sobrevivió 500 años, sino que tambien ingresó
-            como texto de relleno en documentos electrónicos, quedando
-            esencialmente igual al original. Fue popularizado en los 60s con la
-            creación de las hojas "Letraset", las cuales contenian pasajes de
-            Lorem Ipsum, y más recientemente con software de autoedición, como
-            por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem
-            Ipsum. Fue popularizado en los 60s con la creación de las hojas
-            "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más
-            recientemente con software de autoedición, como por ejemplo Aldus
-            PageMaker, el cual incluye versiones de Lorem Ipsum.
-          </div>
-
-          <ModalActions />
-        </Card>
-      </Html>
       <Float
         speed={7}
         floatingRange={[-0.05, 0]}

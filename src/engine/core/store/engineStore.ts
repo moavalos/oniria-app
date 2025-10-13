@@ -88,6 +88,10 @@ type EngineStore = {
     setNodeUniforms: (_uniforms: Partial<EngineStore['nodeUniforms']>) => void;
     resetNodeUniforms: () => void;
 
+    // HUD state
+    dreamModalVisible: boolean;
+    setDreamModalVisible: (_visible: boolean) => void;
+
     // Loading state - nuestro sistema propio
     active: boolean;
     progress: number;
@@ -138,6 +142,10 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
             }
         }));
     },
+
+    // HUD state
+    dreamModalVisible: false,
+    setDreamModalVisible: (visible) => set({ dreamModalVisible: visible }),
 
     // Loading state inicial
     active: false,

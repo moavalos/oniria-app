@@ -189,17 +189,20 @@ export function EngineCore({ children }: EngineCoreProps) {
     [activeNode, engineAPI]
   );
 
-  // Factories internas 👇 - Híbrido: lazy creation pero controlado
+  // Factories internas  - lazy creation pero controlado
   const getAnimationService = useCallback(() => {
     let service = services["animationService"] as AnimationService;
     if (!service) {
       if (!scene) throw new Error("Scene no inicializada");
       service = new AnimationService(scene as any);
-      // Usar setTimeout para evitar actualización durante render
+
       setTimeout(() => {
         registerService("animationService", service);
       }, 0);
-      // Retornar el servicio inmediatamente para uso
+
+      //registrarlo en la API del motor
+      engineAPI._setAPI("animation", service);
+
       return service;
     }
     return service;
