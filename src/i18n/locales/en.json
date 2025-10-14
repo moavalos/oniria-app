@@ -28,7 +28,8 @@
     "errorPasswordMatch": "Passwords do not match",
     "text": "Already have an account?",
     "textLink": "Log In",
-    "success": "Account created successfully. Please check your email to confirm your account.",
+    "success": "Please check your email to confirm your account.",
+    "successTitle": "Account created",
     "error": "Error creating account"
   },
   "notFound": {
@@ -38,6 +39,7 @@
   "historial": {
     "link": "History",
     "verSuenos": "See your saved dreams",
+    "volverHome": "Back to Home",
     "title": "Explore your Nodes",
     "description": "Review your interpreted dreams. You can also filter by emotion.",
     "oniriaPro": "Try Oniria PRO",
@@ -55,8 +57,12 @@
     "placeholderNode": "Write your dream here…",
     "character1": "You exceeded the maximum of ",
     "character2": "characters",
-    "interpretar": "Interpreter",
+    "interpretar": "Interpret",
+    "fraseHoy": "Today's phrase",
+    "fraseHint": "A symbolic way to start...",
+    "nuevaFrase": "New phrase",
     "myroom": "My room",
+    "myroomDesc": "Manage your space",
     "personalizar": "Customize",
     "toque": "Add your touch to the space",
     "insignia": "My badges",
