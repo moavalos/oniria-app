@@ -1,10 +1,10 @@
 export function TimelineItemContent({
-    date,
+    creationDate,
     title,
     isActive,
     onSelect,
 }: {
-    date: string;
+    creationDate: string;
     title: string;
     isActive: boolean;
     onSelect: () => void;
@@ -12,7 +12,7 @@ export function TimelineItemContent({
     return (
         <button type="button" onClick={onSelect} className="text-left group w-full">
             <div className="text-[11px] text-[var(--color-text-muted)] group-hover:text-[var(--color-text-hover)] transition-colors">
-                {date}
+                {creationDate}
             </div>
             <div
                 className={`truncate ${isActive

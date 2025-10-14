@@ -1,47 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { TimelineItem } from "../model/TimelineItem";
 import useHistory from "./useHistory";
+import { mapHistoryToTimeline } from "./utils/mapHistoryToTimeline";
+import type { HistoryApiResponse, HistoryFilters, HistoryPagination } from "../model/types";
 
-export function useTimelineData() {
+export function useTimelineData(filters?: HistoryFilters, pagination?: HistoryPagination) {
     const [timeline, setTimeline] = useState<TimelineItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
     const { fetchHistory } = useHistory();
+
+    const stableFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+    const stablePagination = useMemo(() => pagination, [JSON.stringify(pagination)]);
 
     useEffect(() => {
         let mounted = true;
-
-        const loadHistory = async () => {
+        (async () => {
             try {
-                const data = await fetchHistory();
-                if (mounted) {
-                    setTimeline(
-                        Array.isArray(data)
-                            ? data.map(item => ({
-                                ...item,
-                                id: typeof item.id === "string" ? Number(item.id) : item.id
-                            }))
-                            : []
-                    );
-                }
+                const resp = await fetchHistory({ filters: stableFilters, pagination: stablePagination });
+                if (!mounted) return;
+                setTimeline(mapHistoryToTimeline(resp as HistoryApiResponse));
             } catch (e: any) {
-                if (mounted) {
-                    setError(e?.message ?? "Error cargando historial");
-                }
+                if (mounted) setError(e?.message ?? "Error cargando historial");
             } finally {
-                if (mounted) {
-                    setLoading(false);
-                }
+                if (mounted) setLoading(false);
             }
-        };
-
-        loadHistory();
-
-        return () => {
-            mounted = false;
-        };
-    }, [fetchHistory]);
+        })();
+        return () => { mounted = false; };
+    }, [stableFilters, stablePagination, fetchHistory]);
 
     return { timeline, loading, error };
 }

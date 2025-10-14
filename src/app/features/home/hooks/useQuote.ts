@@ -7,7 +7,7 @@ export default function UseQuoteS({ initialQuote, initialLoading, onNuevaFrase }
   const [quoteText, setQuoteText] = useState(initialQuote);
   const [isLoading, setIsLoading] = useState(initialLoading);
 
-  // TODO MODIFICAR
+  // TODO ESPERAR AL SERVICIO
   const handleRefresh = async () => {
     setIsLoading(true);
     try {

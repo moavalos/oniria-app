@@ -13,7 +13,10 @@ import MenuButton from "@/shared/components/MenuButton";
 import SettingsIcon from "@/assets/icons/SettingsIcon";
 import BadgeIcon from "@/assets/icons/BadgeIcon";
 import ClockIcon from "@/assets/icons/ClockIcon";
-import { useState } from "react";
+import BackButton from "@/shared/components/BackButton";
+import EmotionFilter from "../../history/components/EmotionFilter";
+import type { HistoryFilters } from "@/app/features/history/model/types";
+import { useCallback, useState } from "react";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -26,6 +29,7 @@ type HistoryVariantProps = {
   onCta?: (_item: TimelineItem) => void;
   ctaDisabled?: boolean;
   loading?: boolean;
+  onChangeFilters?: (filters: HistoryFilters) => void;
 };
 
 type HomeVariantProps = {
@@ -45,24 +49,31 @@ type HomeVariantProps = {
 type UnifiedSidePanelProps = HistoryVariantProps | HomeVariantProps;
 
 function HistoryPanel(props: HistoryVariantProps) {
-  const { title, description, ctaText, timeline, loading = false } = props;
+  const { title, description, ctaText, timeline, loading = false, onChangeFilters } = props;
+
+  const handleEmotionChange = useCallback((emotions: string[]) => {
+    onChangeFilters?.({
+      emotion: emotions.length ? emotions : undefined,
+    });
+  }, [onChangeFilters]);
 
   const {
     items,
     selectedId,
     handleSelect,
-    handleCTA,
-    ctaPressed,
     listRef,
     itemRefs,
     progress,
     barHeight,
+    selectedEmotions,
+    setSelectedEmotions,
   } = useHistoryPanel({
     timeline,
     initialSelectedId: props.initialSelectedId,
     onSelectItem: props.onSelectItem,
     onCta: props.onCta,
     ctaDisabled: props.ctaDisabled,
+    onEmotionChange: handleEmotionChange,
   });
 
   return (
@@ -81,6 +92,13 @@ function HistoryPanel(props: HistoryVariantProps) {
         </div>
       ) : (
         <>
+          <EmotionFilter
+            items={timeline}
+            selected={selectedEmotions}
+            onChange={setSelectedEmotions}
+            className="sticky top-0 z-10 bg-transparent pt-1"
+          />
+
           <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar">
             <TimelineProgressBar progress={progress} height={barHeight} />
             <TimelineList
@@ -98,9 +116,7 @@ function HistoryPanel(props: HistoryVariantProps) {
           >
             <CtaButton
               ctaText={ctaText}
-              onClick={handleCTA}
               disabled={props.ctaDisabled}
-              pressed={ctaPressed}
             />
           </div>
         </>
@@ -128,7 +144,6 @@ function HomePanel(props: HomeVariantProps) {
     handlePersonalizar,
     handleInsignias,
     handleNavigateHistory,
-    handleCtaClick,
   } = useHomePanel({
     initialDream: props.initialDream,
     maxChars: props.maxChars,
@@ -155,19 +170,7 @@ function HomePanel(props: HomeVariantProps) {
     >
       {/* Flechita volver a home solo en modo expandido */}
       {expanded && (
-        <button
-          type="button"
-          onClick={onBackHome}
-          className="mb-3 -mt-2 inline-flex items-center gap-2 text-[12px] font-semibold rounded-lg px-2 py-1
-                     transition-colors duration-200"
-          style={{
-            color: "var(--text-80)",
-            backgroundColor: "var(--surface-subtle)",
-          }}
-          aria-label={t("volverHome") || "Volver a home"}
-        >
-          ← {t("volverHome", "Volver a home")}
-        </button>
+        <BackButton onClick={onBackHome} />
       )}
 
       {/* Dream Input Section - se hace largo cuando expanded */}
@@ -252,7 +255,6 @@ function HomePanel(props: HomeVariantProps) {
       {!expanded && (
         <CtaButton
           ctaText={t("historial.oniriaPro")}
-          onClick={handleCtaClick}
           disabled={false}
           pressed={false}
         />
