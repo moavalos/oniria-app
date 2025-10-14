@@ -5,7 +5,7 @@
     "description": "Explora el mundo de los sueños con Oniria."
   },
   "login": {
-    "link": "Iniciá sesión",
+    "textLink": "Registrate",
     "subtitle": "Iniciá sesión con tu cuenta",
     "email": "Correo electrónico",
     "password": "Contraseña",
@@ -13,7 +13,7 @@
     "forgot": "Olvidé mi contraseña",
     "or": "o",
     "google": "Continuar con Google",
-    "register": "¿No tenés cuenta? <1>Registrate</1>",
+    "text": "¿No tenés cuenta?",
     "error": "Credenciales inválidas"
   },
   "register": {
