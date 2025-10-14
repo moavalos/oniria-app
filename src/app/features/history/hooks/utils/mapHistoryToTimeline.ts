@@ -1,5 +1,5 @@
 import type { TimelineItem } from "../../model/TimelineItem";
-import type { HistoryApiResponse } from "../../services/history.service";
+import type { HistoryApiResponse } from "../../model/types";
 import { formatDateLabel } from "./formatDateLabel";
 
 export function mapHistoryToTimeline(response: HistoryApiResponse): TimelineItem[] {
