@@ -30,7 +30,7 @@ export function useNodeAnimation() {
 
         timeline?.to(group.position, {
             x: originalPosition - 0.2,
-            duration: 1.5,
+            duration: 1.,
             ease: "power2.inOut"
         });
 
@@ -58,12 +58,12 @@ export function useNodeAnimation() {
         const timeline = animationService.createCustomTimeline();
 
         // Asumir que la posición original es 0 (ajustar según sea necesario)
-        const originalPosition = 0;
+        const originalPosition = group.position.x;
 
         timeline?.to(group.position, {
-            x: originalPosition,
-            duration: 1.5,
-            ease: "power2.inOut"
+            x: originalPosition + 0.2,
+            duration: 1.,
+            ease: "power2.Out"
         });
 
         // Ejecutar la animación

@@ -13,7 +13,6 @@ export default function HudSystem({}: HudSystemProps) {
   const handleDreamModalClose = useCallback(() => {
     // Opcionalmente limpiar el dream del store
     // setDream(null);
-    console.log("closed");
     engine.node?.rest?.();
   }, [engine]);
 

@@ -91,7 +91,21 @@ export function EngineCore({ children }: EngineCoreProps) {
    */
   const registerApiAction = useCallback(
     (actionName: string, actionHandler: any) => {
-      setApiActions((prev) => ({ ...prev, [actionName]: actionHandler }));
+      setApiActions((prev) => {
+        // Si ya existe la clave y ambos valores son objetos, hacer merge
+        if (
+          prev[actionName] &&
+          typeof prev[actionName] === "object" &&
+          typeof actionHandler === "object"
+        ) {
+          return {
+            ...prev,
+            [actionName]: { ...prev[actionName], ...actionHandler },
+          };
+        }
+        // Si no existe o no son objetos, reemplazar
+        return { ...prev, [actionName]: actionHandler };
+      });
     },
     []
   );
@@ -201,6 +215,12 @@ export function EngineCore({ children }: EngineCoreProps) {
           },
           prev: () => {
             node.prev();
+          },
+          // Crear un método para que otros sistemas puedan extender la API
+          _extend: (extensions: Record<string, any>) => {
+            const currentAPI = engineAPI.node || {};
+            const mergedAPI = { ...currentAPI, ...extensions };
+            engineAPI._setAPI("node", mergedAPI);
           },
         };
 

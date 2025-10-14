@@ -4,6 +4,7 @@ import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core";
 import { useEngineStore } from "@engine/core";
 import { useNodeAnimation } from "../hooks/useNodeAnimation";
+import { useEngineAPI } from "../core/context/EngineApiProvider";
 
 export type AnimationConfig = {
   animations?: Record<string, AnimationAction>;
@@ -33,16 +34,11 @@ export default function AnimationSystem({
   autoConfigureForRoom = true,
 }: AnimationSystemProps) {
   const core = useEngineCore();
-  const {
-    activeRoom,
-    engineState,
-    activeNode,
-    registerApiAction,
-    unregisterApiAction,
-  } = core;
+  const { activeRoom, engineState, activeNode } = core;
   const activeScene = activeRoom?.getScene();
   const animationService = core.getAnimationService();
-  const nodeAnimation = useNodeAnimation();
+  const { idle, rest } = useNodeAnimation();
+  const engineAPI = useEngineAPI();
 
   // Acceder al dream directamente desde el store
   const dream = useEngineStore((s) => s.dream);
@@ -140,53 +136,43 @@ export default function AnimationSystem({
 
   // Registrar acciones de nodo en la API del motor
   useEffect(() => {
-    if (!isEngineReady) return;
+    if (!isEngineReady || !activeNode) {
+      return;
+    }
 
     // Crear objeto node con las acciones disponibles
     const nodeActions = {
-      idle: nodeAnimation.idle,
-      rest: nodeAnimation.rest,
+      idle: idle,
+      rest: rest,
     };
 
-    // Registrar el objeto node completo en la API
-    registerApiAction("node", nodeActions);
-
-    // Cleanup al desmontar
+    // Verificar si el node API ya está disponible y tiene el método _extend
+    if (
+      engineAPI.node &&
+      typeof (engineAPI.node as any)._extend === "function"
+    ) {
+      (engineAPI.node as any)._extend(nodeActions);
+    } else {
+      // Fallback: registrar directamente si el EngineCore aún no ha registrado
+      engineAPI._setAPI("node", nodeActions);
+    } // Cleanup al desmontar - remover solo nuestras funciones
     return () => {
-      unregisterApiAction("node");
+      if (
+        engineAPI.node &&
+        typeof (engineAPI.node as any)._extend === "function"
+      ) {
+        // Si existe el método _extend, usarlo para remover nuestras funciones
+        const currentAPI = engineAPI.node as any;
+        const { idle: _, rest: __, ...remainingAPI } = currentAPI;
+        engineAPI._setAPI("node", remainingAPI);
+      }
     };
-  }, [
-    isEngineReady,
-    registerApiAction,
-    unregisterApiAction,
-    nodeAnimation.idle,
-    nodeAnimation.rest,
-  ]);
+  }, [isEngineReady, activeNode, idle, rest]);
 
   // Reaccionar cuando el dream cambia en el store para ejecutar animación idle
   useEffect(() => {
     if (dream && isEngineReady && animationService && activeNode) {
-      // Obtener el grupo del activeNode
-      //   const group = activeNode.getGroup();
-      //   if (!group) {
-      //     console.warn("No se pudo obtener el grupo del activeNode");
-      //     return;
-      //   }
-
-      //   // Crear timeline personalizado para animación idle
-      //   const timeline = animationService.createCustomTimeline();
-      //   const originalPosition = group.position.x;
-
-      //   timeline?.to(group.position, {
-      //     x: originalPosition - 0.2,
-      //     duration: 1.5,
-      //     ease: "power2.inOut",
-      //   });
-
-      //   // Ejecutar la animación
-      //   timeline?.play();
-      // }
-      nodeAnimation.idle();
+      idle();
     }
   }, [isEngineReady, dream, animationService, activeNode]);
 
