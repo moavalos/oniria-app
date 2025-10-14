@@ -15,10 +15,10 @@ export default function SidebarHeader({ title, description }: SidebarHeaderProps
         <>
             <BackButton onClick={onBackHome} />
 
-            <div className="mb-2 text-[15px] font-semibold text-white/85">
+            <div className="text-[15px] font-semibold text-white/85">
                 {title}
             </div>
-            <div className="text-[12px] text-white/50 mb-5">
+            <div className="text-[12px] text-white/50">
                 {description}
             </div>
         </>

@@ -10,22 +10,27 @@ interface UseHistoryPanelProps {
     onSelectItem?: (item: TimelineItem) => void;
     onCta?: (item: TimelineItem) => void;
     ctaDisabled?: boolean;
+    onEmotionChange?: (emotions: string[]) => void;
 }
 
 export function useHistoryPanel({
     timeline,
     initialSelectedId,
     onSelectItem,
+    onEmotionChange,
 }: UseHistoryPanelProps) {
-    const initialSelected =
-        initialSelectedId ??
-        timeline.find((t) => t.active)?.id ??
-        (timeline.length ? timeline[0].id : undefined);
-
-    const [selectedId, setSelectedId] = useState<number | undefined>(initialSelected);
 
     const listRef = useRef<HTMLUListElement>(null);
     const itemRefs = useRef<Map<number, HTMLLIElement>>(new Map());
+
+    const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+
+    const filteredTimeline = timeline;
+
+    const initialSelected = initialSelectedId ?? filteredTimeline.find((t) => t.active)?.id ??
+        (filteredTimeline.length ? filteredTimeline[0].id : undefined);
+
+    const [selectedId, setSelectedId] = useState<number | undefined>(initialSelected);
 
     useEffect(() => {
         if (timeline.length > 0 && selectedId === undefined) {
@@ -38,14 +43,20 @@ export function useHistoryPanel({
         }
     }, [timeline, initialSelectedId, selectedId]);
 
+    useEffect(() => {
+        if (onEmotionChange) {
+            onEmotionChange(selectedEmotions);
+        }
+    }, [selectedEmotions, onEmotionChange]);
+
     const items = useMemo(
         () =>
-            timeline.map((t) => ({
+            filteredTimeline.map((t) => ({
                 ...t,
                 active: t.id === selectedId,
                 creationDate: t.creationDate || "",
             })),
-        [timeline, selectedId]
+        [filteredTimeline, selectedId]
     );
 
     const selectedIndex = useMemo(
@@ -99,5 +110,8 @@ export function useHistoryPanel({
         itemRefs,
         progress,
         barHeight,
+        selectedEmotions,
+        setSelectedEmotions,
+        filteredTimeline,
     };
 }

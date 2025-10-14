@@ -13,13 +13,12 @@ export default function BackButton({ onClick, label }: BackButtonProps) {
         <button
             type="button"
             onClick={onClick}
-            className="mb-3 -mt-2 inline-flex items-center gap-2 text-[12px] font-semibold rounded-lg px-2 py-1
-                 transition-colors duration-200 hover:opacity-80"
-            style={{
-                color: "var(--text-80)",
-                backgroundColor: "var(--surface-subtle)",
-            }}
             aria-label={buttonLabel}
+            className="inline-flex w-fit max-w-fit !w-auto self-start
+                mb-0 inline-flex items-center gap-2 text-[13px] font-semibold 
+                 px-3 py-[6px] rounded-full border border-[var(--surface-weak)]
+                 hover:bg-[var(--surface-weak)] hover:text-[var(--color-text-primary)] 
+                 transition-all duration-300 ease-out"
         >
             ← {buttonLabel}
         </button>
