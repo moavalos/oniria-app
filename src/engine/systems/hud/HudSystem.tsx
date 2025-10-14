@@ -16,6 +16,10 @@ export default function HudSystem({}: HudSystemProps) {
     engine.node?.rest?.();
   }, [engine]);
 
+  const handleSave = useCallback(() => {
+    console.log("Guardar sueño");
+  }, []);
+
   return (
     <div
       className={`absolute inset-0 flex items-center justify-center z-50 p-4 ${
@@ -36,7 +40,7 @@ export default function HudSystem({}: HudSystemProps) {
         text={dream?.interpretation || "Descripción del sueño..."}
         typingSpeed={80}
         onClose={handleDreamModalClose}
-        onSave={() => console.log("Guardar sueño")}
+        onSave={handleSave}
         onReinterpret={() => console.log("Reinterpretar")}
       />
     </div>

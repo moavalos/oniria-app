@@ -24,5 +24,19 @@ export class DreamsService {
         return data;
     }
 
+    async saveDream(dream: Dream): Promise<void> {
+        const response = await fetch('http://localhost:3000/api/dreams', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dream),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error saving dream: ${response.statusText}`);
+        }
+    }
+
 
 }
