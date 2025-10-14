@@ -13,8 +13,10 @@ import MenuButton from "@/shared/components/MenuButton";
 import SettingsIcon from "@/assets/icons/SettingsIcon";
 import BadgeIcon from "@/assets/icons/BadgeIcon";
 import ClockIcon from "@/assets/icons/ClockIcon";
-import { useState } from "react";
 import BackButton from "@/shared/components/BackButton";
+import EmotionFilter from "../../history/components/EmotionFilter";
+import type { HistoryFilters } from "@/app/features/history/model/types";
+import { useCallback, useState } from "react";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -27,6 +29,7 @@ type HistoryVariantProps = {
   onCta?: (_item: TimelineItem) => void;
   ctaDisabled?: boolean;
   loading?: boolean;
+  onChangeFilters?: (filters: HistoryFilters) => void;
 };
 
 type HomeVariantProps = {
@@ -46,7 +49,13 @@ type HomeVariantProps = {
 type UnifiedSidePanelProps = HistoryVariantProps | HomeVariantProps;
 
 function HistoryPanel(props: HistoryVariantProps) {
-  const { title, description, ctaText, timeline, loading = false } = props;
+  const { title, description, ctaText, timeline, loading = false, onChangeFilters } = props;
+
+  const handleEmotionChange = useCallback((emotions: string[]) => {
+    onChangeFilters?.({
+      emotion: emotions.length ? emotions : undefined,
+    });
+  }, [onChangeFilters]);
 
   const {
     items,
@@ -56,12 +65,15 @@ function HistoryPanel(props: HistoryVariantProps) {
     itemRefs,
     progress,
     barHeight,
+    selectedEmotions,
+    setSelectedEmotions,
   } = useHistoryPanel({
     timeline,
     initialSelectedId: props.initialSelectedId,
     onSelectItem: props.onSelectItem,
     onCta: props.onCta,
     ctaDisabled: props.ctaDisabled,
+    onEmotionChange: handleEmotionChange,
   });
 
   return (
@@ -80,6 +92,13 @@ function HistoryPanel(props: HistoryVariantProps) {
         </div>
       ) : (
         <>
+          <EmotionFilter
+            items={timeline}
+            selected={selectedEmotions}
+            onChange={setSelectedEmotions}
+            className="sticky top-0 z-10 bg-transparent pt-1"
+          />
+
           <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar">
             <TimelineProgressBar progress={progress} height={barHeight} />
             <TimelineList

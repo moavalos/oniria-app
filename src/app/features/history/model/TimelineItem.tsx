@@ -5,4 +5,5 @@ export type TimelineItem = {
   interpretation?: string;
   creationDate?: string;
   active?: boolean;
+  emotion?: string;
 };

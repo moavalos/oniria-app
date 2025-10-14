@@ -5,6 +5,7 @@ export type TimelineItemType = {
     id: number;
     creationDate: string;
     title: string;
+    emotion?: string;
 };
 
 export function TimelineItem({

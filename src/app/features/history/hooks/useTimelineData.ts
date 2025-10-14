@@ -1,20 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { TimelineItem } from "../model/TimelineItem";
 import useHistory from "./useHistory";
 import { mapHistoryToTimeline } from "./utils/mapHistoryToTimeline";
-import type { HistoryApiResponse } from "../services/history.service";
+import type { HistoryApiResponse, HistoryFilters, HistoryPagination } from "../model/types";
 
-export function useTimelineData() {
+export function useTimelineData(filters?: HistoryFilters, pagination?: HistoryPagination) {
     const [timeline, setTimeline] = useState<TimelineItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { fetchHistory } = useHistory();
 
+    const stableFilters = useMemo(() => filters, [JSON.stringify(filters)]);
+    const stablePagination = useMemo(() => pagination, [JSON.stringify(pagination)]);
+
     useEffect(() => {
         let mounted = true;
         (async () => {
             try {
-                const resp = await fetchHistory();
+                const resp = await fetchHistory({ filters: stableFilters, pagination: stablePagination });
                 if (!mounted) return;
                 setTimeline(mapHistoryToTimeline(resp as HistoryApiResponse));
             } catch (e: any) {
@@ -24,7 +27,7 @@ export function useTimelineData() {
             }
         })();
         return () => { mounted = false; };
-    }, []);
+    }, [stableFilters, stablePagination, fetchHistory]);
 
     return { timeline, loading, error };
 }

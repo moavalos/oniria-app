@@ -14,7 +14,7 @@ export default function CloseIcon({ className = "", size = 16 }: CloseIconProps)
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={className}
+            className={`cursor-pointer ${className}`}
         >
             <path d="M18 6 6 18" />
             <path d="m6 6 12 12" />

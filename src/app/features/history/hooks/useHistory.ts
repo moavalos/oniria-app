@@ -1,9 +1,7 @@
-import { useState } from "react";
-import {
-  HistoryService,
-  type HistoryApiResponse,
-} from "../services/history.service";
+import { useState, useCallback } from "react";
 import { useAuth } from "@features/auth/hooks/useAuth";
+import type { HistoryApiResponse, HistoryFilters, HistoryPagination } from "../model/types";
+import { HistoryService } from "../services/history.service";
 
 export default function useHistory() {
   const [history, setHistory] = useState<HistoryApiResponse>({
@@ -21,13 +19,13 @@ export default function useHistory() {
   const [error, setError] = useState<string | null>(null);
   const { session } = useAuth();
 
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async (opts?: { filters?: HistoryFilters; pagination?: HistoryPagination }) => {
     setLoading(true);
     setError(null);
 
     try {
       const service = new HistoryService();
-      const response = await service.fetchHistory(session);
+      const response = await service.fetchHistory(session, opts);
       setHistory(response);
       console.log(response);
       return response;
@@ -36,7 +34,7 @@ export default function useHistory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session]);
 
   return { history, loading, error, fetchHistory };
 }
