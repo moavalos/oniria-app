@@ -36,6 +36,7 @@
   },
   "historial": {
     "link": "Historial",
+    "volverHome": "Volver a Inicio",
     "verSuenos": "Ver tus sueños guardados",
     "title": "Explora tus Nodos",
     "description": "Revisá tus sueños interpretados. También podés filtrar por emoción.",
@@ -55,8 +56,11 @@
     "character1": "Te pasaste del máximo de ",
     "character2": "caracteres",
     "interpretar": "Interpretar",
+    "fraseHoy": "Frase del hoy",
+    "fraseHint": "Un guiño simbólico para arrancar...",
+    "nuevaFrase": "Nueva frase",
     "myroom": "Mi habitación",
-    "myroomDesc": "Gestiona tu espacio.",
+    "myroomDesc": "Gestiona tu espacio",
     "personalizar": "Personalizar",
     "toque": "Dale tu toque al espacio",
     "insignia": "Mis insignias",
@@ -67,7 +71,6 @@
     "reinterpretar": "Reinterpretar",
     "acaAparecera": "Acá aparecerá el contenido del sueño..."
   },
-
   "header": {
     "loading": "Cargando...",
     "guest": "Invitado"

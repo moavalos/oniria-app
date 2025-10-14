@@ -7,7 +7,7 @@ interface BackButtonProps {
 
 export default function BackButton({ onClick, label }: BackButtonProps) {
     const { t } = useTranslation();
-    const buttonLabel = label || t("volverHome", "Volver a home");
+    const buttonLabel = label || t("historial.volverHome", "Volver a home");
 
     return (
         <button
