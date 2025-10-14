@@ -1,6 +1,5 @@
 import {
   Engine,
-  useEngine,
   RoomScene,
   LoaderSystem,
   CameraSystem,
@@ -16,13 +15,13 @@ import HeaderContainer from "@/shared/components/users/HeaderContainer";
 import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
 import HudSystem from "@/engine/systems/hud/HudSystem";
-import type { Dream } from "@/engine/core/store/engineStore";
+import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 
 export default function Home() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
 
-  const engine = useEngine();
+  const engine = useEngineAPI();
   //algo asi seria la respuesta del backend
   //y se lo pasariamos al engine
   //para setear la room y skin
@@ -40,7 +39,7 @@ export default function Home() {
 
   const handleInterpretar = async (dream: string) => {
     console.log("handleInterpretar iniciado con dream:", dream);
-    engine.actions.viewNodes?.();
+    //engine.actions.viewNodes?.();
 
     setTimeout(async () => {
       console.log("Ejecutando fetchDreams...");
@@ -48,7 +47,7 @@ export default function Home() {
 
       console.log("fetchDreams response:", response);
       console.log("Llamando engine.setDream...");
-      engine.setDream(response as Dream);
+      //engine.setDream(response as Dream);
       console.log("engine.setDream completado");
     }, 500);
 
@@ -77,24 +76,24 @@ export default function Home() {
       <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
-          onNuevaFrase={() => engine.node?.next()}
+          onNuevaFrase={() => engine?.node?.next()}
           onInterpretar={handleInterpretar}
-          onPersonalizar={() => engine.actions?.viewReset?.()}
+          onPersonalizar={() => engine?.actions?.viewReset?.()}
           scrollable
         />
 
         {/* Canvas 3d */}
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
-          <HudSystem />
-          <LoaderSystem />
+          {/* <HudSystem /> */}
+          {/* <LoaderSystem /> */}
 
           {roomId && skinId && (
             <Engine.Canvas engineSettings={{ backgroundColor: canvasBg }}>
               <Engine.Core>
-                <DebugSystem enabled={true} />
-                <InteractionSystem onObjectHoverEnter={hoverHandler} />
-                <AnimationSystem />
-                <CameraSystem />
+                {/* <DebugSystem enabled={true} /> */}
+                {/* <InteractionSystem onObjectHoverEnter={hoverHandler} /> */}
+                {/* <AnimationSystem /> */}
+                {/* <CameraSystem /> */}
                 <RoomScene />
               </Engine.Core>
             </Engine.Canvas>

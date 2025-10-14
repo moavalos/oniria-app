@@ -3,19 +3,14 @@ import * as THREE from 'three';
 import { type AnimationAction, type ObjectEventArray } from '../config/room.type';
 import { Skin } from './Skin';
 import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager';
-import { EventEmitter } from '../utils/EventEmitter';
 
-/**
- * Eventos que puede emitir la entidad Room
- */
-interface RoomEventMap extends Record<string, unknown> {
-    'change': { room: Room; changeType: 'scene' | 'skin' | 'textures' };
-}
+
+
 
 /**
  * Entidad que representa una sala 3D con su geometría, materiales y configuración
  */
-export class Room extends EventEmitter<RoomEventMap> {
+export class Room {
     public readonly id: string;
 
     public skin: Skin;
@@ -39,7 +34,6 @@ export class Room extends EventEmitter<RoomEventMap> {
      * @param skin - Skin asociado a la sala
      */
     constructor(id: string, skin: Skin) {
-        super();
 
         if (!id?.trim()) {
             throw new Error('El ID de la sala no puede estar vacío');
@@ -53,10 +47,6 @@ export class Room extends EventEmitter<RoomEventMap> {
         this.meshUrl = `models/${id}.gltf`;
         this.configManager = ConfigManager.getInstance();
 
-        console.log(`Room[${this.id}] - Constructor llamado (EventEmitter)`, {
-            skinId: skin.id,
-            stack: new Error().stack?.split('\n')[1]?.trim()
-        });
     }
 
     /**
@@ -68,7 +58,6 @@ export class Room extends EventEmitter<RoomEventMap> {
         try {
             return await this.configManager.getProcessedObjects(this.id);
         } catch (error) {
-            console.error(`Error al cargar configuración de la sala ${this.id}:`, error);
             throw new Error(`No se pudo cargar la configuración: ${error}`);
         }
     }
@@ -102,12 +91,6 @@ export class Room extends EventEmitter<RoomEventMap> {
 
         // Buscar y asignar el portal en la escena
         this.portal = scene.getObjectByName('portal') || undefined;
-
-        this.emit('change', { room: this, changeType: 'scene' });
-
-        console.log(`Room[${this.id}] - setScene() emitió evento change`, {
-            sceneId: scene.uuid,
-        });
     }
 
     setSkin(skin: Skin): void {
@@ -116,11 +99,6 @@ export class Room extends EventEmitter<RoomEventMap> {
         }
         this.skin = skin;
 
-        this.emit('change', { room: this, changeType: 'skin' });
-
-        console.log(`Room[${this.id}] - setSkin() emitió evento change`, {
-            skin: skin.id,
-        });
     }
 
     setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture; environmentTexture: THREE.Texture }): void {
@@ -129,19 +107,8 @@ export class Room extends EventEmitter<RoomEventMap> {
         }
         this.objectTexture = objectTexture;
         this.environmentTexture = environmentTexture;
-
-        this.emit('change', { room: this, changeType: 'textures' });
-
-        console.log(`Room[${this.id}] - setTextures() emitió evento change`, {
-            objectTexture: objectTexture.name || 'unnamed',
-            environmentTexture: environmentTexture.name || 'unnamed',
-        });
     }
 
-    // Método deprecado - El core manejará las versiones centralmente
-    // getVersion(): number {
-    //     return this._version;
-    // }
 
     getObjectTexture(): THREE.Texture | null {
         return this.objectTexture;
@@ -266,7 +233,6 @@ export class Room extends EventEmitter<RoomEventMap> {
         this.environmentTexture = null;
         this.portal = undefined;
 
-        // Remover todos los listeners del EventEmitter
-        this.removeAllListeners();
+
     }
 }

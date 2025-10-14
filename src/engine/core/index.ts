@@ -4,15 +4,12 @@
 
 // Componentes principales
 export { EngineCanvas } from "./components/EngineCanvas";
-export { EngineCore } from "./components/EngineCore";
+//export { EngineCore } from "./components/EngineCore";
 export { DefaultEngineIndicator } from "./components/DefaultEngineIndicator";
+export { EngineCore } from './src/EngineCore.class';
 
 // Hooks principales del core
-export { useEngineCore, useRoomVersionFromEngine, useEngine } from "./hooks";
-
-// Contextos
-export { EngineCoreContext, RoomVersionContext } from "./context/EngineContext";
-export type { EngineCoreAPI } from "./context/EngineContext";
+export { useEngineCore } from "./components/EngineCore";
 
 // Entidades principales
 export { Room } from "@engine/entities/Room";

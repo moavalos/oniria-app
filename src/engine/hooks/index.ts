@@ -12,5 +12,4 @@ export * from "../core/hooks";
 export * from "./useHandlers";
 export * from "./useTransitions";
 export * from "./useThreeLoader";
-export * from "./useRoomVersion";
 export * from "./useProgress";
