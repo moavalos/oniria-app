@@ -28,7 +28,8 @@
     "text": "¿Ya tenés una cuenta?",
     "textLink": "Iniciá sesión",
     "error": "Error al registrarse",
-    "success": "Registro exitoso. Revisa tu email para verificar la cuenta."
+    "success": "Revisa tu email para verificar la cuenta.",
+    "successTitle": "Cuenta registrada"
   },
   "notFound": {
     "link": "Ir al inicio",

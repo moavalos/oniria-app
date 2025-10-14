@@ -28,7 +28,8 @@
     "errorPasswordMatch": "Passwords do not match",
     "text": "Already have an account?",
     "textLink": "Log In",
-    "success": "Account created successfully. Please check your email to confirm your account.",
+    "success": "Please check your email to confirm your account.",
+    "successTitle": "Account created",
     "error": "Error creating account"
   },
   "notFound": {
