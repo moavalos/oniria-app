@@ -18,6 +18,7 @@ import EmotionFilter from "../../history/components/EmotionFilter";
 import type { HistoryFilters } from "@/app/features/history/model/types";
 import { useCallback, useState } from "react";
 import SkeletonHistory from "../../history/components/Skeleton";
+import { useNavigate } from "react-router-dom";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -52,6 +53,7 @@ type UnifiedSidePanelProps = HistoryVariantProps | HomeVariantProps;
 
 function HistoryPanel(props: HistoryVariantProps) {
   const { title, description, ctaText, timeline, loading = false, onChangeFilters } = props;
+  const navigate = useNavigate();
 
   const handleEmotionChange = useCallback((emotions: string[]) => {
     onChangeFilters?.({
@@ -77,12 +79,17 @@ function HistoryPanel(props: HistoryVariantProps) {
     ctaDisabled: props.ctaDisabled,
     onEmotionChange: handleEmotionChange,
   });
-  
+
+  const onBackHome = () => {
+    navigate('/home');
+  };
+
   return (
     <Card.Container
       className={`col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden`}
       scrollable={props.scrollable}
     >
+      <BackButton onClick={onBackHome} />
       <Card.Root className="flex flex-col h-full justify-between p-6 sm:p-6">
         <SidebarHeader title={title} description={description} />
 
