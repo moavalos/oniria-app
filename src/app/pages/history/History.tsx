@@ -24,9 +24,9 @@ export default function History() {
       <main className="relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6 lg:py-5">
         <UnifiedSidePanel
           variant="history"
-          title={t("historial.title")}
-          description={t("historial.description")}
-          ctaText={t("historial.oniriaPro")}
+          title={t("history.title")}
+          description={t("history.description")}
+          ctaText={t("history.oniriaPro")}
           timeline={timeline}
           loading={loading}
           onChangeFilters={handleChangeFilters}
