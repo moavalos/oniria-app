@@ -16,7 +16,7 @@ export default function ModalHeader({ title, onClose }: ModalHeaderProps) {
       <button
         onClick={onClose}
         className="modal-close-button"
-        aria-label={t("node.cerrar")}
+        aria-label={t("node.close")}
       >
         <CloseIcon className="text-white/80" />
       </button>
