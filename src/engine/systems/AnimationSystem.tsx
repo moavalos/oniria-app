@@ -155,18 +155,10 @@ export default function AnimationSystem({
     } else {
       // Fallback: registrar directamente si el EngineCore aún no ha registrado
       engineAPI._setAPI("node", nodeActions);
-    } // Cleanup al desmontar - remover solo nuestras funciones
-    return () => {
-      if (
-        engineAPI.node &&
-        typeof (engineAPI.node as any)._extend === "function"
-      ) {
-        // Si existe el método _extend, usarlo para remover nuestras funciones
-        const currentAPI = engineAPI.node as any;
-        const { idle: _, rest: __, ...remainingAPI } = currentAPI;
-        engineAPI._setAPI("node", remainingAPI);
-      }
-    };
+    }
+
+    // No necesitamos cleanup automático porque queremos mantener
+    // las funciones disponibles durante toda la vida del nodo
   }, [isEngineReady, activeNode, idle, rest]);
 
   // Reaccionar cuando el dream cambia en el store para ejecutar animación idle

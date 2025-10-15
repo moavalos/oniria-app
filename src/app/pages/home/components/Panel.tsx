@@ -37,6 +37,7 @@ type HomeVariantProps = {
   onInterpretar?: (_dream: string) => void;
   onPersonalizar?: () => void;
   onInsignias?: () => void;
+  onBackHome?: () => void;
   initialDream?: string;
   maxChars?: number;
   onNuevaFrase?: () => void;
@@ -49,13 +50,23 @@ type HomeVariantProps = {
 type UnifiedSidePanelProps = HistoryVariantProps | HomeVariantProps;
 
 function HistoryPanel(props: HistoryVariantProps) {
-  const { title, description, ctaText, timeline, loading = false, onChangeFilters } = props;
+  const {
+    title,
+    description,
+    ctaText,
+    timeline,
+    loading = false,
+    onChangeFilters,
+  } = props;
 
-  const handleEmotionChange = useCallback((emotions: string[]) => {
-    onChangeFilters?.({
-      emotion: emotions.length ? emotions : undefined,
-    });
-  }, [onChangeFilters]);
+  const handleEmotionChange = useCallback(
+    (emotions: string[]) => {
+      onChangeFilters?.({
+        emotion: emotions.length ? emotions : undefined,
+      });
+    },
+    [onChangeFilters]
+  );
 
   const {
     items,
@@ -77,7 +88,9 @@ function HistoryPanel(props: HistoryVariantProps) {
   });
 
   return (
-    <Card.Container className="col-span-12 md:col-span-4 xl:col-span-4 p-6 h-[88vh] flex flex-col text-[15px]">
+    <Card.Container
+      className={`col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden`}
+    >
       <SidebarHeader title={title} description={description} />
 
       {loading ? (
@@ -114,10 +127,7 @@ function HistoryPanel(props: HistoryVariantProps) {
             className="mt-4 pt-4 border-t"
             style={{ borderColor: "var(--surface-weak)" }}
           >
-            <CtaButton
-              ctaText={ctaText}
-              disabled={props.ctaDisabled}
-            />
+            <CtaButton ctaText={ctaText} disabled={props.ctaDisabled} />
           </div>
         </>
       )}
@@ -161,7 +171,10 @@ function HomePanel(props: HomeVariantProps) {
     await handleInterpretar();
   };
 
-  const onBackHome = () => setExpanded(false);
+  const onBackHome = () => {
+    setExpanded(false);
+    props.onBackHome?.();
+  };
 
   return (
     <Card.Container
@@ -169,9 +182,7 @@ function HomePanel(props: HomeVariantProps) {
       scrollable={props.scrollable}
     >
       {/* Flechita volver a home solo en modo expandido */}
-      {expanded && (
-        <BackButton onClick={onBackHome} />
-      )}
+      {expanded && <BackButton onClick={onBackHome} />}
 
       {/* Dream Input Section - se hace largo cuando expanded */}
       <Card.Root>

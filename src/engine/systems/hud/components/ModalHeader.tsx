@@ -1,5 +1,6 @@
 import CloseIcon from "@/assets/icons/CloseIcon";
 import { useTranslation } from "react-i18next";
+import "@engine/systems/hud/components/styles/DreamCardModal.css";
 
 type ModalHeaderProps = {
   title: string;

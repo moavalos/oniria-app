@@ -5,6 +5,7 @@ import { Float } from "@react-three/drei";
 import { useEngineCore } from "@engine/core";
 import { useEngineStore } from "@engine/core";
 import { EngineState } from "@engine/core";
+import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
 
 interface NodeRendererProps {
   ref: React.Ref<THREE.Group<THREE.Object3DEventMap> | null>;
@@ -17,7 +18,10 @@ interface NodeRendererProps {
  * Renderer para nodos 3D con efectos de plasma y vidrio.
  * Gestiona la renderización de nodos especiales con shaders avanzados.
  */
-export function NodeRenderer({ ref }: NodeRendererProps) {
+export function NodeRenderer({
+  ref,
+  position = [-1.1, 2.85, -6.4],
+}: NodeRendererProps) {
   const { loopService, engineState, getMaterialService } = useEngineCore();
   // Obtener uniforms del store para sincronización con debug
   const { nodeUniforms } = useEngineStore();
@@ -167,6 +171,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
   useEffect(() => {
     if (!isEngineReady || !nodeRef.current || !getMaterialService) return;
 
+    console.log("aplicando material al nodo");
     const materialService = getMaterialService();
     // Obtener la referencia al material principal
     const material = materialService.applyMaterialsToNodes(
@@ -209,7 +214,7 @@ export function NodeRenderer({ ref }: NodeRendererProps) {
           ref={ref}
           scale={2}
           rotation={[0, 0, 0]}
-          position={[-1.1, 2.85, -6.4]}
+          position={position}
         >
           <group ref={nodeRef}>
             <mesh name="blob">

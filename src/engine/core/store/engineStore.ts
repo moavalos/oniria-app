@@ -98,7 +98,7 @@ type EngineStore = {
 
     // Dream state
     dream: Dream | null;
-    setDream: (_dream: Dream) => void;
+    setDream: (_dream: Dream | null) => void;
     clearDream: () => void;
 
     // HUD state

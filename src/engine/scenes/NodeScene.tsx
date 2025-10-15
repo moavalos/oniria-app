@@ -5,11 +5,17 @@ import { NodeRenderer } from "../systems/renderer/NodeRenderer";
 import { useEngineCore } from "@engine/core";
 import { useTransitions } from "../hooks";
 
+interface NodeSceneProps {
+  position?: [number, number, number];
+}
+
 /**
  * Escena para renderizar nodos 3D.
  * Gestiona la renderización de nodos especiales en la escena.
  */
-export default function NodeScene() {
+export default function NodeScene({
+  position = [-1.1, 2.85, -6.4],
+}: NodeSceneProps) {
   const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
   const core = useEngineCore();
   const { viewNodes } = useTransitions();
@@ -41,7 +47,7 @@ export default function NodeScene() {
 
   return (
     <>
-      <NodeRenderer ref={nodeRef} />
+      <NodeRenderer ref={nodeRef} position={position} />
     </>
   );
 }

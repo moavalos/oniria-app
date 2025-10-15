@@ -208,8 +208,12 @@ export function EngineCore({ children }: EngineCoreProps) {
         // Establecer la referencia del grupo
         node.setGroup(nodeRef);
 
-        // Publicar el objeto node en la API del motor
+        // Obtener el API actual del nodo para preservar funciones existentes
+        const currentNodeAPI = engineAPI.node || {};
+
+        // Publicar el objeto node en la API del motor, preservando funciones existentes
         const nodeAPI = {
+          ...currentNodeAPI, // Preservar funciones existentes como idle, rest
           next: () => {
             node.next();
           },
@@ -309,6 +313,8 @@ export function EngineCore({ children }: EngineCoreProps) {
       return () => {
         activeRoom.off("change");
       };
+    } else {
+      setEngineState(EngineState.READY);
     }
   }, [activeRoom, updateActiveRoom]); // Solo depende de activeRoom
 

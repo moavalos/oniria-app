@@ -1,8 +1,8 @@
-import ModalActions from "@/app/pages/node/modal/ModalActions";
-import ModalHeader from "@/app/pages/node/modal/ModalHeader";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import Card from "@/shared/components/Card";
 import { useCallback, useEffect, useRef, useState } from "react";
+import ModalHeader from "./ModalHeader";
+import ModalActions from "./ModalActions";
 
 interface DreamCardModalProps {
   visibility?: boolean;

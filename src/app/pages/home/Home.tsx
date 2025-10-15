@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import {
   Engine,
   useEngine,
@@ -33,6 +34,10 @@ export default function Home() {
   useEffect(() => {
     engine.setRoom(roomId, skinId);
   }, []);
+
+  const handleBackHome = () => {
+    engine.actions?.viewReset?.();
+  };
 
   const hoverHandler = (args: any) => {
     console.log("hovered", args.objectName || args);
@@ -77,9 +82,8 @@ export default function Home() {
       <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
-          onNuevaFrase={() => engine.node?.next()}
           onInterpretar={handleInterpretar}
-          onPersonalizar={() => engine.actions?.viewReset?.()}
+          onBackHome={handleBackHome}
           scrollable
         />
 
@@ -94,7 +98,12 @@ export default function Home() {
                 <DebugSystem enabled={true} />
                 <InteractionSystem onObjectHoverEnter={hoverHandler} />
                 <AnimationSystem />
-                <CameraSystem />
+                <CameraSystem
+                  config={{
+                    position: new THREE.Vector3(-4, 3, 4),
+                    target: new THREE.Vector3(0, 1.8, 0),
+                  }}
+                />
                 <RoomScene />
               </Engine.Core>
             </Engine.Canvas>
