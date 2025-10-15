@@ -2,7 +2,8 @@
   "home": {
     "link": "Home",
     "title": "Welcome to Oniria",
-    "description": "Explore the world of dreams with Oniria."
+    "description": "Explore the world of dreams with Oniria.",
+    "soon": "Coming soon..."
   },
   "login": {
     "link": "Log In",
