@@ -109,8 +109,8 @@ function HistoryPanel(props: HistoryVariantProps) {
           ) : items.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center space-y-2">
-                <p className="text-white/60 text-sm">No hay sueños con este filtro.</p>
-                <p className="text-white/40 text-xs">Intenta con otra emoción.</p>
+                <p className="text-white/60 text-sm">No hay sueños con este filtro</p>
+                <p className="text-white/40 text-xs">Intentá con otra emoción</p>
               </div>
             </div>
           ) : (
