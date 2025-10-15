@@ -19,6 +19,7 @@ import type { HistoryFilters } from "@/app/features/history/model/types";
 import { useCallback, useState } from "react";
 import SkeletonHistory from "../../history/components/Skeleton";
 import { useNavigate } from "react-router-dom";
+import SparklesIcon from "@/assets/icons/SparklesIcon";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -200,13 +201,15 @@ function HomePanel(props: HomeVariantProps) {
             isTooLong={isTooLong}
           />
 
+
           {!expanded && (
             <button
               onClick={onInterpretClick}
               disabled={isEmpty || isTooLong}
               className="tap-button mt-4 w-full rounded-xl px-4 py-3 text-[14px] font-bold
-                       disabled:opacity-60 disabled:cursor-not-allowed
-                       transition-transform duration-200"
+                hover:cursor-pointer
+                disabled:opacity-60 disabled:cursor-not-allowed
+                transition-transform duration-200 active:scale-95"
               style={{
                 background: `linear-gradient(to right, var(--btn-primary-from), var(--btn-primary-to))`,
                 border: `1px solid var(--btn-primary-border)`,
@@ -214,10 +217,12 @@ function HomePanel(props: HomeVariantProps) {
               }}
             >
               <span className="inline-flex items-center gap-2">
+                <SparklesIcon className="w-5 h-5" />
                 {t("node.interpret")}
               </span>
             </button>
           )}
+
         </Card.Body>
       </Card.Root>
 

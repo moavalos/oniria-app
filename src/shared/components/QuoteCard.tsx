@@ -22,7 +22,7 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
             <Card.Title style={{ color: "var(--quote-title)" }}>
                 {t("node.todaysPhrase", "Frase de hoy")}
             </Card.Title>
-            
+
             <Card.Description style={{ color: "var(--quote-hint)" }}>
                 {t("node.phraseHint", "Un guiño simbólico para arrancar..")}
             </Card.Description>
@@ -37,7 +37,10 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
                 >
                     <div className="flex items-start gap-2 justify-center text-center">
                         <QuoteIcon className="mt-0.5 opacity-70 shrink-0" />
-                        <span className="text-[13px] leading-snug" style={{ color: "var(--quote-text)" }}>
+                        <span
+                            className="text-[13px] leading-snug"
+                            style={{ color: "var(--quote-text)" }}
+                        >
                             {quote}
                         </span>
                         <QuoteIcon className="rotate-180 mt-0.5 opacity-70 shrink-0" />
@@ -47,7 +50,10 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
                 <button
                     onClick={onRefresh}
                     disabled={isLoading}
-                    className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border 
+                               transition-transform duration-200 
+                               hover:cursor-pointer 
+                               disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{
                         background: `linear-gradient(to right, var(--btn-refresh-from), var(--btn-refresh-to))`,
                         borderColor: "var(--btn-refresh-border)",
