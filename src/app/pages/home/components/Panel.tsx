@@ -257,7 +257,7 @@ function HomePanel(props: HomeVariantProps) {
             <MenuButton
               icon={<SettingsIcon />}
               title={t("common.soon", "Próximamente…")}
-              description={t("node.toque")}
+              description={t("node.touch")}
               disabled
               onClick={handlePersonalizar}
             />
@@ -265,7 +265,7 @@ function HomePanel(props: HomeVariantProps) {
             <MenuButton
               icon={<BadgeIcon />}
               title={t("common.soon", "Próximamente…")}
-              description={t("node.descriptionInsignia")}
+              description={t("node.badgesDesc")}
               disabled
               onClick={handleInsignias}
             />
