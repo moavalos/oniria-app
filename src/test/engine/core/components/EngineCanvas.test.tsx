@@ -68,7 +68,7 @@ describe("EngineCanvas", () => {
 
     it("debería configurar propiedades gl correctamente", () => {
       // Verificar propiedades según la implementación
-      const { render } = require("@testing-library/react");
+      // const { render } = require("@testing-library/react");
       const { getByTestId } = render(
         <EngineCanvas engineSettings={defaultEngineSettings} />
       );
