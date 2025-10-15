@@ -256,7 +256,7 @@ function HomePanel(props: HomeVariantProps) {
             {/*TODO sacar luego del mvp1*/}
             <MenuButton
               icon={<SettingsIcon />}
-              title={t("common.soon", "Próximamente…")}
+              title={t("home.soon", "Próximamente…")}
               description={t("node.touch")}
               disabled
               onClick={handlePersonalizar}
@@ -264,7 +264,7 @@ function HomePanel(props: HomeVariantProps) {
 
             <MenuButton
               icon={<BadgeIcon />}
-              title={t("common.soon", "Próximamente…")}
+              title={t("home.soon", "Próximamente…")}
               description={t("node.badgesDesc")}
               disabled
               onClick={handleInsignias}

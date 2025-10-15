@@ -2,7 +2,8 @@
   "home": {
     "link": "Inicio",
     "title": "Bienvenido a Oniria",
-    "description": "Explorá el mundo de los sueños con Oniria."
+    "description": "Explorá el mundo de los sueños con Oniria.",
+    "soon": "Próximamente..."
   },
   "login": {
     "textLink": "Registrate",
