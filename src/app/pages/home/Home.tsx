@@ -65,8 +65,8 @@ export default function Home() {
       <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
-          onNuevaFrase={() => engine.node?.next()}
-          onInterpretar={handleInterpretar}
+          onNewQuote={() => engine.node?.next()}
+          onInterpret={handleInterpretar}
           scrollable
         />
 
