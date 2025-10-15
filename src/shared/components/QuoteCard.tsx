@@ -22,7 +22,7 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
             <Card.Title style={{ color: "var(--quote-title)" }}>
                 {t("node.todaysPhrase", "Frase de hoy")}
             </Card.Title>
-            
+
             <Card.Description style={{ color: "var(--quote-hint)" }}>
                 {t("node.phraseHint", "Un guiño simbólico para arrancar..")}
             </Card.Description>
@@ -36,11 +36,11 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
                     }}
                 >
                     <div className="flex items-start gap-2 justify-center text-center">
-                        <QuoteIcon className="mt-0.5 opacity-70 shrink-0" />
+                        <QuoteIcon className="scale-x-[-1] mt-0.5 opacity-70 shrink-0" />
                         <span className="text-[13px] leading-snug" style={{ color: "var(--quote-text)" }}>
                             {quote}
                         </span>
-                        <QuoteIcon className="rotate-180 mt-0.5 opacity-70 shrink-0" />
+                        <QuoteIcon className="rotate-360 mt-0.5 opacity-70 shrink-0" />
                     </div>
                 </div>
 
