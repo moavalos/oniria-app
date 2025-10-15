@@ -17,6 +17,7 @@ import BackButton from "@/shared/components/BackButton";
 import EmotionFilter from "../../history/components/EmotionFilter";
 import type { HistoryFilters } from "@/app/features/history/model/types";
 import { useCallback, useState } from "react";
+import SkeletonHistory from "../../history/components/Skeleton";
 
 type HistoryVariantProps = {
   variant: "history";
@@ -77,30 +78,31 @@ function HistoryPanel(props: HistoryVariantProps) {
   });
 
   return (
-    <Card.Container className="col-span-12 md:col-span-4 xl:col-span-4 p-6 h-[88vh] flex flex-col text-[15px]">
-      <SidebarHeader title={title} description={description} />
+    <Card.Container className="col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden h-full">
+      <Card.Root className="flex flex-col h-full justify-between p-6 sm:p-6">
+        <SidebarHeader title={title} description={description} />
 
-      {loading ? (
-        <div className="space-y-4 flex-1">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="h-6 w-full rounded animate-pulse"
-              style={{ backgroundColor: "var(--skeleton-bg)" }}
-            />
-          ))}
-        </div>
-      ) : (
-        <>
-          <EmotionFilter
-            items={timeline}
-            selected={selectedEmotions}
-            onChange={setSelectedEmotions}
-            className="sticky top-0 z-10 bg-transparent pt-1"
-          />
+        <EmotionFilter
+          items={timeline}
+          selected={selectedEmotions}
+          onChange={setSelectedEmotions}
+          className="sticky top-0 z-10 bg-transparent pt-1 mb-8"
+        />
 
-          <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <TimelineProgressBar progress={progress} height={barHeight} />
+        <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-[400px]">
+          <TimelineProgressBar progress={progress} height={barHeight} />
+          {loading ? (
+            <div className="h-full">
+              <SkeletonHistory withLine={false} />
+            </div>
+          ) : items.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-2">
+                <p className="text-white/60 text-sm">No hay sueños con este filtro.</p>
+                <p className="text-white/40 text-xs">Intenta con otra emoción.</p>
+              </div>
+            </div>
+          ) : (
             <TimelineList
               items={items}
               selectedId={selectedId}
@@ -108,19 +110,16 @@ function HistoryPanel(props: HistoryVariantProps) {
               listRef={listRef}
               itemRefs={itemRefs}
             />
-          </div>
-
-          <div
-            className="mt-4 pt-4 border-t"
-            style={{ borderColor: "var(--surface-weak)" }}
-          >
-            <CtaButton
-              ctaText={ctaText}
-              disabled={props.ctaDisabled}
-            />
-          </div>
-        </>
-      )}
+          )}
+        </div>
+        
+        <div
+          className="mt-auto pt-6 border-t"
+          style={{ borderColor: "var(--surface-weak)" }}
+        >
+          <CtaButton ctaText={ctaText} disabled={props.ctaDisabled} />
+        </div>
+      </Card.Root>
     </Card.Container>
   );
 }

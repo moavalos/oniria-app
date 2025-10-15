@@ -6,6 +6,7 @@ import { useTimelineData } from "@/app/features/history/hooks/useTimelineData";
 import HistoryContent from "./components/HistoryContent";
 import type { HistoryFilters } from "@/app/features/history/model/types";
 import { useCallback, useState } from "react";
+import Card from "@/shared/components/Card";
 
 export default function History() {
   const { t } = useTranslation();
@@ -17,11 +18,12 @@ export default function History() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-[radial-gradient(60%_80%_at_50%_0%,#1b0f2a_0%,#0b0810_55%,#06050b_100%)] text-white overflow-hidden">
+    <div className="w-full h-dvh text-[var(--color-text-primary)] overflow-hidden flex flex-col"
+      style={{ background: "var(--app-bg)" }}>
       <Starfield />
       <HeaderContainer />
 
-      <main className="relative z-0 mx-auto grid max-w-[1980px] grid-cols-12 gap-6 px-4 py-6 lg:py-5">
+      <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="history"
           title={t("historial.title")}
@@ -31,8 +33,9 @@ export default function History() {
           loading={loading}
           onChangeFilters={handleChangeFilters}
         />
-
-        <HistoryContent timeline={timeline} loading={loading} error={error} />
+        <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
+          <HistoryContent timeline={timeline} loading={loading} error={error} />
+        </Card.Container>
       </main>
     </div>
   );
