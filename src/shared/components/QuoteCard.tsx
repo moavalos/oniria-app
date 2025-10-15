@@ -20,11 +20,11 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
             }}
         >
             <Card.Title style={{ color: "var(--quote-title)" }}>
-                {t("node.fraseHoy", "Frase de hoy")}
+                {t("node.todaysPhrase", "Frase de hoy")}
             </Card.Title>
             
             <Card.Description style={{ color: "var(--quote-hint)" }}>
-                {t("node.fraseHint", "Un guiño simbólico para arrancar..")}
+                {t("node.phraseHint", "Un guiño simbólico para arrancar..")}
             </Card.Description>
 
             <Card.Body>
@@ -56,7 +56,7 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
                 >
                     <span className="inline-flex items-center gap-2">
                         <RefreshIcon spinning={isLoading} />
-                        {t("node.nuevaFrase", "Nueva frase")}
+                        {t("node.newPhrase", "Nueva frase")}
                     </span>
                 </button>
             </Card.Body>

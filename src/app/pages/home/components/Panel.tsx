@@ -216,7 +216,7 @@ function HomePanel(props: HomeVariantProps) {
               }}
             >
               <span className="inline-flex items-center gap-2">
-                {t("node.interpretar")}
+                {t("node.interpret")}
               </span>
             </button>
           )}
@@ -241,15 +241,15 @@ function HomePanel(props: HomeVariantProps) {
             {/*TODO descomentar luego del mvp1*/}
             {/* <MenuButton
               icon={<SettingsIcon />}
-              title={t("node.personalizar")}
-              description={t("node.toque")}
+              title={t("node.customize")}
+              description={t("node.touch")}
               onClick={handlePersonalizar}
             />
 
             <MenuButton
               icon={<BadgeIcon />}
-              title={t("node.insignia")}
-              description={t("node.descriptionInsignia")}
+              title={t("node.badges")}
+              description={t("node.badgesDesc")}
               onClick={handleInsignias}
             />*/}
 
@@ -272,8 +272,8 @@ function HomePanel(props: HomeVariantProps) {
 
             <MenuButton
               icon={<ClockIcon />}
-              title={t("historial.link")}
-              description={t("historial.verSuenos")}
+              title={t("history.link")}
+              description={t("history.seeDreams")}
               onClick={handleNavigateHistory}
             />
           </Card.Body>
@@ -282,7 +282,7 @@ function HomePanel(props: HomeVariantProps) {
 
       {!expanded && (
         <CtaButton
-          ctaText={t("historial.oniriaPro")}
+          ctaText={t("history.oniriaPro")}
           disabled={false}
           pressed={false}
         />
