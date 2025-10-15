@@ -112,7 +112,7 @@ function HistoryPanel(props: HistoryVariantProps) {
             />
           )}
         </div>
-        
+
         <div
           className="mt-auto pt-6 border-t"
           style={{ borderColor: "var(--surface-weak)" }}
@@ -227,7 +227,8 @@ function HomePanel(props: HomeVariantProps) {
           <Card.Description>{t("node.myroomDesc")}</Card.Description>
 
           <Card.Body>
-            <MenuButton
+            {/*TODO descomentar luego del mvp1*/}
+            {/* <MenuButton
               icon={<SettingsIcon />}
               title={t("node.personalizar")}
               description={t("node.toque")}
@@ -238,6 +239,23 @@ function HomePanel(props: HomeVariantProps) {
               icon={<BadgeIcon />}
               title={t("node.insignia")}
               description={t("node.descriptionInsignia")}
+              onClick={handleInsignias}
+            />*/}
+
+            {/*TODO sacar luego del mvp1*/}
+            <MenuButton
+              icon={<SettingsIcon />}
+              title={t("common.soon", "Próximamente…")}
+              description={t("node.toque")}
+              disabled
+              onClick={handlePersonalizar}
+            />
+
+            <MenuButton
+              icon={<BadgeIcon />}
+              title={t("common.soon", "Próximamente…")}
+              description={t("node.descriptionInsignia")}
+              disabled
               onClick={handleInsignias}
             />
 
