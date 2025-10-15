@@ -31,6 +31,7 @@ type HistoryVariantProps = {
   ctaDisabled?: boolean;
   loading?: boolean;
   onChangeFilters?: (filters: HistoryFilters) => void;
+  scrollable?: boolean;
 };
 
 type HomeVariantProps = {
@@ -76,9 +77,12 @@ function HistoryPanel(props: HistoryVariantProps) {
     ctaDisabled: props.ctaDisabled,
     onEmotionChange: handleEmotionChange,
   });
-
+  
   return (
-    <Card.Container className="col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden h-full">
+    <Card.Container
+      className={`col-span-12 md:col-span-3 min-w-[300px] text-[15px] space-y-3 transition-all duration-300 overflow-y-hidden`}
+      scrollable={props.scrollable}
+    >
       <Card.Root className="flex flex-col h-full justify-between p-6 sm:p-6">
         <SidebarHeader title={title} description={description} />
 
@@ -89,7 +93,7 @@ function HistoryPanel(props: HistoryVariantProps) {
           className="sticky top-0 z-10 bg-transparent pt-1 mb-8"
         />
 
-        <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-[400px]">
+        <div className="relative flex-1 overflow-y-auto pr-2 min-h-[400px]">
           <TimelineProgressBar progress={progress} height={barHeight} />
           {loading ? (
             <div className="h-full">

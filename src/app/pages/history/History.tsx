@@ -32,6 +32,7 @@ export default function History() {
           timeline={timeline}
           loading={loading}
           onChangeFilters={handleChangeFilters}
+          scrollable
         />
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           <HistoryContent timeline={timeline} loading={loading} error={error} />
