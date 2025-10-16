@@ -47,7 +47,10 @@ export default function QuoteCard({ quote, isLoading, onRefresh }: QuoteCardProp
                 <button
                     onClick={onRefresh}
                     disabled={isLoading}
-                    className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border transition-transform duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="tap-button w-full rounded-xl px-4 py-3 text-[14px] font-semibold border 
+                               transition-transform duration-200 
+                               hover:cursor-pointer 
+                               disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{
                         background: `linear-gradient(to right, var(--btn-refresh-from), var(--btn-refresh-to))`,
                         borderColor: "var(--btn-refresh-border)",
