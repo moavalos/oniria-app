@@ -1,11 +1,4 @@
-import {
-  Engine,
-  RoomScene,
-  LoaderSystem,
-  AnimationSystem,
-  InteractionSystem,
-  DebugSystem,
-} from "@/engine";
+import { Engine, RoomScene, LoaderSystem } from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
 import Card from "@/shared/components/Card";
@@ -13,7 +6,6 @@ import { useEffect } from "react";
 import HeaderContainer from "@/shared/components/users/HeaderContainer";
 import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
-import HudSystem from "@/engine/systems/hud/HudSystem";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { Systems } from "@/engine/components";
 
@@ -76,9 +68,13 @@ export default function Home() {
       <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
-          onNuevaFrase={() => engine?.node?.next()}
+          onNuevaFrase={() =>
+            console.log("Nueva frase - TODO: implementar navegación")
+          }
           onInterpretar={handleInterpretar}
-          onPersonalizar={() => engine?.actions?.viewReset?.()}
+          onPersonalizar={() =>
+            console.log("Personalizar - TODO: implementar reset")
+          }
           scrollable
         />
 
@@ -88,12 +84,24 @@ export default function Home() {
           <LoaderSystem />
 
           {roomId && skinId && (
-            <Engine.Canvas engineSettings={{ backgroundColor: canvasBg }}>
+            <Engine.Canvas
+              engineSettings={{
+                backgroundColor: canvasBg,
+                cameraPosition: [-5, 4, 4],
+              }}
+            >
               <Engine.Core>
                 {/* <DebugSystem enabled={true} /> */}
-                {/* <InteractionSystem onObjectHoverEnter={hoverHandler} /> */}
-                {/* <AnimationSystem /> */}
-                <Systems.Camera />
+                <Systems.Interaction />
+                <Systems.Animation
+                  config={{
+                    autoPlay: true,
+                    playOnMount: true,
+                  }}
+                  enableAnimations={true}
+                  autoConfigureForRoom={true}
+                />
+                <Systems.Camera config={{}} />
                 <RoomScene />
               </Engine.Core>
             </Engine.Canvas>

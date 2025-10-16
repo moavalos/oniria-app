@@ -31,10 +31,9 @@ export class CameraSystem extends BaseSystem implements Injectable {
             return;
         }
 
-        // Aplicar configuración inicial si se proporcionó
-        if (this.config) {
-            this.applyCameraConfig(this.config);
-        }
+
+        this.applyCameraConfig(this.config!);
+
 
         // Configurar listeners del CameraService
         this.setupCameraListeners();
@@ -60,10 +59,24 @@ export class CameraSystem extends BaseSystem implements Injectable {
 
         this.config = config;
 
+        // Log detallado de la configuración que se va a aplicar
+        console.log("[CameraSystem] 🎥 Aplicando configuración:", {
+            position: config.position,
+            target: config.target,
+            minDistance: config.minDistance,
+            maxDistance: config.maxDistance,
+        });
+
         // Usar el método setConfig del CameraService directamente
         this.cameraService.setConfig(config);
 
-        console.log("[CameraSystem] 🎥 Configuración aplicada:", config);
+        // Verificar que se aplicó correctamente
+        console.log("[CameraSystem] 📊 Posición actual después de aplicar config:",
+            this.cameraService.getPosition());
+        console.log("[CameraSystem] � Target actual después de aplicar config:",
+            this.cameraService.getTarget());
+
+        console.log("[CameraSystem] ✅ Configuración aplicada completamente");
     }
 
     /**

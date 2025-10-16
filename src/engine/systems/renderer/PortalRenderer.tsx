@@ -7,6 +7,7 @@ import NodeScene from "@/engine/scenes/NodeScene";
 import { Sparkles } from "@react-three/drei";
 import { MaterialService } from "@engine/services";
 import { CameraService } from "@engine/services";
+import { PortalManager } from "@engine/services/portal/PortalManager";
 
 interface PortalRendererProps {
   portal?: THREE.Object3D;
@@ -18,7 +19,7 @@ interface PortalRendererProps {
  */
 export const PortalRenderer = ({ portal }: PortalRendererProps) => {
   const core = useEngineCore();
-  const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
+
   const [showNodes, setShowNodes] = useState(false);
 
   const isEngineReady = core?.getState() === EngineState.READY;
@@ -47,22 +48,20 @@ export const PortalRenderer = ({ portal }: PortalRendererProps) => {
     }
 
     const materialService = core.getService(MaterialService);
+    const portalManager = core.getService(PortalManager);
 
     if (!materialService) {
       console.warn("[PortalRenderer] MaterialService not available");
       return;
     }
 
-    // Aplicar el material del portal
-    materialService.applyMaterialsToPortal(portal, portalUniforms);
-
-    // Guardar referencia al material para posibles actualizaciones futuras
-    const portalMesh = portal as THREE.Mesh;
-    if (portalMesh.material && "uniforms" in portalMesh.material) {
-      portalMaterialRef.current = portalMesh.material as THREE.ShaderMaterial;
+    if (!portalManager) {
+      console.warn("[PortalRenderer] PortalManager not available");
+      return;
     }
 
-    console.log("[PortalRenderer] Material aplicado al portal");
+    // Aplicar materiales a través del PortalManager
+    portalManager.applyMaterialsToPortal(portalUniforms);
   }, [isEngineReady, portal, core, portalUniforms]);
 
   // detectar cuando la camara entra al portal

@@ -257,7 +257,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
         };
 
         // Ejecutar el sistema de eventos (EventEmitter)
-        this.trigger(phase, [eventArgs]);
+        this.emit(phase, [eventArgs]);
 
         // Ejecutar callbacks personalizados si existen
         switch (phase) {
@@ -286,7 +286,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
         };
 
         // Ejecutar el sistema de eventos (EventEmitter) para Node
-        this.trigger(`node${phase.charAt(0).toUpperCase() + phase.slice(1)}`, [eventArgs]);
+        this.emit(`node${phase.charAt(0).toUpperCase() + phase.slice(1)}`, [eventArgs]);
 
         // Ejecutar callbacks personalizados si existen
         switch (phase) {

@@ -85,9 +85,13 @@ export class CameraService {
         boundaryEnclosesCamera: true,
         enablePan: false,
     }) {
-
+        console.log("[CameraService] 🔧 setConfig llamado con:", config);
         this.applyConfig(config);
         this.defaultConfig = config;
+
+        // Verificar que se aplicó correctamente
+        console.log("[CameraService] 📊 Posición actual después de setConfig:", this.getPosition());
+        console.log("[CameraService] 🎯 Target actual después de setConfig:", this.getTarget());
     }
 
     resetToDefault() {
@@ -99,15 +103,47 @@ export class CameraService {
     }
 
     applyConfig(config: CameraConfig) {
-        this.setMinMaxDistance(config.minDistance!, config.maxDistance!);
-        this.setLookAt(config.position!, config.target!, true);
-        this.setSmoothTime(config.smoothTime!);
-        this.setMaxPolarAngle(config.maxPolarAngle!);
-        this.setMinPolarAngle(config.minPolarAngle!);
-        this.setAzimuthMaxAngle(config.maxAzimuthAngle!);
-        this.setAzimuthMinAngle(config.minAzimuthAngle!);
-        this.setBoundaryEnclosesCamera(!!config.boundaryEnclosesCamera);
-        this.setEnablePan(!!config.enablePan);
+        console.log("[CameraService] 🔧 applyConfig llamado con:", config);
+
+        // Aplicar configuraciones solo si están definidas
+        if (config.minDistance !== undefined && config.maxDistance !== undefined) {
+            this.setMinMaxDistance(config.minDistance, config.maxDistance);
+        }
+
+        if (config.position && config.target) {
+            console.log("[CameraService] 📍 Aplicando posición:", config.position, "y target:", config.target);
+            this.setLookAt(config.position, config.target, true);
+        }
+
+        if (config.smoothTime !== undefined) {
+            this.setSmoothTime(config.smoothTime);
+        }
+
+        if (config.maxPolarAngle !== undefined) {
+            this.setMaxPolarAngle(config.maxPolarAngle);
+        }
+
+        if (config.minPolarAngle !== undefined) {
+            this.setMinPolarAngle(config.minPolarAngle);
+        }
+
+        if (config.maxAzimuthAngle !== undefined) {
+            this.setAzimuthMaxAngle(config.maxAzimuthAngle);
+        }
+
+        if (config.minAzimuthAngle !== undefined) {
+            this.setAzimuthMinAngle(config.minAzimuthAngle);
+        }
+
+        if (config.boundaryEnclosesCamera !== undefined) {
+            this.setBoundaryEnclosesCamera(config.boundaryEnclosesCamera);
+        }
+
+        if (config.enablePan !== undefined) {
+            this.setEnablePan(config.enablePan);
+        }
+
+        console.log("[CameraService] ✅ applyConfig completado");
     }
 
     resetInitialPosition(smooth = true) {

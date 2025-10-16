@@ -3,12 +3,11 @@ import { EventEmitter } from "@engine/utils/EventEmitter";
 import type { Room } from "@/engine/entities";
 import type { ISystem } from "./ISystem";
 import { ServiceRegistry } from "./ServiceRegistry";
-import { AssetManager, CameraService, MaterialService } from "@/engine/services";
+import { AssetManager, CameraService, MaterialService, AnimationService, InteractionService } from "@/engine/services";
 import { EngineState } from "../types/engine.types";
 import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/room/RoomManager";
 import { PortalManager } from "@/engine/services/portal/PortalManager";
-import { LoopService } from "@/engine/services/LoopService";
 
 
 
@@ -50,6 +49,8 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(AssetManager, new AssetManager(this._gl!));
         this.registry.registerService(MaterialService, new MaterialService());
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
+        this.registry.registerService(AnimationService, new AnimationService(this._scene));
+        this.registry.registerService(InteractionService, new InteractionService(this._camera!, this._gl!.domElement));
 
         // Crear RoomManager y configurar listeners
         const roomManager = new RoomManager(this, new ConfigManager());
@@ -145,6 +146,10 @@ export class EngineCore extends EventEmitter {
         return this.registry.getService(service);
     }
 
+    getCurrentRoom(): Room | null {
+        return this.currentRoom;
+    }
+
     /** Loop principal */
     update(dt: number) {
         for (const sys of this.systems) sys.update(dt);
@@ -164,6 +169,8 @@ export class EngineCore extends EventEmitter {
         // Solo emitir evento - RoomScene es responsable de la carga
         this.emit("room:change:requested", { roomId, skinId });
     }
+
+
 
     /** Registra un sistema */
     addSystem(system: ISystem) {

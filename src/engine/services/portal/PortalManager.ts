@@ -53,14 +53,14 @@ export class PortalManager extends EventEmitter<PortalManagerEvents> {
     /**
      * Aplica materiales al portal actual
      */
-    async applyMaterialsToPortal(uniforms: Record<string, any>): Promise<void> {
+    applyMaterialsToPortal(uniforms: Record<string, any>) {
         if (!this.currentPortal) {
             console.warn('⚠️ PortalManager - No hay portal para aplicar materiales');
             return;
         }
 
         try {
-            await this.materialService.applyMaterialsToPortal(
+            this.materialService.applyMaterialsToPortal(
                 this.currentPortal.getObject3D(),
                 uniforms
             );
@@ -73,7 +73,6 @@ export class PortalManager extends EventEmitter<PortalManagerEvents> {
 
             this.emit('portal:material:applied', { portal: this.currentPortal });
 
-            console.log(`🎨 PortalManager - Materiales aplicados al portal:`, this.currentPortal.id);
         } catch (error) {
             console.error('❌ PortalManager - Error aplicando materiales:', error);
             throw error;

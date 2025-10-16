@@ -19,6 +19,7 @@ interface EngineCanvasProps extends PropsWithChildren {
 export function EngineCanvas({
   engineSettings = {
     backgroundColor: "#000000",
+    cameraPosition: [-5, 4, 4],
   },
   children,
   className,
@@ -32,7 +33,7 @@ export function EngineCanvas({
       }}
       camera={{
         fov: 45,
-        position: [-5, 4, 4],
+        position: engineSettings.cameraPosition as [number, number, number],
       }}
       onContextMenu={(e) => e.preventDefault()}
     >

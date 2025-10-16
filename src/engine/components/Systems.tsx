@@ -1,4 +1,6 @@
 import { Camera } from "./Camera";
+import { Animation } from "./Animation";
+import { Interaction } from "./Interaction";
 
 /**
  * Namespace para organizar los componentes de sistema del motor
@@ -6,6 +8,8 @@ import { Camera } from "./Camera";
  */
 export const System = {
   Camera,
+  Animation,
+  Interaction,
 } as const;
 
 // Export default para compatibilidad

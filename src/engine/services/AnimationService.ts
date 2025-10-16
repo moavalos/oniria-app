@@ -29,9 +29,11 @@ export class AnimationService {
         this.animationRepository = new AnimationRepository();
 
         if (!scene) {
-            console.warn("AnimationService: escena no está inicializada");
+            console.warn("[AnimationService] ⚠️ Escena no está inicializada");
             return;
         }
+
+        console.log("[AnimationService] ✅ Inicializado con escena:", scene);
     }
 
     /**
@@ -68,17 +70,22 @@ export class AnimationService {
      * @param config - Configuración de la animación a ejecutar
      */
     play(config: AnimationAction) {
+        console.log("[AnimationService] 🎬 Intentando reproducir animación:", config);
+
         if (!this.scene) {
-            console.warn("AnimationService: scene no está inicializada");
+            console.warn("[AnimationService] ⚠️ Scene no está inicializada");
             return;
         }
 
         const target = this.scene.getObjectByName(config.target);
 
         if (target === undefined) {
-            // console.warn(`No se encontró target para animación: ${config.target}`);
+            console.warn(`[AnimationService] ⚠️ No se encontró target para animación: ${config.target}`);
+            console.log("[AnimationService] 📋 Objetos disponibles en la escena:", this.scene.children.map(c => c.name).filter(Boolean));
             return;
         }
+
+        console.log("[AnimationService] ✅ Target encontrado:", target.name);
 
         // detener animación previa en ese target
         this.stop(config.target);

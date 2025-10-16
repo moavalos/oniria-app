@@ -24,6 +24,7 @@ export type UserSettings = {
 
 export type EngineSettings = {
     backgroundColor: ColorRepresentation
+    cameraPosition: [number, number, number];
 }
 
 

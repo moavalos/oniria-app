@@ -62,7 +62,7 @@ export function Camera({
     const defaultConfig: CameraConfig = {
       minDistance: 3,
       maxDistance: 6,
-      position: new THREE.Vector3(-3.5, 3, 6),
+      position: new THREE.Vector3(-4, 3, 4),
       target: new THREE.Vector3(0, 1.8, 0),
       smoothTime: 0.5,
       maxPolarAngle: Math.PI / 2,
@@ -77,6 +77,13 @@ export function Camera({
     const finalConfig = autoConfigureForRoom
       ? { ...defaultConfig, ...config }
       : config;
+
+    console.log("[Camera] 🔧 Configuración final que se aplicará:", {
+      defaultConfig: defaultConfig,
+      userConfig: config,
+      finalConfig: finalConfig,
+      autoConfigureForRoom: autoConfigureForRoom,
+    });
 
     // Crear e instanciar el sistema de cámara
     const cameraSystem = new CameraSystem(finalConfig);

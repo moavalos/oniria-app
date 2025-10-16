@@ -115,6 +115,10 @@ export default function RoomScene() {
             "[RoomScene] Portal creado y asignado al PortalManager:",
             portalEntity.id
           );
+
+          // Iniciar la animación del portal
+          portalManager.startPortalAnimation();
+          console.log("[RoomScene] ✅ Animación del portal iniciada");
         } else {
           console.warn("[RoomScene] No se encontró portal en la room");
           setPortalObject(null);
