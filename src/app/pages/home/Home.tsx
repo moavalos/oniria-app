@@ -1,4 +1,4 @@
-import { Engine, RoomScene, LoaderSystem } from "@/engine";
+import { Engine, RoomScene, LoaderSystem, DebugSystem } from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
 import Card from "@/shared/components/Card";
@@ -8,6 +8,7 @@ import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { Systems } from "@/engine/components";
+import HudSystem from "@/engine/systems/hud/HudSystem";
 
 export default function Home() {
   //const { t } = useTranslation();
@@ -91,7 +92,7 @@ export default function Home() {
               }}
             >
               <Engine.Core>
-                {/* <DebugSystem enabled={true} /> */}
+                <DebugSystem enabled={true} />
                 <Systems.Interaction />
                 <Systems.Animation
                   config={{

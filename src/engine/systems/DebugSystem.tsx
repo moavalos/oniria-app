@@ -3,9 +3,10 @@ import { button, useControls } from "leva";
 
 import { useEngineCore } from "@engine/core";
 import { useEngineStore } from "@engine/core/store/engineStore";
-import { useTransitions } from "../hooks";
+import { useEngineState, useTransitions } from "../hooks";
 import { EngineState } from "@engine/core/types/engine.types";
 import * as THREE from "three";
+import { CameraService } from "../services";
 
 export interface DebugSystemProps {
   enabled?: boolean;
@@ -36,8 +37,7 @@ export default function DebugSystem({
     node: true,
   },
 }: DebugSystemProps) {
-  const core = useEngineCore();
-  const { engineState } = core;
+  const engineState = useEngineState();
 
   // Solo mostrar cuando el engine esté listo (para debug)
   const isEngineReady = engineState === EngineState.READY;
@@ -48,10 +48,6 @@ export default function DebugSystem({
     <>
       {panels.engine && <EngineDebugPanel />}
       {isEngineReady && panels.camera && <CameraDebugPanel />}
-      {isEngineReady && panels.animation && <AnimationDebugPanel />}
-      {isEngineReady && panels.interaction && <InteractionDebugPanel />}
-      {isEngineReady && panels.scene && <SceneDebugPanel />}
-      {isEngineReady && panels.performance && <PerformanceDebugPanel />}
       {isEngineReady && panels.node && <NodeDebugPanel />}
     </>
   );
@@ -60,7 +56,7 @@ export default function DebugSystem({
 // Panel de Engine General
 function EngineDebugPanel() {
   const core = useEngineCore();
-  const { activeRoom, engineState } = core;
+  const engineState = useEngineState();
   const { dreamModalVisible, setDreamModalVisible } = useEngineStore();
 
   // Crear un objeto de controles que se actualice reactivamente
@@ -72,7 +68,7 @@ function EngineDebugPanel() {
         label: "Engine State",
       },
       activeRoom: {
-        value: activeRoom?.constructor.name || "none",
+        value: core.getCurrentRoom()?.constructor.name || "none",
         disabled: true,
         label: "Active Room",
       },
@@ -101,23 +97,25 @@ function EngineDebugPanel() {
       }),
       exportState: button(() => {
         const state = {
-          room: activeRoom?.constructor.name,
+          room: core.getCurrentRoom()?.constructor.name,
           engineState: engineState,
-          scene: activeRoom?.getScene()?.children.length,
+          scene: core.getCurrentRoom()?.get_Scene()?.children.length,
           dreamModal: dreamModalVisible,
           timestamp: Date.now(),
         };
         console.log("📤 Engine State:", state);
       }),
     }),
-    [engineState, activeRoom, dreamModalVisible, setDreamModalVisible]
+    [
+      engineState,
+      core.getCurrentRoom(),
+      dreamModalVisible,
+      setDreamModalVisible,
+    ]
   );
-
-  console.log(controls);
-
   useControls("🔧 Engine", controls, [
     engineState,
-    activeRoom,
+    core.getCurrentRoom(),
     dreamModalVisible,
   ]);
 
@@ -127,16 +125,16 @@ function EngineDebugPanel() {
 // Panel de Cámara
 function CameraDebugPanel() {
   const core = useEngineCore();
-  const { activeRoom, engineState } = core;
-  const cameraService = core.getCameraService();
+  const engineState = useEngineState();
+  const cameraService = core.getService(CameraService);
   const { viewNodes } = useTransitions();
-
-  console.log(engineState);
 
   // Estado para lookAtables (usando patrón async como AnimationSystem)
   const [lookAtables, setLookAtables] = useState<Record<string, any>>({});
 
   const isEngineReady = engineState === EngineState.READY;
+
+  const activeRoom = core.getCurrentRoom();
 
   // Cargar lookAtables de forma asíncrona
   useEffect(() => {
@@ -224,235 +222,6 @@ function CameraDebugPanel() {
       cameraService.setLookAt(from, objPos, true);
     }
   }, [target, cameraService, lookAtables, activeRoom]);
-
-  return null;
-}
-
-// Panel de Animaciones
-function AnimationDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom } = core;
-
-  useControls("🎬 Animation", {
-    totalClips: {
-      value: activeRoom?.getScene()?.animations?.length || 0,
-      disabled: true,
-      label: "Total Clips",
-    },
-    playAll: button(() => {
-      console.log("▶️ Playing all animations");
-    }),
-    pauseAll: button(() => {
-      console.log("⏸️ Pausing all animations");
-    }),
-    stopAll: button(() => {
-      console.log("⏹️ Stopping all animations");
-    }),
-  });
-
-  return null;
-}
-
-// Panel de Interacciones
-function InteractionDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom, engineState } = core;
-
-  // Estado para interactables (usando patrón async como AnimationSystem)
-  const [interactables, setInteractables] = useState<Record<string, any>>({});
-
-  const isEngineReady = engineState === EngineState.READY;
-
-  // Cargar interactables de forma asíncrona
-  useEffect(() => {
-    if (!isEngineReady || !activeRoom) {
-      setInteractables({});
-      return;
-    }
-
-    const loadInteractables = async () => {
-      try {
-        const roomInteractables = await activeRoom.getInteractableObjects();
-        setInteractables(roomInteractables || {});
-      } catch (error) {
-        console.error("Error cargando objetos interactables:", error);
-        setInteractables({});
-      }
-    };
-
-    loadInteractables();
-  }, [activeRoom, isEngineReady]);
-
-  const interactablesList = Object.keys(interactables);
-
-  // Crear controles reactivos
-  const interactionControls = React.useMemo(
-    () => ({
-      totalInteractables: {
-        value: interactablesList.length,
-        disabled: true,
-        label: "Total Interactables",
-      },
-      interactableObjects: {
-        value: interactablesList.join(", ") || "none",
-        disabled: true,
-        label: "Objects",
-      },
-      simulateHover: button(() => {
-        if (interactablesList[0]) {
-          console.log(`Hover: ${interactablesList[0]}`);
-        }
-      }),
-      logInteractables: button(() => {
-        console.log("📋 Interactables:", interactables);
-      }),
-    }),
-    [interactablesList, interactables]
-  );
-
-  useControls("🎯 Interaction", interactionControls);
-
-  return null;
-}
-
-// Panel de Escena
-function SceneDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom } = core;
-
-  const sceneInfo = React.useMemo(() => {
-    const scene = activeRoom?.getScene();
-    if (!scene) return { objects: 0, lights: 0, meshes: 0 };
-
-    let objects = 0;
-    let lights = 0;
-    let meshes = 0;
-
-    scene.traverse((child) => {
-      objects++;
-      if (child.type.includes("Light")) lights++;
-      if (child.type === "Mesh") meshes++;
-    });
-
-    return { objects, lights, meshes };
-  }, [activeRoom]);
-
-  const [wireframeMode, setWireframeMode] = React.useState(false);
-
-  useControls("🌍 Scene", {
-    totalObjects: {
-      value: sceneInfo.objects,
-      disabled: true,
-      label: "Total Objects",
-    },
-    lights: {
-      value: sceneInfo.lights,
-      disabled: true,
-      label: "Lights",
-    },
-    meshes: {
-      value: sceneInfo.meshes,
-      disabled: true,
-      label: "Meshes",
-    },
-    logScene: button(() => {
-      const scene = activeRoom?.getScene();
-      if (scene) {
-        console.log("🌳 Scene Graph:", scene);
-        scene.traverse((child) => {
-          console.log(`- ${child.name} (${child.type})`);
-        });
-      }
-    }),
-    toggleWireframe: button(() => {
-      const scene = activeRoom?.getScene();
-      scene?.traverse((child) => {
-        if (child.type === "Mesh") {
-          const mesh = child as THREE.Mesh;
-          if (mesh.material) {
-            const material = Array.isArray(mesh.material)
-              ? mesh.material[0]
-              : mesh.material;
-            if ("wireframe" in material) {
-              material.wireframe = !material.wireframe;
-            }
-          }
-        }
-      });
-      setWireframeMode(!wireframeMode);
-    }),
-  });
-
-  return null;
-}
-
-// Panel de Performance
-function PerformanceDebugPanel() {
-  const [frameRate, setFrameRate] = React.useState(0);
-  const [memoryUsage, setMemoryUsage] = React.useState(0);
-  const [isProfileling, setIsProfiiling] = React.useState(false);
-
-  React.useEffect(() => {
-    let frameCount = 0;
-    let lastTime = performance.now();
-
-    const updateStats = () => {
-      frameCount++;
-      const currentTime = performance.now();
-
-      if (currentTime - lastTime >= 1000) {
-        setFrameRate(frameCount);
-        frameCount = 0;
-        lastTime = currentTime;
-
-        // Memory usage (si está disponible)
-        if ("memory" in performance) {
-          const memory = (performance as any).memory;
-          setMemoryUsage(Math.round(memory.usedJSHeapSize / 1024 / 1024));
-        }
-      }
-
-      requestAnimationFrame(updateStats);
-    };
-
-    updateStats();
-  }, []);
-
-  useControls("⚡ Performance", {
-    frameRate: {
-      value: `${frameRate} FPS`,
-      disabled: true,
-      label: "Frame Rate",
-    },
-    memoryUsage: {
-      value: `${memoryUsage} MB`,
-      disabled: true,
-      label: "Memory Usage",
-    },
-    startProfiling: button(() => {
-      console.log("🔍 Starting performance profiling...");
-      console.time("Performance Profile");
-      setIsProfiiling(true);
-    }),
-    endProfiling: button(() => {
-      console.timeEnd("Performance Profile");
-      console.log("✅ Performance profiling ended");
-      setIsProfiiling(false);
-    }),
-    forceGC: button(() => {
-      if ("gc" in window && typeof (window as any).gc === "function") {
-        (window as any).gc();
-        console.log("🗑️ Garbage collection forced");
-      } else {
-        console.log("⚠️ GC not available");
-      }
-    }),
-    profilingStatus: {
-      value: isProfileling ? "Running" : "Stopped",
-      disabled: true,
-      label: "Profiling Status",
-    },
-  });
 
   return null;
 }

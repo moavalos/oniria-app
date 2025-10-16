@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { useCallback } from 'react';
-
 import { useEngineCore } from '@engine/core';
+import { CameraService } from '../services';
 
 /**
  * Hook que proporciona métodos para transiciones de cámara y animaciones
@@ -9,9 +9,9 @@ import { useEngineCore } from '@engine/core';
  * @returns Objeto con métodos para manejar transiciones visuales
  */
 export function useTransitions() {
-    const services = useEngineCore();
-    const cameraService = services.getCameraService();
-    const { activeRoom } = services;
+    const core = useEngineCore();
+    const cameraService = core.getService(CameraService);
+    const activeRoom = core.getCurrentRoom();
 
     /**
      * Transiciona la cámara para ver los nodos de la sala activa

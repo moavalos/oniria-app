@@ -10,6 +10,5 @@ export * from "../core/hooks";
 
 // Hooks de características específicas
 export * from "./useTransitions";
-export * from "./useThreeLoader";
 export * from "./useProgress";
 export * from "./useEngineState";
