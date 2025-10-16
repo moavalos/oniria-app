@@ -161,7 +161,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
      * Método específico para Room (mantiene compatibilidad con código existente)
      */
     private rayCastRoom(room: Room, interactableObjects: Record<string, ObjectEventArray>) {
-        const scene = room.getScene();
+        const scene = room.get_Scene();
         if (!scene) return;
 
         this.interactableCache = interactableObjects; // guardar copia fresca

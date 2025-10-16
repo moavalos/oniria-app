@@ -17,7 +17,7 @@ export { default as RoomScene } from "./scenes/RoomScene";
 
 // Sistemas
 export { default as LoaderSystem, type LoaderSystemProps, type LoaderProps } from "./systems/LoaderSystem";
-export { default as CameraSystem } from "./systems/CameraSystem";
+export { System, Systems } from "./components";  // Exportar ambos para compatibilidad
 export { default as AnimationSystem } from "./systems/AnimationSystem";
 export { default as InteractionSystem } from "./systems/InteractionSystem";
 export { default as DebugSystem } from "./systems/DebugSystem";

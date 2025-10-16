@@ -13,3 +13,4 @@ export * from "./useHandlers";
 export * from "./useTransitions";
 export * from "./useThreeLoader";
 export * from "./useProgress";
+export * from "./useEngineState";

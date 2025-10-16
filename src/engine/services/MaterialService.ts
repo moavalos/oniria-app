@@ -1,5 +1,4 @@
 import * as THREE from "three";
-
 import type { Room } from "@engine/entities/Room";
 import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
 import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
@@ -24,7 +23,7 @@ export class MaterialService {
      */
     async applyMaterialsToRoom(room: Room) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
-        this.scene = room.getScene()!;
+        this.scene = room.get_Scene()!;
 
         // función para obtener o crear materiales de color
         // y almacenarlos en un mapa para reutilización
@@ -66,7 +65,7 @@ export class MaterialService {
      */
     applyMaterialsWithColorables(room: Room, colorableObjects: Record<string, string>) {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
-        this.scene = room.getScene()!;
+        this.scene = room.get_Scene()!;
 
         // función para obtener o crear materiales de color
         const getColorMaterial = (hex: string) => {

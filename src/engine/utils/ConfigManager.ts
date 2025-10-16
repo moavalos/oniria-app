@@ -18,20 +18,10 @@ export interface ProcessedRoomObjects {
  * Solo mantiene la configuración de la habitación activa.
  */
 export class ConfigManager {
-    private static instance: ConfigManager | null = null;
 
     private currentConfig: RoomConfig | null = null;
 
     private currentRoomId: string | null = null;
-
-    private constructor() { }
-
-    static getInstance(): ConfigManager {
-        if (!ConfigManager.instance) {
-            ConfigManager.instance = new ConfigManager();
-        }
-        return ConfigManager.instance;
-    }
 
     /**
      * Obtiene la configuración de una habitación.

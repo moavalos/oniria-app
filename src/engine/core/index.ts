@@ -9,7 +9,7 @@ export { DefaultEngineIndicator } from "./components/DefaultEngineIndicator";
 export { EngineCore } from './src/EngineCore.class';
 
 // Hooks principales del core
-export { useEngineCore } from "./components/EngineCore";
+export { useEngineCore } from "./context/EngineCoreProvider";
 
 // Entidades principales
 export { Room } from "@engine/entities/Room";

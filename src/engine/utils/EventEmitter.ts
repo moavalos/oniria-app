@@ -4,15 +4,16 @@ interface Name {
     namespace: string
 }
 
-// Tipo genérico para mapa de eventos
-type EventMap = Record<string, unknown>;
+// Tipo genérico para mapa de eventos con objetos como datos
+type EventMap = Record<string, Record<string, any>> | Record<string, any>;
 
-// Tipo para callback función genérica - mejorado para compatibilidad con tipos específicos
-type CallbackFunction<T = unknown> = (_data: T) => unknown;
+// Tipo para callback función que recibe un objeto de datos
+type CallbackFunction<T = Record<string, any>> = (_data: T) => unknown;
 
 /**
  * Sistema de eventos tipado para el motor 3D.
  * Permite comunicación desacoplada entre componentes mediante eventos.
+ * Soporta destructuring directo en los callbacks.
  */
 export class EventEmitter<T extends EventMap = EventMap> {
     callbacks: Record<string, Record<string, CallbackFunction[]>> = {}
@@ -25,9 +26,8 @@ export class EventEmitter<T extends EventMap = EventMap> {
     /**
      * Suscribe un callback a un evento específico.
      * @param _names - Nombre del evento o eventos
-     * @param callback - Función a ejecutar cuando se dispare el evento
+     * @param callback - Función a ejecutar cuando se dispare el evento (puede usar destructuring)
      */
-
     on<K extends keyof T>(_names: K | string, callback: CallbackFunction<T[K]>): this {
         // Errors
         if (typeof _names === 'undefined' || _names === '') {
@@ -121,28 +121,22 @@ export class EventEmitter<T extends EventMap = EventMap> {
     }
 
     /**
-     * Dispara un evento específico con argumentos opcionales.
-     * @param _name - Nombre del evento a disparar
-     * @param _args - Argumentos a pasar a los callbacks
+     * Emite un evento con datos específicos.
+     * @param eventName - Nombre del evento a emitir
+     * @param data - Objeto con datos del evento (soporta destructuring)
      */
-    trigger(_name: string, _args?: unknown[]): unknown {
+    emit<K extends keyof T>(eventName: K | string, data: T[K] | Record<string, any>): boolean {
         // Errors
-        if (typeof _name === 'undefined' || _name === '') {
-            console.warn('Nombre incorrecto')
+        if (typeof eventName === 'undefined' || eventName === '') {
+            console.warn('Nombre de evento incorrecto')
             return false
         }
 
-        let finalResult: unknown = null
-        let result = null
-
-        // Default args
-        const args = !(_args instanceof Array) ? [] : _args
-
-        // Resolve names (should on have one event)
-        const nameArray = this.resolveNames(_name)
-
-        // Resolve name
+        // Resolve names (should only have one event)
+        const nameArray = this.resolveNames(eventName as string)
         const name = this.resolveName(nameArray[0])
+
+        let hasListeners = false
 
         // Default namespace
         if (name.namespace === 'base') {
@@ -153,40 +147,28 @@ export class EventEmitter<T extends EventMap = EventMap> {
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
                     this.callbacks[namespace][name.value].forEach((callback: CallbackFunction) => {
-                        result = callback(args[0])
-
-                        if (typeof finalResult === 'undefined') {
-                            finalResult = result
-                        }
+                        callback(data as Record<string, any>)
+                        hasListeners = true
                     })
                 }
             }
         }
-
         // Specified namespace
         else if (this.callbacks[name.namespace] instanceof Object) {
             if (name.value === '') {
-                console.warn('Nombre incorrecto')
-                return this
+                console.warn('Nombre de evento incorrecto')
+                return false
             }
 
-            this.callbacks[name.namespace][name.value].forEach((callback: CallbackFunction) => {
-                result = callback(args[0])
-
-                if (typeof finalResult === 'undefined') finalResult = result
-            })
+            if (this.callbacks[name.namespace][name.value] instanceof Array) {
+                this.callbacks[name.namespace][name.value].forEach((callback: CallbackFunction) => {
+                    callback(data as Record<string, any>)
+                    hasListeners = true
+                })
+            }
         }
 
-        return finalResult
-    }
-
-    /**
-     * Método emit para compatibilidad con Node.js EventEmitter API.
-     * @param eventName - Nombre del evento
-     * @param data - Datos del evento
-     */
-    emit<K extends keyof T>(eventName: K, data: T[K]): boolean {
-        return this.trigger(eventName as string, [data]) !== false;
+        return hasListeners
     }
 
     /**

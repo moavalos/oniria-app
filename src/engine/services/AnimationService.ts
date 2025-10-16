@@ -25,7 +25,7 @@ export class AnimationService {
      * 
      * @param scene - Escena de Three.js donde se encuentran los objetos a animar
      */
-    constructor(private scene: THREE.Group<THREE.Object3DEventMap> | null) {
+    constructor(private scene: THREE.Group<THREE.Object3DEventMap> | THREE.Scene | null) {
         this.animationRepository = new AnimationRepository();
 
         if (!scene) {

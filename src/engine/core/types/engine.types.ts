@@ -3,13 +3,18 @@ import { Room } from "@engine/entities/Room";
 import { Skin } from "@engine/entities/Skin";
 import type { ColorRepresentation } from "three";
 
+// Estados del motor 3D
 export enum EngineState {
+    CREATED = "CREATED",
     INITIALIZING = "INITIALIZING",
     LOADING_ASSETS = "LOADING_ASSETS",
-    LOADING_CONFIG = "LOADING_CONFIG",
     READY = "READY",
-    ERROR = "ERROR"
+    RUNNING = "RUNNING",
+    PAUSED = "PAUSED",
+    DISPOSING = "DISPOSING",
+    DISPOSED = "DISPOSED",
 }
+
 
 
 export type UserSettings = {

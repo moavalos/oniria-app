@@ -2,7 +2,6 @@ import {
   Engine,
   RoomScene,
   LoaderSystem,
-  CameraSystem,
   AnimationSystem,
   InteractionSystem,
   DebugSystem,
@@ -16,6 +15,7 @@ import useDreams from "@/app/features/dreams/hooks/useDreams";
 import UnifiedSidePanel from "./components/Panel";
 import HudSystem from "@/engine/systems/hud/HudSystem";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
+import { Systems } from "@/engine/components";
 
 export default function Home() {
   //const { t } = useTranslation();
@@ -85,7 +85,7 @@ export default function Home() {
         {/* Canvas 3d */}
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
           {/* <HudSystem /> */}
-          {/* <LoaderSystem /> */}
+          <LoaderSystem />
 
           {roomId && skinId && (
             <Engine.Canvas engineSettings={{ backgroundColor: canvasBg }}>
@@ -93,7 +93,7 @@ export default function Home() {
                 {/* <DebugSystem enabled={true} /> */}
                 {/* <InteractionSystem onObjectHoverEnter={hoverHandler} /> */}
                 {/* <AnimationSystem /> */}
-                {/* <CameraSystem /> */}
+                <Systems.Camera />
                 <RoomScene />
               </Engine.Core>
             </Engine.Canvas>

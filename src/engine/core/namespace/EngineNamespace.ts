@@ -1,4 +1,4 @@
-import { EngineCoreProvider } from "../components/EngineCore";
+import { EngineCoreProvider } from "../context/EngineCoreProvider";
 import { EngineCanvas } from "../components/EngineCanvas";
 
 /**

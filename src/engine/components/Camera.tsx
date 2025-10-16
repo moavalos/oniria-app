@@ -3,11 +3,14 @@ import { useEffect } from "react";
 
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core/";
-import { useTransitions } from "@engine/hooks/useTransitions";
+import { useEngineState } from "@engine/hooks/useEngineState";
+import { CameraSystem } from "@engine/systems/CameraSystem";
+import {
+  CameraService,
+  type CameraConfig,
+} from "@engine/services/CameraService";
 
-import { type CameraConfig } from "@engine/services/CameraService";
-
-export interface CameraSystemProps {
+export interface CameraProps {
   config?: CameraConfig;
   onCameraMove?: (position: THREE.Vector3, target: THREE.Vector3) => void;
   onCameraStop?: () => void;
@@ -17,8 +20,8 @@ export interface CameraSystemProps {
 }
 
 /**
- * Sistema de cámara del motor 3D.
- * Gestiona la configuración y controles de la cámara para la exploración de la escena.
+ * Componente de sistema de cámara del motor 3D.
+ * Registra la clase CameraSystem en el core y gestiona los callbacks de UI.
  *
  * @param config Configuración inicial de la cámara
  * @param onCameraMove Callback cuando la cámara se mueve
@@ -28,64 +31,81 @@ export interface CameraSystemProps {
  * @param autoConfigureForRoom Si es true, configura automáticamente la cámara para la sala activa
  * @returns Componente React que no renderiza nada pero gestiona la cámara
  */
-export default function CameraSystem({
+export function Camera({
   config,
   onCameraMove,
   onCameraStop,
   onZoomChange,
   enableControls = true,
   autoConfigureForRoom = true,
-}: CameraSystemProps) {
+}: CameraProps) {
   const core = useEngineCore();
-  const {
-    loopService,
-    activeRoom,
-    engineState,
-    registerApiAction,
-    unregisterApiAction,
-  } = core;
-  const cameraService = core.getCameraService();
-  const { viewNodes, viewReset } = useTransitions();
+  const cameraService = core.getService(CameraService);
 
-  // Solo funcionar cuando el engine esté listo
+  // Usar el hook que se suscribe reactivamente a cambios de estado
+  const engineState = useEngineState();
   const isEngineReady = engineState === EngineState.READY;
 
-  // Registrar acciones en la API del motor
+  // Registrar el CameraSystem en el core
   useEffect(() => {
-    if (!isEngineReady) return;
-
-    // Registrar la acción viewNodes
-    registerApiAction("viewNodes", viewNodes);
-
-    // Registrar la acción viewReset
-    registerApiAction("viewReset", viewReset);
-
-    // Cleanup al desmontar
-    return () => {
-      unregisterApiAction("viewNodes");
-      unregisterApiAction("viewReset");
-    };
-  }, [
-    isEngineReady,
-    registerApiAction,
-    unregisterApiAction,
-    viewNodes,
-    viewReset,
-  ]);
-
-  // Suscripción al loop para updates
-  useEffect(() => {
-    if (!isEngineReady || !loopService || !cameraService || !enableControls) {
+    if (!isEngineReady) {
+      console.log(
+        "[Camera] ⏳ Esperando que el engine esté listo... Estado actual:",
+        engineState
+      );
       return;
     }
 
-    const cb = (_: unknown, dt: number) => {
-      cameraService?.update(dt);
+    console.log("[Camera] ✅ Engine listo, registrando CameraSystem...");
+
+    // Configuración por defecto para auto-configuración
+    const defaultConfig: CameraConfig = {
+      minDistance: 3,
+      maxDistance: 6,
+      position: new THREE.Vector3(-3.5, 3, 6),
+      target: new THREE.Vector3(0, 1.8, 0),
+      smoothTime: 0.5,
+      maxPolarAngle: Math.PI / 2,
+      minPolarAngle: Math.PI / 3,
+      maxAzimuthAngle: 0,
+      minAzimuthAngle: -Math.PI / 2.5,
+      boundaryEnclosesCamera: true,
+      enablePan: false,
     };
 
-    loopService.subscribe(cb);
-    return () => loopService.unsubscribe(cb);
-  }, [loopService, cameraService, enableControls, isEngineReady]);
+    // Fusionar configuración por defecto con props si hay auto-configuración
+    const finalConfig = autoConfigureForRoom
+      ? { ...defaultConfig, ...config }
+      : config;
+
+    // Crear e instanciar el sistema de cámara
+    const cameraSystem = new CameraSystem(finalConfig);
+
+    // Configurar el sistema con las opciones recibidas
+    cameraSystem.setControlsEnabled(enableControls);
+    cameraSystem.setAutoConfigureForRoom(autoConfigureForRoom);
+
+    // Registrar el sistema en el core
+    core.addSystem(cameraSystem);
+
+    console.log("[Camera] 🎥 CameraSystem registrado en el core");
+
+    // Cleanup al desmontar - disponer el sistema
+    return () => {
+      cameraSystem.dispose();
+      console.log("[Camera] 🗑️ CameraSystem removido del core");
+    };
+  }, [
+    core,
+    config,
+    enableControls,
+    autoConfigureForRoom,
+    isEngineReady,
+    engineState,
+  ]);
+
+  // TODO: Integrar con la API del motor cuando esté disponible
+  // Registrar acciones viewNodes y viewReset para transiciones
 
   // Configuración de eventos de la cámara
   useEffect(() => {
@@ -121,32 +141,6 @@ export default function CameraSystem({
       cameraService.removeEventListener("controlend", handleCameraStop);
     };
   }, [cameraService, onCameraMove, onCameraStop, onZoomChange, isEngineReady]);
-
-  // Configuración automática para la room activa
-  useEffect(() => {
-    if (!isEngineReady || !cameraService || !autoConfigureForRoom) return;
-
-    // Configuración por defecto (puede ser sobrescrita por props)
-    const defaultConfig: CameraConfig = {
-      minDistance: 3,
-      maxDistance: 6,
-      position: new THREE.Vector3(-3.5, 3, 6),
-      target: new THREE.Vector3(0, 1.8, 0),
-      smoothTime: 0.5,
-      maxPolarAngle: Math.PI / 2,
-      minPolarAngle: Math.PI / 3,
-      maxAzimuthAngle: 0,
-      minAzimuthAngle: -Math.PI / 2.5,
-      boundaryEnclosesCamera: true,
-      enablePan: false,
-    };
-
-    // Fusionar configuración por defecto con props
-    const finalConfig = { ...defaultConfig, ...config };
-
-    // Aplicar configuración
-    cameraService.setConfig(finalConfig);
-  }, [cameraService, activeRoom, config, autoConfigureForRoom, isEngineReady]);
 
   return null;
 }

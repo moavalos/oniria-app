@@ -5,6 +5,8 @@ import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core";
 import NodeScene from "@/engine/scenes/NodeScene";
 import { Sparkles } from "@react-three/drei";
+import { MaterialService } from "@engine/services";
+import { CameraService } from "@engine/services";
 
 interface PortalRendererProps {
   portal?: THREE.Object3D;
@@ -16,12 +18,10 @@ interface PortalRendererProps {
  */
 export const PortalRenderer = ({ portal }: PortalRendererProps) => {
   const core = useEngineCore();
-  const { loopService, engineState, getCameraService } = core;
-  const materialService = core.getMaterialService();
   const portalMaterialRef = useRef<THREE.ShaderMaterial | null>(null);
   const [showNodes, setShowNodes] = useState(false);
 
-  const isEngineReady = engineState === EngineState.READY;
+  const isEngineReady = core?.getState() === EngineState.READY;
 
   // Configuración de uniforms del Portal
   const portalUniforms = useMemo(
@@ -40,41 +40,40 @@ export const PortalRenderer = ({ portal }: PortalRendererProps) => {
     []
   );
 
-  // Aplicar material y configurar animación del portal
+  // Aplicar material del portal
   useEffect(() => {
-    if (!isEngineReady || !portal || !materialService || !loopService) {
+    if (!isEngineReady || !portal || !core) {
+      return;
+    }
+
+    const materialService = core.getService(MaterialService);
+
+    if (!materialService) {
+      console.warn("[PortalRenderer] MaterialService not available");
       return;
     }
 
     // Aplicar el material del portal
     materialService.applyMaterialsToPortal(portal, portalUniforms);
 
-    // Guardar referencia al material
+    // Guardar referencia al material para posibles actualizaciones futuras
     const portalMesh = portal as THREE.Mesh;
     if (portalMesh.material && "uniforms" in portalMesh.material) {
       portalMaterialRef.current = portalMesh.material as THREE.ShaderMaterial;
     }
 
-    // Configurar animación
-    const animatePortal = (_: unknown, delta: number) => {
-      if (portalMaterialRef.current?.uniforms?.uTime) {
-        portalMaterialRef.current.uniforms.uTime.value += delta;
-      }
-    };
-
-    loopService.subscribe(animatePortal);
-
-    return () => {
-      loopService.unsubscribe(animatePortal);
-    };
-  }, [isEngineReady, portal, materialService, loopService, portalUniforms]);
+    console.log("[PortalRenderer] Material aplicado al portal");
+  }, [isEngineReady, portal, core, portalUniforms]);
 
   // detectar cuando la camara entra al portal
   useEffect(() => {
-    if (!isEngineReady || !portal) return;
+    if (!isEngineReady || !portal || !core) return;
 
-    const cameraService = getCameraService();
-    if (!cameraService) return;
+    const cameraService = core.getService(CameraService);
+    if (!cameraService) {
+      console.warn("[PortalRenderer] CameraService not available");
+      return;
+    }
 
     // Función para verificar si la cámara está dentro del portal
     // nos aseguramos de mostrar los nodos solo cuando la cámara está dentro del portal
@@ -119,7 +118,7 @@ export const PortalRenderer = ({ portal }: PortalRendererProps) => {
     return () => {
       cameraService.removeEventListener("rest", checkCameraInPortal);
     };
-  }, [isEngineReady, portal, getCameraService]);
+  }, [isEngineReady, portal, core]);
 
   return (
     <>

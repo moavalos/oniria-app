@@ -7,11 +7,10 @@ import {
   useEffect,
 } from "react";
 
-import { DefaultEngineIndicator } from "./DefaultEngineIndicator";
+import { DefaultEngineIndicator } from "@engine/core/components/DefaultEngineIndicator";
 import { EngineCore } from "@engine/core";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEngineAPI } from "../context/EngineApiProvider";
-import { AssetManager } from "@/engine/components";
 
 /**
  * Contexto principal del núcleo del motor
@@ -32,10 +31,8 @@ export function EngineCoreProvider({ children }: EngineCoreProps) {
 
   // Inyectar contexto de Three al core
   useEffect(() => {
-    core.initContext(gl, scene, camera);
+    core.init(gl, scene, camera);
     api.attachCore(core);
-    core.registerService(AssetManager, new AssetManager(gl));
-    core.registerService(RoomManager, new RoomManager(core));
   }, [core, gl, scene, camera]);
 
   // Loop principal sincronizado con el render

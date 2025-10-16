@@ -1,153 +1,57 @@
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useMemo } from "react";
 import { useEngineCore } from "@engine/core";
-import { AssetManager } from "@engine/components";
 import { Room } from "@engine/entities";
-import { EngineState } from "@engine/core";
-import { PortalRenderer } from "./PortalRenderer";
+import { MaterialService } from "@engine/services";
+
+interface RoomRendererProps {
+  room: Room;
+}
 
 /**
  * Renderer principal para salas 3D.
- * Gestiona la carga de modelos, texturas y la renderización completa de las salas.
+ * Renderiza rooms que ya han sido completamente materializadas por el RoomManager.
+ * La room recibida ya tiene scene, texturas y configuración aplicadas.
  */
-export default function RoomRenderer() {
+export default function RoomRenderer({ room }: RoomRendererProps) {
   const core = useEngineCore();
-  const { setEngineState } = core;
 
-  const [loadedRoom, setLoadedRoom] = useState<Room | null>(null);
-
-  // Generar lista de assets basada en la room activa
-  const assets = useMemo(() => {
-    if (!core.activeRoom) return [];
-
-    const roomAssets = [];
-
-    // Asset principal del modelo GLTF
-    roomAssets.push({
-      url: `/models/${core.activeRoom.id}.gltf`,
-      type: "gltf" as const,
-    });
-
-    // Assets de texturas del skin activo
-    if (core.activeRoom.skin) {
-      roomAssets.push({
-        url: `/skins/${core.activeRoom.skin.id}_object.ktx2`,
-        type: "ktx2" as const,
-      });
-      roomAssets.push({
-        url: `/skins/${core.activeRoom.skin.id}_wall.ktx2`,
-        type: "ktx2" as const,
-      });
-    }
-
-    return roomAssets;
-  }, [core.activeRoom]);
-
-  // Callback cuando los assets están cargados
-  const handleAssetsLoaded = (assets: { [key: string]: any }) => {
-    console.log("RoomRenderer - handleAssetsLoaded called", {
-      roomId: core.activeRoom?.id,
-      assetsKeys: Object.keys(assets),
-      timestamp: Date.now(),
-      stack: new Error().stack?.split("\n")[1]?.trim(),
-    });
-
-    if (!core.activeRoom) return;
-
-    try {
-      // Crear instancia de Room con el skin actual
-      const room = core.activeRoom;
-
-      // Configurar la scene con el modelo GLTF
-      const roomModel = assets[core.activeRoom.id]; // Nombre del archivo GLTF
-      if (roomModel) {
-        room.setScene(roomModel.scene);
-      }
-
-      // Configurar texturas si están disponibles
-      const objectTexture = assets[`${core.activeRoom.skin.id}_object`];
-      const environmentTexture = assets[`${core.activeRoom.skin.id}_wall`];
-
-      if (objectTexture && environmentTexture) {
-        room.setTextures({
-          objectTexture,
-          environmentTexture,
-        });
-      }
-
-      setLoadedRoom(room);
-    } catch (error) {
-      console.error("RoomRenderer: Error procesando assets:", error);
-    }
-  };
-
-  // Carga de materiales y configuración del portal
+  // Aplicar materiales cuando la room esté lista
   useEffect(() => {
-    if (!loadedRoom || !loadedRoom.hasScene()) return;
+    if (!room || !room.has_Scene()) return;
 
     const applyMaterials = async () => {
       try {
-        const materialService = core.getMaterialService();
-        await materialService.applyMaterialsToRoom(loadedRoom);
+        const materialService = core.getService(MaterialService);
+        await materialService.applyMaterialsToRoom(room);
+        console.log(
+          "🎨 RoomRenderer - Materiales aplicados a room:",
+          room.get_Id()
+        );
       } catch (error) {
-        console.error("Error al aplicar materiales:", error);
+        console.error("❌ RoomRenderer - Error aplicando materiales:", error);
       }
     };
 
     applyMaterials();
-  }, [loadedRoom, core]);
+  }, [room, core]);
 
-  // Controlar el estado del engine basado en la disponibilidad de room
-  useEffect(() => {
-    if (!core.activeRoom || assets.length === 0) {
-      setEngineState(EngineState.INITIALIZING);
-    }
-  }, [core.activeRoom, assets.length, setEngineState]);
-
+  // Obtener la scene de la room (ya materializada)
   const scene = useMemo(() => {
-    return loadedRoom?.getScene();
-  }, [loadedRoom]);
-
-  // Portal del room cargado
-  const portal = useMemo(() => {
-    const foundPortal = loadedRoom?.getPortal();
-    console.log("RoomRenderer - Portal from loadedRoom:", {
-      hasLoadedRoom: !!loadedRoom,
-      hasPortal: !!foundPortal,
-      portalName: foundPortal?.name,
-      portalId: foundPortal?.id,
-      portalUuid: foundPortal?.uuid,
-      sceneUuid: scene?.uuid,
-      portalParentUuid: foundPortal?.parent?.uuid,
-      isPortalInScene: foundPortal?.parent?.uuid === scene?.uuid,
+    const roomScene = room?.get_Scene();
+    console.log("🏠 RoomRenderer - Scene obtenida:", {
+      roomId: room?.get_Id(),
+      hasScene: !!roomScene,
+      sceneUuid: roomScene?.uuid,
+      children: roomScene?.children.length || 0,
     });
-    return foundPortal;
-  }, [loadedRoom, scene]);
+    return roomScene;
+  }, [room]);
 
-  // Cambiar a READY cuando la escena esté completamente cargada
-  useEffect(() => {
-    if (scene && loadedRoom?.hasScene()) {
-      setEngineState(EngineState.READY);
-    }
-  }, [scene, loadedRoom, setEngineState]);
-
-  // Si no hay room activa, no renderizar nada
-  if (!core.activeRoom || assets.length === 0) {
+  // Si no hay scene, no renderizar nada
+  if (!scene) {
+    console.warn("⚠️ RoomRenderer - No hay scene para renderizar");
     return null;
   }
 
-  return (
-    <AssetManager
-      assets={assets}
-      onLoaded={handleAssetsLoaded}
-      fallback={<group />} // Fallback vacío mientras carga
-    >
-      {scene ? (
-        <>
-          <primitive object={scene} />
-          <PortalRenderer portal={portal} />
-        </>
-      ) : null}
-    </AssetManager>
-  );
+  return <primitive object={scene} />;
 }
