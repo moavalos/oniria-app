@@ -1,47 +1,48 @@
-import * as THREE from "three";
-import { useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Node, useEngineCore } from "@engine/core";
+import { useEngineState } from "../hooks";
+import { NodeManager } from "../services/room/NodeManager";
+import { Float } from "@react-three/drei";
 
-import { NodeRenderer } from "../systems/renderer/NodeRenderer";
-import { useEngineCore } from "@engine/core";
-import { useTransitions } from "../hooks";
+interface NodeSceneProps {
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+}
 
 /**
  * Escena para renderizar nodos 3D.
  * Gestiona la renderización de nodos especiales en la escena.
  */
-export default function NodeScene() {
-  const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
+export default function NodeScene(props: NodeSceneProps) {
+  const [node, setNode] = useState<Node | null>(null);
+
   const core = useEngineCore();
-  const { viewNodes } = useTransitions();
+  const isEngineReady = useEngineState();
+  //const { viewNodes } = useTransitions();
 
-  // Registrar el nodo cuando la referencia esté disponible
   useEffect(() => {
-    if (nodeRef.current) {
-      // Registrar el nodo con un ID por defecto o dinámico
-      //despues lo vemos despues
-      core.registerNode("default-node", nodeRef.current);
+    if (isEngineReady) {
+      const nodeManager = core.getService(NodeManager);
+      const nodeCreated = nodeManager.createNode();
+      if (nodeCreated) {
+        setNode(nodeCreated);
+      }
     }
-  }, [core, nodeRef]);
-
-  /**
-   * useEffect separado para manejar el evento controlend
-   * este effecto hace que luego de mover la camara y soltarla
-   * la camara enfoque al nodo nuevamente
-   */
-  useEffect(() => {
-    const cameraService = core.getCameraService();
-    if (!cameraService) return;
-
-    cameraService.addEventListener("controlend", viewNodes);
-
-    return () => {
-      cameraService.removeEventListener("controlend", viewNodes);
-    };
-  }, [core.getCameraService, viewNodes]);
+  }, [core, isEngineReady]);
 
   return (
     <>
-      <NodeRenderer ref={nodeRef} />
+      {node && (
+        <Float
+          speed={7}
+          floatingRange={[-0.05, 0]}
+          rotationIntensity={0.01}
+          floatIntensity={0.6}
+        >
+          <primitive {...props} object={node.getGroup()!} />
+        </Float>
+      )}
     </>
   );
 }

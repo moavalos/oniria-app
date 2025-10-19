@@ -8,6 +8,8 @@ import { EngineState } from "../types/engine.types";
 import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/room/RoomManager";
 import { PortalManager } from "@/engine/services/portal/PortalManager";
+import { NodeManager } from "@/engine/services/room/NodeManager";
+
 
 
 
@@ -44,43 +46,52 @@ export class EngineCore extends EventEmitter {
         this.setState(EngineState.READY);
     }
 
+
+
     initializeService() {
         // Registrar servicios por defecto
         this.registry.registerService(AssetManager, new AssetManager(this._gl!));
         this.registry.registerService(MaterialService, new MaterialService());
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
         this.registry.registerService(AnimationService, new AnimationService(this._scene));
-        this.registry.registerService(InteractionService, new InteractionService(this._camera!, this._gl!.domElement));
+        this.registry.registerService(InteractionService, new InteractionService(this));
 
         // Crear RoomManager y configurar listeners
-        const roomManager = new RoomManager(this, new ConfigManager());
-        this.registry.registerService(RoomManager, roomManager);
+        this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
 
         // Crear PortalManager
-        const materialService = this.getService(MaterialService);
-        const portalManager = new PortalManager(materialService);
+        const portalManager = new PortalManager(this);
         this.registry.registerService(PortalManager, portalManager);
-
+        // Crear NodeManager
+        const nodeManager = new NodeManager(this);
+        this.registry.registerService(NodeManager, nodeManager);
         // Configurar listeners para eventos del RoomManager
-        this.setupRoomEventListeners(roomManager);
+        this.setupRoomEventListeners();
+        this.setupCameraListeners();
     }
 
     /**
      * Configura los listeners para eventos del RoomManager
      */
-    private setupRoomEventListeners(roomManager: RoomManager) {
-        roomManager.on("room:loading", (_data: unknown) => this.onRoomLoading(_data as { room: any, skin?: any }));
-        roomManager.on("room:ready", (_data: unknown) => this.onRoomReady(_data as { room: Room, skin?: any }));
-        roomManager.on("room:error", (_data: unknown) => this.onRoomError(_data as { error: any, room: any, skin?: any }));
-        roomManager.on("room:unloading", (_data: unknown) => this.onRoomUnloading(_data as { room: Room }));
-        roomManager.on("skin:change:start", (_data: unknown) => this.onSkinChangeStart(_data as { skin: any, room: Room }));
-        roomManager.on("skin:change:complete", (_data: unknown) => this.onSkinChangeComplete(_data as { skin: any, room: Room }));
-        roomManager.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
+    private setupRoomEventListeners() {
+
+        this.on("room:loading", (_data: unknown) => this.onRoomLoading(_data as { room: any, skin?: any }));
+        this.on("room:ready", (_data: unknown) => this.onRoomReady(_data as { room: Room }));
+        this.on("room:error", (_data: unknown) => this.onRoomError(_data as { error: any, room: any, skin?: any }));
+        this.on("room:unloading", (_data: unknown) => this.onRoomUnloading(_data as { room: Room }));
+        this.on("skin:change:start", (_data: unknown) => this.onSkinChangeStart(_data as { skin: any, room: Room }));
+        this.on("skin:change:complete", (_data: unknown) => this.onSkinChangeComplete(_data as { skin: any, room: Room }));
+        this.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
     }
 
-    // ===========================================
-    // ROOM EVENT HANDLERS - Manejo de estados del engine
-    // ===========================================
+    private setupCameraListeners() {
+        this.on("camera:inside-portal", () => this.onCameraInsidePortal());
+    }
+
+    private onCameraInsidePortal() {
+        this.emit("core:camera:inside-portal", {});
+    }
+
 
     /**
      * Maneja el evento de inicio de carga de room
@@ -159,6 +170,12 @@ export class EngineCore extends EventEmitter {
         if (portalManager && portalManager.update) {
             portalManager.update(dt);
         }
+
+        // Actualizar NodeManager si está disponible
+        const nodeManager = this.getService(NodeManager);
+        if (nodeManager && nodeManager.update) {
+            nodeManager.update(dt);
+        }
     }
 
 
@@ -176,6 +193,15 @@ export class EngineCore extends EventEmitter {
     addSystem(system: ISystem) {
         this.systems.push(system);
         system.init(this);
+    }
+
+    getSystem(systemClass: new (..._args: any[]) => ISystem): ISystem | null {
+        for (const sys of this.systems) {
+            if (sys instanceof systemClass) {
+                return sys;
+            }
+        }
+        return null;
     }
 
     private setState(state: EngineState) {
@@ -203,6 +229,12 @@ export class EngineCore extends EventEmitter {
     getCamera(): THREE.Camera | null {
         return this._camera;
     }
+
+    getGl(): THREE.WebGLRenderer | null {
+        return this._gl;
+    }
+
+
 
 
     dispose() {

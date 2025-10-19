@@ -3,7 +3,9 @@ import * as THREE from "three";
 import { Room } from "@engine/entities/Room";
 import { Node } from "@engine/entities/Node";
 import type { ObjectEventArray } from "../config/room.type";
-import { EventEmitter } from "../utils/EventEmitter";
+import { EngineCore, EventEmitter } from "../core";
+
+
 
 /**
  * Tipos para argumentos de eventos
@@ -76,22 +78,36 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
 
     private onNodeClickCallback?: NodeInteractionCallback;
 
+    private camera: THREE.Camera | null = null;
+
+    private domElement: HTMLElement | undefined = undefined;
+
+    private core: EngineCore | null = null;
+
 
     constructor(
-        // eslint-disable-next-line no-unused-vars
-        private camera: THREE.Camera,
-        // eslint-disable-next-line no-unused-vars
-        private domElement: HTMLElement,
+        core: EngineCore | null,
     ) {
         super();
-        this.domElement.addEventListener("mousemove", this.onMouseMove);
-        this.domElement.addEventListener("click", this.onClick);
-        console.log("nueva instancia de InteractionService");
+        this.core = core;
+        this.init();
+
+
     }
 
+    private init() {
+        if (!this.core) return;
+        this.camera = this.core.getCamera();
+        this.domElement = this.core.getGl()?.domElement;
+
+        this.domElement?.addEventListener("mousemove", this.onMouseMove);
+        this.domElement?.addEventListener("click", this.onClick);
+    }
+
+
     dispose() {
-        this.domElement.removeEventListener("mousemove", this.onMouseMove);
-        this.domElement.removeEventListener("click", this.onClick);
+        this.domElement?.removeEventListener("mousemove", this.onMouseMove);
+        this.domElement?.removeEventListener("click", this.onClick);
     }
 
     // Métodos para configurar callbacks personalizados de Room
@@ -125,7 +141,8 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
     }
 
     private onMouseMove = (event: MouseEvent) => {
-        const rect = this.domElement.getBoundingClientRect();
+        const rect = this.domElement?.getBoundingClientRect();
+        if (!rect) return;
         this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     };
@@ -162,7 +179,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
      */
     private rayCastRoom(room: Room, interactableObjects: Record<string, ObjectEventArray>) {
         const scene = room.get_Scene();
-        if (!scene) return;
+        if (!scene || !this.camera) return;
 
         this.interactableCache = interactableObjects; // guardar copia fresca
 
@@ -200,7 +217,7 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
     private rayCastNode(node: Node, radius: number) {
         this.currentNode = node; // Guardar referencia al nodo actual
         const group = node.getGroup();
-        if (!group || !group.children.length) return;
+        if (!group || !group.children.length || !this.camera) return;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 

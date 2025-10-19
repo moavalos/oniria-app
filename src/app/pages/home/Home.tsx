@@ -23,6 +23,7 @@ export default function Home() {
   const { roomId, skinId } = backendSettings;
 
   useEffect(() => {
+    console.log("[Home] Calling engine.setRoom:", roomId, skinId);
     engine.setRoom(roomId, skinId);
   }, []);
 

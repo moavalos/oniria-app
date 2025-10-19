@@ -101,15 +101,6 @@ export class MaterialService {
     applyMaterialsToPortal(portal: THREE.Object3D | undefined, uniforms = {}) {
         if (!portal) return;
 
-        console.log("MaterialService - Aplicando material al portal:", {
-            hasPortal: !!portal,
-            hasVertexShader: !!portalVertexShader,
-            hasFragmentShader: !!portalFragmentShader,
-            vertexShaderLength: portalVertexShader?.length,
-            fragmentShaderLength: portalFragmentShader?.length,
-            uniformsKeys: Object.keys(uniforms)
-        });
-
         (portal as THREE.Mesh).material = new THREE.ShaderMaterial({
             uniforms,
             vertexShader: portalVertexShader,

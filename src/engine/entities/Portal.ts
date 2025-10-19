@@ -3,9 +3,9 @@ import { EventEmitter } from '../utils/EventEmitter';
 
 // Eventos que puede emitir Portal
 interface PortalEventMap extends Record<string, unknown> {
-    'material:applied': { portal: Portal };
-    'animation:started': { portal: Portal };
-    'animation:stopped': { portal: Portal };
+    'portal:material:applied': { portal: Portal };
+    'portal:animation:started': { portal: Portal };
+    'portal:animation:stopped': { portal: Portal };
 }
 
 /**
@@ -69,14 +69,8 @@ export class Portal extends EventEmitter<PortalEventMap> {
             this.material = material;
             this.object3D.material = material;
 
-            this.emit('material:applied', { portal: this });
+            this.emit('portal:material:applied', { portal: this });
 
-            console.log(`🎨 Portal[${this.id}] - Material aplicado`, {
-                materialType: material.type,
-                hasUniforms: !!material.uniforms
-            });
-        } else {
-            console.warn(`⚠️ Portal[${this.id}] - No es un Mesh, no se puede aplicar material`);
         }
     }
 
@@ -102,8 +96,7 @@ export class Portal extends EventEmitter<PortalEventMap> {
     startAnimation(): void {
         if (!this.animating) {
             this.animating = true;
-            this.emit('animation:started', { portal: this });
-            console.log(`▶️ Portal[${this.id}] - Animación iniciada`);
+            this.emit('portal:animation:started', { portal: this });
         }
     }
 
@@ -113,8 +106,7 @@ export class Portal extends EventEmitter<PortalEventMap> {
     stopAnimation(): void {
         if (this.animating) {
             this.animating = false;
-            this.emit('animation:stopped', { portal: this });
-            console.log(`⏹️ Portal[${this.id}] - Animación detenida`);
+            this.emit('portal:animation:stopped', { portal: this });
         }
     }
 
@@ -151,7 +143,5 @@ export class Portal extends EventEmitter<PortalEventMap> {
 
         this.animating = false;
         this.removeAllListeners();
-
-        console.log(`🗑️ Portal[${this.id}] - Disposed`);
     }
 }

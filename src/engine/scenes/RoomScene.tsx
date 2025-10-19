@@ -1,11 +1,10 @@
 import { Room, useEngineCore } from "@engine/core";
-import { RoomRenderer } from "../systems";
-import { PortalRenderer } from "../systems/renderer/PortalRenderer";
 import { useEffect, useState } from "react";
 import { RoomManager } from "../services/room/RoomManager";
 import { PortalManager } from "../services/portal/PortalManager";
 import { EngineState } from "@engine/core";
-import * as THREE from "three";
+import { Sparkles } from "@react-three/drei";
+import NodeScene from "./NodeScene";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -14,7 +13,8 @@ import * as THREE from "three";
 export default function RoomScene() {
   const core = useEngineCore();
   const [room, setRoom] = useState<Room | null>(null);
-  const [portalObject, setPortalObject] = useState<THREE.Object3D | null>(null);
+
+  const [renderNode, setRenderNode] = useState<boolean>(false);
 
   useEffect(() => {
     if (!core) return;
@@ -101,62 +101,77 @@ export default function RoomScene() {
 
         setRoom(room);
 
-        // Obtener el portal de la room y asignarlo al PortalManager
-        console.log("[RoomScene] Llamando room.getPortal()...");
         const portal = room.getPortal();
-        console.log("[RoomScene] Portal obtenido:", portal);
-        console.log("[RoomScene] Portal type:", portal?.type);
-        console.log("[RoomScene] Portal name:", portal?.name);
 
         if (portal) {
-          const portalEntity = portalManager.createPortal(portal);
-          setPortalObject(portal);
-          console.log(
-            "[RoomScene] Portal creado y asignado al PortalManager:",
-            portalEntity.id
-          );
-
+          portalManager.createPortal(portal);
           // Iniciar la animación del portal
           portalManager.startPortalAnimation();
-          console.log("[RoomScene] ✅ Animación del portal iniciada");
-        } else {
-          console.warn("[RoomScene] No se encontró portal en la room");
-          setPortalObject(null);
         }
       };
 
       const handleUnload = () => {
         console.log("[RoomScene] Room unloaded");
         setRoom(null);
-        setPortalObject(null);
       };
 
       // Configurar listeners del Core
       core.on("room:change:requested", handleRoomChangeRequested);
 
       // Configurar listeners del RoomManager
-      roomManager.on("room:ready", handleReady);
-      roomManager.on("room:unloading", handleUnload);
+      core.on("room:ready", handleReady);
+      core.on("room:unloading", handleUnload);
 
       // Cleanup function para todos los listeners
       return () => {
         core.off("room:change:requested");
-        roomManager.off("room:ready");
-        roomManager.off("room:unloading");
+        core.off("room:ready");
+        core.off("room:unloading");
       };
     }
   }, [core]);
 
-  console.log("[RoomScene]: room cargada", room);
-  console.log("[RoomScene]: portal obtenido", portalObject);
+  //listener para nodos
+  useEffect(() => {
+    if (!core) return;
+
+    const handleInsidePortal = () => {
+      setRenderNode(true);
+    };
+
+    const handleOutsidePortal = () => {
+      setRenderNode(false);
+    };
+
+    core.on("core:camera:inside-portal", handleInsidePortal);
+    core.on("core:camera:outside-portal", handleOutsidePortal);
+    return () => {
+      core.off("core:camera:inside-portal");
+      core.off("core:camera:outside-portal");
+    };
+  }, [core]);
 
   if (!room) return null;
 
   // Renderizar room y portal por separado
   return (
     <>
-      <RoomRenderer room={room} />
-      {portalObject && <PortalRenderer portal={portalObject} />}
+      <primitive object={room.get_Scene()!} />
+      {renderNode && (
+        <NodeScene
+          position={[-1.1, 2.85, -6.4]}
+          rotation={[0, 0, 0]}
+          scale={2}
+        />
+      )}
+
+      <Sparkles
+        count={50}
+        size={6}
+        position={[-1.2, 3, -2.2]}
+        scale={1.3}
+        speed={0.4}
+      />
     </>
   );
 }

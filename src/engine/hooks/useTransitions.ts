@@ -19,9 +19,11 @@ export function useTransitions() {
     const viewNodes = useCallback(() => {
         if (!cameraService || !activeRoom) return;
         const target = activeRoom.getPortal()?.position;
+        console.log(target)
         if (!target) return;
 
         const onRest = () => {
+            console.log("rest camera")
             cameraService.removeEventListener('rest', onRest);
         };
 

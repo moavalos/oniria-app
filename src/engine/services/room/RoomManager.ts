@@ -2,11 +2,12 @@
 import { AssetManager } from "../assets/AssetManager";
 import { Room } from "../../entities/Room";
 import { Skin } from "../../entities/Skin";
-import { EngineCore, EventEmitter } from "@/engine/core/";
+import { EngineCore } from "@/engine/core/";
 import { useEngineStore } from "@/engine/core/store/engineStore";
 import type { Injectable } from "../../core/src/Injectable";
 import type { LoadingCallbacks } from "../assets/types";
 import { ConfigManager } from '../../utils/ConfigManager';
+import { MaterialService } from "../MaterialService";
 
 // Tipos de eventos que emite el RoomManager
 interface RoomManagerEvents {
@@ -32,7 +33,7 @@ export interface RoomLoadOptions {
   skin?: SkinInfo;
 }
 
-export class RoomManager extends EventEmitter<RoomManagerEvents> implements Injectable {
+export class RoomManager implements Injectable {
 
 
   private assetManager: AssetManager | null = null;
@@ -44,7 +45,6 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
   private loading = false;
 
   constructor(private _core: EngineCore, private _configManager: ConfigManager) {
-    super();
     this.init();
   }
 
@@ -161,7 +161,7 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
   private cleanupCurrentRoom(): void {
     if (this.currentRoom) {
       // Emitir evento de descarga
-      this.emit("room:unloading", { room: this.currentRoom });
+      this._core.emit("room:unloading", { room: this.currentRoom });
       this.currentRoom.dispose();
     }
   }
@@ -184,7 +184,7 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
       this.loading = true;
 
       // Emitir evento de inicio de carga
-      this.emit("room:loading", { room, skin });
+      this._core.emit("room:loading", { room, skin });
 
       // Preparar assets y inicializar store
       const assetsToLoad = this.prepareRoomAssets(room.id, skin?.id);
@@ -218,16 +218,22 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
         }
       }
 
+      //aplicamos materiales
+      const materialService = this._core.getService(MaterialService);
+      await materialService.applyMaterialsToRoom(newRoom);
+
+
       // Actualizar estado
       this.updateRoomState(newRoom, skin?.id);
 
       // Emitir evento de room lista (completamente materializada)
-      this.emit("room:ready", { room: newRoom, skin });
+
+      this._core.emit("room:ready", { room: newRoom });
       return newRoom;
 
     } catch (error) {
       // Emitir evento de error
-      this.emit("room:error", { error, room, skin });
+      this._core.emit("room:error", { error, room, skin });
       throw error;
     } finally {
       this.loading = false;
@@ -245,7 +251,7 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
 
     try {
       // Emitir evento de inicio de cambio de skin
-      this.emit("skin:change:start", { skin, room: this.currentRoom });
+      this._core.emit("skin:change:start", { skin, room: this.currentRoom });
 
       // Preparar solo los assets de skin
       const skinAssets = [
@@ -269,7 +275,7 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
       this.currentSkin = skin.id;
 
       // Emitir evento de cambio completado
-      this.emit("skin:change:complete", {
+      this._core.emit("skin:change:complete", {
         skin,
         room: this.currentRoom,
       });
@@ -277,7 +283,7 @@ export class RoomManager extends EventEmitter<RoomManagerEvents> implements Inje
     } catch (error) {
       console.warn(`[RoomManager] Error al cambiar skin: ${skin.id}`, error);
       // Emitir evento de error en cambio de skin
-      this.emit("skin:change:error", { skin, error, room: this.currentRoom });
+      this._core.emit("skin:change:error", { skin, error, room: this.currentRoom });
     }
   }
 

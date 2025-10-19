@@ -18,6 +18,7 @@ export interface DebugSystemProps {
     scene?: boolean;
     performance?: boolean;
     node?: boolean;
+    portal?: boolean;
   };
 }
 
@@ -35,6 +36,7 @@ export default function DebugSystem({
     scene: true,
     performance: true,
     node: true,
+    portal: true,
   },
 }: DebugSystemProps) {
   const engineState = useEngineState();
@@ -46,80 +48,11 @@ export default function DebugSystem({
 
   return (
     <>
-      {panels.engine && <EngineDebugPanel />}
       {isEngineReady && panels.camera && <CameraDebugPanel />}
       {isEngineReady && panels.node && <NodeDebugPanel />}
+      {isEngineReady && panels.portal && <PortalDebugPanel />}
     </>
   );
-}
-
-// Panel de Engine General
-function EngineDebugPanel() {
-  const core = useEngineCore();
-  const engineState = useEngineState();
-  const { dreamModalVisible, setDreamModalVisible } = useEngineStore();
-
-  // Crear un objeto de controles que se actualice reactivamente
-  const controls = React.useMemo(
-    () => ({
-      engineState: {
-        value: engineState,
-        disabled: true,
-        label: "Engine State",
-      },
-      activeRoom: {
-        value: core.getCurrentRoom()?.constructor.name || "none",
-        disabled: true,
-        label: "Active Room",
-      },
-      loopRunning: {
-        value: "running",
-        disabled: true,
-        label: "Loop Status",
-      },
-      "--- Actions ---": { value: "", disabled: true },
-      openDreamModal: button(() => {
-        console.log("🎬 Opening Dream Modal...");
-        setDreamModalVisible(true);
-      }),
-      closeDreamModal: button(() => {
-        console.log("🎬 Closing Dream Modal...");
-        setDreamModalVisible(false);
-      }),
-      dreamModalStatus: {
-        value: dreamModalVisible ? "Visible" : "Hidden",
-        disabled: true,
-        label: "Dream Modal",
-      },
-      "--- Debug ---": { value: "", disabled: true },
-      restartEngine: button(() => {
-        console.log("🔄 Restarting engine...");
-      }),
-      exportState: button(() => {
-        const state = {
-          room: core.getCurrentRoom()?.constructor.name,
-          engineState: engineState,
-          scene: core.getCurrentRoom()?.get_Scene()?.children.length,
-          dreamModal: dreamModalVisible,
-          timestamp: Date.now(),
-        };
-        console.log("📤 Engine State:", state);
-      }),
-    }),
-    [
-      engineState,
-      core.getCurrentRoom(),
-      dreamModalVisible,
-      setDreamModalVisible,
-    ]
-  );
-  useControls("🔧 Engine", controls, [
-    engineState,
-    core.getCurrentRoom(),
-    dreamModalVisible,
-  ]);
-
-  return null;
 }
 
 // Panel de Cámara
@@ -527,6 +460,105 @@ function NodeDebugPanel() {
       }),
     },
     []
+  );
+
+  return null;
+}
+
+// Panel de Portal Debug
+function PortalDebugPanel() {
+  const { portalUniforms, setPortalUniforms, resetPortalUniforms } =
+    useEngineStore();
+
+  useControls(
+    "🌀 Portal Effects",
+    {
+      // === CONTROLES BÁSICOS ===
+      "Portal Alpha": {
+        value: portalUniforms.uPortalAlpha,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uPortalAlpha: value }),
+      },
+      Density: {
+        value: portalUniforms.uDensity,
+        min: 0,
+        max: 10,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uDensity: value }),
+      },
+      Radius: {
+        value: portalUniforms.uRadius,
+        min: 0.1,
+        max: 3,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uRadius: value }),
+      },
+      Angle: {
+        value: portalUniforms.uAngle,
+        min: 0,
+        max: Math.PI * 2,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uAngle: value }),
+      },
+
+      // === CONTROLES DE COLOR ===
+      Hue: {
+        value: portalUniforms.uHue,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uHue: value }),
+      },
+      Saturation: {
+        value: portalUniforms.uSaturation,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uSaturation: value }),
+      },
+
+      // === CONTROLES AVANZADOS ===
+      "Radius Factor": {
+        value: portalUniforms.uRadiusFactor,
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        onChange: (value: number) =>
+          setPortalUniforms({ uRadiusFactor: value }),
+      },
+      "Gain Offset": {
+        value: portalUniforms.uGainOffset,
+        min: 0,
+        max: 2,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uGainOffset: value }),
+      },
+      "Gain Scale": {
+        value: portalUniforms.uGainScale,
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uGainScale: value }),
+      },
+
+      // === ACCIONES ===
+      "Reset Portal": button(() => {
+        resetPortalUniforms();
+      }),
+    },
+    [
+      portalUniforms.uPortalAlpha,
+      portalUniforms.uDensity,
+      portalUniforms.uRadius,
+      portalUniforms.uAngle,
+      portalUniforms.uHue,
+      portalUniforms.uSaturation,
+      portalUniforms.uRadiusFactor,
+      portalUniforms.uGainOffset,
+      portalUniforms.uGainScale,
+    ]
   );
 
   return null;

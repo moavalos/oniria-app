@@ -55,6 +55,19 @@ const uniformDefaults = {
     uGammaCorrection: 1.8,
 };
 
+// Portal uniforms defaults
+const portalUniformDefaults = {
+    uPortalAlpha: 1.0,
+    uDensity: 4.5,
+    uRadius: 1.2,
+    uAngle: 3.2,
+    uHue: 0.74,
+    uSaturation: 0.58,
+    uRadiusFactor: 1.5,
+    uGainOffset: 0.5,
+    uGainScale: 3.0,
+};
+
 type EngineStore = {
     // Room/Skin state
     roomId: string | null;
@@ -95,6 +108,22 @@ type EngineStore = {
     setNodeUniform: (_key: string, _value: number) => void;
     setNodeUniforms: (_uniforms: Partial<EngineStore['nodeUniforms']>) => void;
     resetNodeUniforms: () => void;
+
+    // Portal uniforms state para debug
+    portalUniforms: {
+        uPortalAlpha: number;
+        uDensity: number;
+        uRadius: number;
+        uAngle: number;
+        uHue: number;
+        uSaturation: number;
+        uRadiusFactor: number;
+        uGainOffset: number;
+        uGainScale: number;
+    };
+    setPortalUniform: (_key: string, _value: number) => void;
+    setPortalUniforms: (_uniforms: Partial<EngineStore['portalUniforms']>) => void;
+    resetPortalUniforms: () => void;
 
     // Dream state
     dream: Dream | null;
@@ -157,6 +186,33 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
             nodeUniforms: {
                 ...state.nodeUniforms,
                 ...uniformDefaults
+            }
+        }));
+    },
+
+    // Portal uniforms defaults
+    portalUniforms: { ...portalUniformDefaults },
+    setPortalUniform: (key, value) => {
+        set(state => ({
+            portalUniforms: {
+                ...state.portalUniforms,
+                [key]: value
+            }
+        }));
+    },
+    setPortalUniforms: (uniforms) => {
+        set(state => ({
+            portalUniforms: {
+                ...state.portalUniforms,
+                ...uniforms
+            }
+        }));
+    },
+    resetPortalUniforms: () => {
+        set((state) => ({
+            portalUniforms: {
+                ...state.portalUniforms,
+                ...portalUniformDefaults
             }
         }));
     },

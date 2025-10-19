@@ -29,7 +29,7 @@ export abstract class BaseSystem extends EventEmitter implements ISystem {
     }
 
     /** Método abstracto que debe implementar cada sistema */
-    abstract update(dt: number): void;
+    abstract update(_dt: number): void;
 
     dispose(): void {
         this.active = false;

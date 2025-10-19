@@ -27,7 +27,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
         this.cameraService = core.getService(CameraService);
 
         if (!this.cameraService) {
-            console.error("[CameraSystem] CameraService no disponible");
+            console.error("[CameraSystem] :CameraService no disponible");
             return;
         }
 
@@ -38,7 +38,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
         // Configurar listeners del CameraService
         this.setupCameraListeners();
 
-        console.log("[CameraSystem] ✅ Inicializado con CameraService");
+        console.log("[CameraSystem] :Inicializado con CameraService");
     }
 
     update(dt: number): void {
@@ -59,24 +59,9 @@ export class CameraSystem extends BaseSystem implements Injectable {
 
         this.config = config;
 
-        // Log detallado de la configuración que se va a aplicar
-        console.log("[CameraSystem] 🎥 Aplicando configuración:", {
-            position: config.position,
-            target: config.target,
-            minDistance: config.minDistance,
-            maxDistance: config.maxDistance,
-        });
 
         // Usar el método setConfig del CameraService directamente
         this.cameraService.setConfig(config);
-
-        // Verificar que se aplicó correctamente
-        console.log("[CameraSystem] 📊 Posición actual después de aplicar config:",
-            this.cameraService.getPosition());
-        console.log("[CameraSystem] � Target actual después de aplicar config:",
-            this.cameraService.getTarget());
-
-        console.log("[CameraSystem] ✅ Configuración aplicada completamente");
     }
 
     /**
@@ -131,22 +116,79 @@ export class CameraSystem extends BaseSystem implements Injectable {
         return this.cameraService?.getTarget() || null;
     }
 
+    getService(): CameraService | null {
+        return this.cameraService;
+    }
+
     /**
      * Configura listeners para eventos del CameraService
      */
     private setupCameraListeners(): void {
         if (!this.cameraService) return;
 
-        // Configurar listeners cuando estén disponibles en CameraService
-        // TODO: implementar eventos del CameraService
+        this.cameraService.addEventListener("controlstart", () => {
+            console.log("[CameraSystem] 🎬 Movimiento de cámara iniciado");
+        });
 
-        console.log("[CameraSystem] 📡 Listeners del CameraService configurados");
+        this.cameraService.addEventListener("controlend", () => {
+            console.log("[CameraSystem] 🛑 Movimiento de cámara finalizado");
+            // this.emit("camera:controlend", {
+            //     position: this.cameraService?.getPosition(),
+            //     target: this.cameraService?.getTarget(),
+            // });
+        });
+
+        this.cameraService.addEventListener("rest", () => {
+            console.log("[CameraSystem] 💤 Cámara en reposo");
+        });
+
+
+    }
+
+    checkCameraInPortal = () => {
+        if (!this.cameraService) return;
+        const cameraPos = this.cameraService.getPosition();
+        const portalPos = new THREE.Vector3();
+        this.core.getCurrentRoom()?.getPortal()?.getWorldPosition(portalPos);
+        const distance = cameraPos.distanceTo(portalPos);
+        const threshold = 1.5; // distancia umbral para considerar que la cámara está "dentro" del portal
+
+        // Ajustar controles de cámara según proximidad al portal
+        // para no permitir zoom o paneo cuando estamos dentro del portal
+        // y aumentar la sensacion de gravedad al estar dentro del portal
+        if (distance < threshold) {
+            this.cameraService.setDraggingSmoothTime(1);
+            this.cameraService.setMaxPolarAngle(1.63);
+            this.cameraService.setMinPolarAngle(1.5);
+            this.cameraService.setAzimuthMaxAngle(0.1);
+            this.cameraService.setAzimuthMinAngle(-0.1);
+            this.cameraService.setEnableZoom(false);
+            this.cameraService.setEnablePan(false);
+            this.emit("camera:inside-portal", { distance });
+        } else {
+            this.cameraService.setDraggingSmoothTime(0.1);
+            const defaultConfig = this.cameraService.getDefaultConfig();
+            if (defaultConfig) {
+                this.cameraService.setMaxPolarAngle(defaultConfig.maxPolarAngle!);
+                this.cameraService.setMinPolarAngle(defaultConfig.minPolarAngle!);
+                this.cameraService.setAzimuthMaxAngle(defaultConfig.maxAzimuthAngle!);
+                this.cameraService.setAzimuthMinAngle(defaultConfig.minAzimuthAngle!);
+                this.cameraService.setEnableZoom(true);
+                this.cameraService.setEnablePan(!!defaultConfig.enablePan);
+            }
+            //  this.emit("camera:outside-portal", { distance });
+
+        }
     }
 
     dispose(): void {
         // Cleanup de listeners si es necesario
         if (this.cameraService) {
             // El CameraService maneja su propio cleanup
+            console.log("[CameraSystem] 🧹 Limpiando CameraService");
+            this.cameraService.removeEventListener("controlstart", () => { });
+            this.cameraService.removeEventListener("controlend", () => { });
+            this.cameraService.removeEventListener("rest", () => { });
         }
 
         super.dispose();
