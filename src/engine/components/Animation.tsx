@@ -89,14 +89,6 @@ export function Animation({
       onAnimationUpdate
     );
 
-    // Configurar acciones de nodo
-    // if (nodeAnimation) {
-    //   animationSystem.setNodeActions({
-    //     idle: nodeAnimation.idle,
-    //     rest: nodeAnimation.rest,
-    //   });
-    // }
-
     // Registrar el sistema en el core
     core.addSystem(animationSystem);
 
@@ -109,13 +101,13 @@ export function Animation({
     };
   }, [
     core,
-    config,
+    // config, // Removido temporalmente para evitar reinicializaciones
     enableAnimations,
     autoConfigureForRoom,
     isEngineReady,
-    onAnimationStart,
-    onAnimationComplete,
-    onAnimationUpdate,
+    // onAnimationStart, // Removido: las funciones causan reinicializaciones innecesarias
+    // onAnimationComplete, // Removido: las funciones causan reinicializaciones innecesarias
+    // onAnimationUpdate, // Removido: las funciones causan reinicializaciones innecesarias
   ]);
 
   return null;

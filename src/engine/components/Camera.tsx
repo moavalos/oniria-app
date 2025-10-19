@@ -104,11 +104,11 @@ export function Camera({
     };
   }, [
     core,
-    config,
+    // config, // Removido temporalmente para evitar reinicializaciones
     enableControls,
     autoConfigureForRoom,
     isEngineReady,
-    engineState,
+    // engineState, // Removido: ya está incluido implícitamente en isEngineReady
   ]);
 
   // TODO: Integrar con la API del motor cuando esté disponible
@@ -147,7 +147,7 @@ export function Camera({
       cameraService.removeEventListener("control", handleCameraControl);
       cameraService.removeEventListener("controlend", handleCameraStop);
     };
-  }, [cameraService, onCameraMove, onCameraStop, onZoomChange, isEngineReady]);
+  }, [cameraService, isEngineReady]); // Removidas las funciones callback para evitar reinicializaciones
 
   return null;
 }

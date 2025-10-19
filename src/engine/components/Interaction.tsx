@@ -88,13 +88,13 @@ export function Interaction({
     };
   }, [
     core,
-    config,
+    // config, // Removido temporalmente para evitar reinicializaciones
     enableInteractions,
     isEngineReady,
-    engineState,
-    objects,
-    nodes,
-    navigation,
+    // engineState, // Removido: ya está incluido implícitamente en isEngineReady
+    // objects, // Removido: las funciones causan reinicializaciones innecesarias
+    // nodes, // Removido: las funciones causan reinicializaciones innecesarias
+    // navigation, // Removido: las funciones causan reinicializaciones innecesarias
   ]);
 
   return null;

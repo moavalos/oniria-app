@@ -1,13 +1,14 @@
-import { useEngine, useEngineStore } from "@/engine/core";
+import { useEngineStore } from "@/engine/core";
 import DreamCardModal from "./components/DreamCardModal";
 import { useCallback } from "react";
+import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 
 interface HudSystemProps {}
 
 export default function HudSystem({}: HudSystemProps) {
   // Acceder al dream directamente desde el store
   const { dream } = useEngineStore();
-  const engine = useEngine();
+  const engine = useEngineAPI();
 
   // Función para cerrar el modal
   const handleDreamModalClose = useCallback(() => {

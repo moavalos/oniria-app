@@ -19,7 +19,6 @@ export default function NodeScene(props: NodeSceneProps) {
 
   const core = useEngineCore();
   const isEngineReady = useEngineState();
-  //const { viewNodes } = useTransitions();
 
   useEffect(() => {
     if (isEngineReady) {
@@ -28,6 +27,13 @@ export default function NodeScene(props: NodeSceneProps) {
       if (nodeCreated) {
         setNode(nodeCreated);
       }
+
+      // Cleanup: destruir el nodo cuando NodeScene se desmonta
+      return () => {
+        console.log("[NodeScene] Cleaning up node");
+        nodeManager.destroyNode();
+        setNode(null);
+      };
     }
   }, [core, isEngineReady]);
 

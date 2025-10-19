@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { type AnimationAction, type ObjectEventArray } from '../config/room.type';
+import { type AnimationAction, type LookatableObject, type ObjectEventArray } from '../config/room.type';
 import { Skin } from './Skin';
 import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager';
 
@@ -160,6 +160,38 @@ export class Room {
             return null;
         }
         return this._scene.getObjectByName(name) || null;
+    }
+
+    async getLookAtableObjectByName(name: string): Promise<LookatableObject | null> {
+        if (!name?.trim()) {
+            throw new Error('Object name cannot be empty');
+        }
+
+        if (!this._scene) {
+            return null;
+        }
+
+        // Buscar el objeto en la escena
+        const object3D = this._scene.getObjectByName(name);
+        if (!object3D) {
+            return null;
+        }
+
+        // Verificar que tenga lookAtOffset en la configuración
+        const config = await this._configManager.getConfig(this._id);
+        if (!config?.objects[name]?.lookAtOffset) {
+            return null;
+        }
+
+        // Calcular target (posición del objeto)
+        const target = new THREE.Vector3();
+        object3D.getWorldPosition(target);
+
+        // Calcular position (posición de la cámara usando lookAtOffset)
+        const offset = new THREE.Vector3(...config.objects[name].lookAtOffset!);
+        const position = target.clone().add(offset);
+
+        return { target, position };
     }
 
     // Métodos delegados al ConfigManager

@@ -33,6 +33,7 @@ type HomeVariantProps = {
   onInterpretar?: (_dream: string) => void;
   onPersonalizar?: () => void;
   onInsignias?: () => void;
+  onBackToHome?: () => void;
   initialDream?: string;
   maxChars?: number;
   onNuevaFrase?: () => void;
@@ -146,7 +147,10 @@ function HomePanel(props: HomeVariantProps) {
     await handleInterpretar();
   };
 
-  const onBackHome = () => setExpanded(false);
+  const onBackHome = () => {
+    props.onBackToHome?.();
+    setExpanded(false);
+  };
 
   return (
     <Card.Container

@@ -63,7 +63,7 @@ export class NodeManager {
 
     onCameraControlEnd() {
         console.log("[NodeManager]:CamaraTerminada")
-        if (!this.cameraService) return;
+        if (!this.cameraService || !this.currentNode) return;
         const target = this.core.getCurrentRoom()?.getPortal()?.position;
         if (!target) return;
         this.cameraService.setLookAt(new THREE.Vector3(...target), new THREE.Vector3(target.x, target.y, target.z - 0.5), true);
@@ -85,6 +85,63 @@ export class NodeManager {
 
     getCurrentNode() {
         return this.currentNode;
+    }
+
+    /**
+     * Ejecuta animación idle en el nodo activo
+     */
+    setNodeIdle() {
+        this.executeNodeAnimation('nodeIdle');
+    }
+
+    /**
+     * Ejecuta animación rest en el nodo activo  
+     */
+    setNodeRest() {
+        this.executeNodeAnimation('nodeRest');
+    }
+
+    /**
+     * Ejecuta animación next en el nodo activo
+     */
+    setNodeNext() {
+        this.executeNodeAnimation('nodeNext');
+    }
+
+    /**
+     * Ejecuta animación prev en el nodo activo
+     */
+    setNodePrev() {
+        this.executeNodeAnimation('nodePrev');
+    }
+
+    /**
+     * Método privado para ejecutar animaciones de nodo
+     */
+    private executeNodeAnimation(animationName: string) {
+        if (!this.currentNode || !this.animationService) {
+            console.warn(`[NodeManager] No hay nodo activo o AnimationService no disponible para ${animationName}`);
+            return;
+        }
+
+        const group = this.currentNode.getGroup();
+        if (!group) {
+            console.warn(`[NodeManager] No se pudo obtener el grupo del nodo activo para ${animationName}`);
+            return;
+        }
+
+        // Crear configuración de animación para AnimationService
+        const animationConfig = {
+            target: group.name || 'currentNode',
+            type: animationName,
+            params: {}, // Usar parámetros por defecto
+            loop: false
+        };
+
+        // Usar AnimationService para ejecutar la animación por defecto
+        this.animationService.play(animationConfig);
+
+        console.log(`[NodeManager] Animación ${animationName} ejecutada`);
     }
 
     createMeshForNode() {
@@ -179,5 +236,37 @@ export class NodeManager {
             uMaskRadius: { value: 1.02 },
             uMaskEdgeSmooth: { value: 0.0 },
         };
+    }
+
+    /**
+     * Destruye el nodo actual y limpia recursos
+     */
+    destroyNode() {
+        if (this.currentNode) {
+            console.log('[NodeManager] Destroying current node');
+
+            // Obtener el grupo del nodo y limpiar recursos
+            const nodeGroup = this.currentNode.getGroup();
+            if (nodeGroup) {
+                nodeGroup.traverse((child: THREE.Object3D) => {
+                    if (child instanceof THREE.Mesh) {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) {
+                            if (Array.isArray(child.material)) {
+                                child.material.forEach(material => material.dispose());
+                            } else {
+                                child.material.dispose();
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Emitir evento de destrucción
+            this.core.emit('node:destroyed', { node: this.currentNode });
+
+            // Limpiar referencia
+            this.currentNode = null;
+        }
     }
 }

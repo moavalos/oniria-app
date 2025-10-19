@@ -9,6 +9,6 @@
 export * from "../core/hooks";
 
 // Hooks de características específicas
-export * from "./useTransitions";
+// useTransitions eliminado - funcionalidad movida a CameraSystem y expuesta via EngineAPI.camera
 export * from "./useProgress";
 export * from "./useEngineState";

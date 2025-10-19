@@ -117,7 +117,71 @@ export const rotateToAnimation: AnimationHandler = (target, config) => {
 };
 
 /**
- * Animación para mostrar modal con escala desde centro-izquierdo
+ * Animación rest para el nodo - regresa a su posición original
+ */
+export const nodeRestAnimation: AnimationHandler = (target, config) => {
+    const {
+        duration = 1.5,
+        ease = "power2.inOut"
+    } = config.params;
+
+    const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
+
+    tl.to(target.position, {
+        x: 0, // Posición original
+        duration,
+        ease,
+    });
+
+    return tl;
+};
+
+/**
+ * Animación next para el nodo - transición al siguiente
+ */
+export const nodeNextAnimation: AnimationHandler = (target, config) => {
+    const {
+        offsetX = 0.3,
+        duration = 1.0,
+        ease = "power2.out"
+    } = config.params;
+
+    const currentX = target.position.x;
+    const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
+
+    tl.to(target.position, {
+        x: currentX + offsetX,
+        duration,
+        ease,
+    });
+
+    return tl;
+};
+
+/**
+ * Animación prev para el nodo - transición al anterior
+ */
+export const nodePrevAnimation: AnimationHandler = (target, config) => {
+    const {
+        offsetX = -0.3,
+        duration = 1.0,
+        ease = "power2.out"
+    } = config.params;
+
+    const currentX = target.position.x;
+    const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
+
+    tl.to(target.position, {
+        x: currentX + offsetX,
+        duration,
+        ease,
+    });
+
+    return tl;
+};
+
+/**
+ * Animación para mostrar modal con escala y fade in
  */
 export const modalShowAnimation: AnimationHandler = (target, config) => {
     const { duration = 0.3, ease = "power2.out" } = config.params;
@@ -275,6 +339,35 @@ export const defaultAnimationsMetadata: Record<string, AnimationMetadata> = {
             ease: "power2.inOut"
         },
         requiredParams: []
+    },
+    nodeRest: {
+        name: "nodeRest",
+        description: "Animación rest para el nodo - regresa a su posición original",
+        defaultParams: {
+            duration: 1.5,
+            ease: "power2.inOut"
+        },
+        requiredParams: []
+    },
+    nodeNext: {
+        name: "nodeNext",
+        description: "Animación next para el nodo - transición al siguiente",
+        defaultParams: {
+            offsetX: 0.3,
+            duration: 1.0,
+            ease: "power2.out"
+        },
+        requiredParams: []
+    },
+    nodePrev: {
+        name: "nodePrev", 
+        description: "Animación prev para el nodo - transición al anterior",
+        defaultParams: {
+            offsetX: -0.3,
+            duration: 1.0,
+            ease: "power2.out"
+        },
+        requiredParams: []
     }
 };
 
@@ -288,5 +381,8 @@ export const defaultAnimations: Record<string, AnimationHandler> = {
     modalShow: modalShowAnimation,
     modalHide: modalHideAnimation,
     modalElementEnter: modalElementEnterAnimation,
-    nodeIdle: nodeIdleAnimation
+    nodeIdle: nodeIdleAnimation,
+    nodeRest: nodeRestAnimation,
+    nodeNext: nodeNextAnimation,
+    nodePrev: nodePrevAnimation
 };

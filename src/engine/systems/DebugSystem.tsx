@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { button, useControls } from "leva";
 
 import { useEngineCore } from "@engine/core";
+import { useEngineAPI } from "@engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@engine/core/store/engineStore";
-import { useEngineState, useTransitions } from "../hooks";
+import { useEngineState } from "../hooks";
 import { EngineState } from "@engine/core/types/engine.types";
 import * as THREE from "three";
 import { CameraService } from "../services";
@@ -58,27 +59,31 @@ export default function DebugSystem({
 // Panel de Cámara
 function CameraDebugPanel() {
   const core = useEngineCore();
+  const engineAPI = useEngineAPI();
   const engineState = useEngineState();
   const cameraService = core.getService(CameraService);
-  const { viewNodes } = useTransitions();
 
   // Estado para lookAtables (usando patrón async como AnimationSystem)
   const [lookAtables, setLookAtables] = useState<Record<string, any>>({});
 
   const isEngineReady = engineState === EngineState.READY;
 
-  const activeRoom = core.getCurrentRoom();
-
   // Cargar lookAtables de forma asíncrona
   useEffect(() => {
-    if (!isEngineReady || !activeRoom) {
+    if (!isEngineReady) {
       setLookAtables({});
       return;
     }
 
     const loadLookAtables = async () => {
       try {
-        const roomLookAtables = await activeRoom.getLookAtableObjects();
+        const room = engineAPI.getRoom();
+        if (!room) {
+          setLookAtables({});
+          return;
+        }
+
+        const roomLookAtables = await room.getLookAtableObjects();
         console.log(roomLookAtables);
         setLookAtables(roomLookAtables || {});
       } catch (error) {
@@ -88,7 +93,7 @@ function CameraDebugPanel() {
     };
 
     loadLookAtables();
-  }, [activeRoom, isEngineReady]);
+  }, [isEngineReady, engineAPI]);
 
   const options = React.useMemo(() => Object.keys(lookAtables), [lookAtables]);
 
@@ -129,32 +134,23 @@ function CameraDebugPanel() {
         );
       }),
       viewNodesBtn: button(() => {
-        cameraService?.setLookAt(
-          new THREE.Vector3(-3.5, 3, 6),
-          new THREE.Vector3(0, 1.8, 0),
-          true
-        );
-        viewNodes();
+        engineAPI.camera.viewNodes();
       }),
     }),
-    [options, cameraService, viewNodes]
+    [options, cameraService, engineAPI]
   );
 
   const { target } = useControls("📷 Camera", cameraControls, [options]);
 
-  // Efecto para cambiar target
+  // Efecto para cambiar target usando engineAPI.lookAt
   React.useEffect(() => {
-    if (!target || !cameraService || target === "scene") return;
+    if (!target || target === "scene") return;
 
-    const objPos = activeRoom
-      ?.getObjectByName(target)
-      ?.getWorldPosition(new THREE.Vector3());
-    const from = lookAtables[target];
-
-    if (from && objPos) {
-      cameraService.setLookAt(from, objPos, true);
-    }
-  }, [target, cameraService, lookAtables, activeRoom]);
+    // Usar engineAPI.lookAt en lugar de lógica manual
+    engineAPI.lookAt(target).catch((error) => {
+      console.error("Error en lookAt:", error);
+    });
+  }, [target, engineAPI]);
 
   return null;
 }

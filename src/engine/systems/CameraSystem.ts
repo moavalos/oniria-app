@@ -41,6 +41,72 @@ export class CameraSystem extends BaseSystem implements Injectable {
         console.log("[CameraSystem] :Inicializado con CameraService");
     }
 
+    async lookAt(target: string) {
+        if (!this.cameraService) return;
+        const lookatables = await this.core.currentRoom?.getLookAtableObjectByName(target);
+        if (lookatables) {
+            this.cameraService.setLookAt(
+                lookatables.position,
+                lookatables.target,
+                true
+            );
+        }
+    }
+
+    /**
+     * Transiciona la cámara para ver los nodos de la sala activa
+     * (Movido desde useTransitions)
+     */
+    viewNodes(): void {
+        if (!this.cameraService) {
+            console.warn("[CameraSystem] CameraService no disponible para viewNodes");
+            return;
+        }
+
+        const activeRoom = this.core.getCurrentRoom();
+        if (!activeRoom) {
+            console.warn("[CameraSystem] No hay sala activa para viewNodes");
+            return;
+        }
+
+        const target = activeRoom.getPortal()?.position;
+        if (!target) {
+            console.warn("[CameraSystem] Portal no encontrado en sala activa");
+            return;
+        }
+
+        const onRest = () => {
+            console.log("[CameraSystem] Camera rest - viewNodes completado");
+            this.cameraService!.removeEventListener('rest', onRest);
+        };
+
+        this.cameraService.addEventListener('rest', onRest);
+        this.cameraService.setRestThreshold(0.8);
+        this.cameraService.setLookAt(
+            new THREE.Vector3(target.x, target.y, target.z),
+            new THREE.Vector3(target.x, target.y, target.z - 0.5),
+            true
+        );
+
+        console.log("[CameraSystem] 🎯 viewNodes ejecutado - transicionando a portal");
+    }
+
+    /**
+     * Resetea la cámara a su posición inicial
+     * (Movido desde useTransitions)
+     */
+    viewReset(): void {
+        if (!this.cameraService) {
+            console.warn("[CameraSystem] CameraService no disponible para viewReset");
+            return;
+        }
+
+        this.cameraService.resetInitialPosition();
+        console.log("[CameraSystem] 🔄 viewReset ejecutado - cámara reseteada");
+    }
+
+
+
     update(dt: number): void {
         // Actualizar CameraService para que funcionen los controles
         if (this.cameraService) {

@@ -1,3 +1,4 @@
+import * as THREE from "three";
 /**
  * Tipos de configuración para salas y objetos del motor 3D.
  */
@@ -34,6 +35,11 @@ export interface RoomObjectConfig {
     interceptable?: boolean;
     event?: ObjectEvent;
     lookAtOffset?: [number, number, number]; // offset para la cámara al hacer lookAt
+}
+
+export type LookatableObject = {
+    target: THREE.Vector3;
+    position: THREE.Vector3;
 }
 
 // Configuración completa de una room

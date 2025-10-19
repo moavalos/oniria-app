@@ -1,4 +1,10 @@
-import { Engine, RoomScene, LoaderSystem, DebugSystem } from "@/engine";
+import {
+  Engine,
+  RoomScene,
+  LoaderSystem,
+  DebugSystem,
+  useEngineStore,
+} from "@/engine";
 
 import Starfield from "../../../shared/components/Starfield";
 import Card from "@/shared/components/Card";
@@ -9,10 +15,12 @@ import UnifiedSidePanel from "./components/Panel";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { Systems } from "@/engine/components";
 import HudSystem from "@/engine/systems/hud/HudSystem";
+import type { Dream } from "@/engine/core/store/engineStore";
 
 export default function Home() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
+  const { setDream } = useEngineStore();
 
   const engine = useEngineAPI();
   //algo asi seria la respuesta del backend
@@ -31,19 +39,17 @@ export default function Home() {
     console.log("hovered", args.objectName || args);
   };
 
+  const handleBackHome = () => {
+    setDream(null);
+    engine.camera.viewReset();
+    console.log("Back to home - TODO: implementar navegación");
+  };
+
   const handleInterpretar = async (dream: string) => {
-    console.log("handleInterpretar iniciado con dream:", dream);
-    //engine.actions.viewNodes?.();
+    await engine.camera.viewNodes();
+    const response = await fetchDreams(dream);
 
-    setTimeout(async () => {
-      console.log("Ejecutando fetchDreams...");
-      const response = await fetchDreams(dream);
-
-      console.log("fetchDreams response:", response);
-      console.log("Llamando engine.setDream...");
-      //engine.setDream(response as Dream);
-      console.log("engine.setDream completado");
-    }, 500);
+    setDream(response as Dream);
 
     //navegar a otra pagina con el resultado
     //navigate("/interpretacion");
@@ -70,6 +76,7 @@ export default function Home() {
       <main className="container relative z-0 mx-auto grid grid-cols-12 gap-4 flex-1 min-h-0 pb-4">
         <UnifiedSidePanel
           variant="home"
+          onBackToHome={handleBackHome}
           onNuevaFrase={() =>
             console.log("Nueva frase - TODO: implementar navegación")
           }
@@ -82,7 +89,7 @@ export default function Home() {
 
         {/* Canvas 3d */}
         <Card.Container className="col-span-12 sm:col-span-9 rounded-2xl border backdrop-blur-md p-5 md:p-4 overflow-hidden relative">
-          {/* <HudSystem /> */}
+          <HudSystem />
           <LoaderSystem />
 
           {roomId && skinId && (
