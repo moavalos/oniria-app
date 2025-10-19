@@ -136,15 +136,17 @@ export default function RoomScene() {
     if (!core) return;
 
     const handleInsidePortal = () => {
+      console.log("entro al portal");
       setRenderNode(true);
     };
 
     const handleOutsidePortal = () => {
+      console.log("salio del portal");
       setRenderNode(false);
     };
 
-    core.on("core:camera:inside-portal", handleInsidePortal);
-    core.on("core:camera:outside-portal", handleOutsidePortal);
+    core.on("camera:inside-portal", handleInsidePortal);
+    core.on("camera:outside-portal", handleOutsidePortal);
     return () => {
       core.off("core:camera:inside-portal");
       core.off("core:camera:outside-portal");

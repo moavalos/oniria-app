@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { EngineCore, EventEmitter, Node, useEngineStore } from "@/engine/core";
+import { EngineCore, Node, useEngineStore } from "@/engine/core";
 import { MaterialService } from "../MaterialService";
 import { AnimationService } from "../AnimationService";
 import { CameraService } from "../CameraService";
@@ -8,12 +8,12 @@ import { CameraService } from "../CameraService";
 
 
 // Eventos que emite el NodeManager
-interface NodeManagerEventMap {
-    'node:created': { newNode: Node };
-    // Definir eventos relacionados con la gestión de nodos aquí
-}
+// interface NodeManagerEventMap {
+//     'node:created': { newNode: Node };
+//     // Definir eventos relacionados con la gestión de nodos aquí
+// }
 
-export class NodeManager extends EventEmitter<NodeManagerEventMap> {
+export class NodeManager {
 
     private store = useEngineStore.getState();
 
@@ -30,7 +30,6 @@ export class NodeManager extends EventEmitter<NodeManagerEventMap> {
     private core: EngineCore;
 
     constructor(core: EngineCore) {
-        super();
         this.core = core;
         this.init()
         this.configListeners()
@@ -54,7 +53,9 @@ export class NodeManager extends EventEmitter<NodeManagerEventMap> {
     }
 
     removeAllListeners(): this {
-        super.removeAllListeners();
+        this.cameraService?.removeEventListener('controlend', () => {
+            this.onCameraControlEnd();
+        });
         return this;
     }
 
@@ -77,7 +78,7 @@ export class NodeManager extends EventEmitter<NodeManagerEventMap> {
         newNode.setGroup(nodeGroup);
         this.currentNode = newNode;
         this.applyNodeMaterials(nodeGroup);
-        this.emit('node:created', { newNode });
+        this.core.emit('node:created', { newNode });
 
         return newNode;
     }

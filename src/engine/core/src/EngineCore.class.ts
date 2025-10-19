@@ -67,7 +67,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(NodeManager, nodeManager);
         // Configurar listeners para eventos del RoomManager
         this.setupRoomEventListeners();
-        this.setupCameraListeners();
+
     }
 
     /**
@@ -84,13 +84,7 @@ export class EngineCore extends EventEmitter {
         this.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
     }
 
-    private setupCameraListeners() {
-        this.on("camera:inside-portal", () => this.onCameraInsidePortal());
-    }
 
-    private onCameraInsidePortal() {
-        this.emit("core:camera:inside-portal", {});
-    }
 
 
     /**

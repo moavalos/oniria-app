@@ -1,5 +1,3 @@
-// engine/core/BaseSystem.ts
-import { EventEmitter } from "@engine/utils/EventEmitter";
 import { EngineCore } from "./EngineCore.class";
 import { type ISystem } from "./ISystem";
 
@@ -7,7 +5,7 @@ import { type ISystem } from "./ISystem";
  * Clase base para todos los sistemas del motor.
  * Provee ciclo de vida, activación, eventos y acceso al EngineCore.
  */
-export abstract class BaseSystem extends EventEmitter implements ISystem {
+export abstract class BaseSystem implements ISystem {
     /** Nombre identificador del sistema */
     abstract name: string;
 
@@ -34,7 +32,6 @@ export abstract class BaseSystem extends EventEmitter implements ISystem {
     dispose(): void {
         this.active = false;
         this.initialized = false;
-        this.removeAllListeners();
         this.log(`🧹 Disposed`);
     }
 

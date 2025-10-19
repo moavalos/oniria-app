@@ -132,14 +132,14 @@ export class CameraSystem extends BaseSystem implements Injectable {
 
         this.cameraService.addEventListener("controlend", () => {
             console.log("[CameraSystem] 🛑 Movimiento de cámara finalizado");
-            // this.emit("camera:controlend", {
-            //     position: this.cameraService?.getPosition(),
-            //     target: this.cameraService?.getTarget(),
-            // });
+            this.core.emit("camera:controlend", {
+                position: this.cameraService?.getPosition(),
+                target: this.cameraService?.getTarget(),
+            });
         });
 
         this.cameraService.addEventListener("rest", () => {
-            console.log("[CameraSystem] 💤 Cámara en reposo");
+            this.checkCameraInPortal();
         });
 
 
@@ -164,7 +164,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
             this.cameraService.setAzimuthMinAngle(-0.1);
             this.cameraService.setEnableZoom(false);
             this.cameraService.setEnablePan(false);
-            this.emit("camera:inside-portal", { distance });
+            this.core.emit("camera:inside-portal", { distance });
         } else {
             this.cameraService.setDraggingSmoothTime(0.1);
             const defaultConfig = this.cameraService.getDefaultConfig();
@@ -176,7 +176,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
                 this.cameraService.setEnableZoom(true);
                 this.cameraService.setEnablePan(!!defaultConfig.enablePan);
             }
-            //  this.emit("camera:outside-portal", { distance });
+            this.core.emit("camera:outside-portal", { distance });
 
         }
     }

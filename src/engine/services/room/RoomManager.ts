@@ -10,15 +10,15 @@ import { ConfigManager } from '../../utils/ConfigManager';
 import { MaterialService } from "../MaterialService";
 
 // Tipos de eventos que emite el RoomManager
-interface RoomManagerEvents {
-  "room:loading": { room: RoomInfo, skin?: SkinInfo };
-  "room:ready": { room: Room, skin?: SkinInfo };
-  "room:error": { error: any, room: RoomInfo, skin?: SkinInfo };
-  "room:unloading": { room: Room };
-  "skin:change:start": { skin: SkinInfo, room: Room };
-  "skin:change:complete": { skin: SkinInfo, room: Room };
-  "skin:change:error": { skin: SkinInfo, error: any, room: Room };
-}
+// interface RoomManagerEvents {
+//   "room:loading": { room: RoomInfo, skin?: SkinInfo };
+//   "room:ready": { room: Room, skin?: SkinInfo };
+//   "room:error": { error: any, room: RoomInfo, skin?: SkinInfo };
+//   "room:unloading": { room: Room };
+//   "skin:change:start": { skin: SkinInfo, room: Room };
+//   "skin:change:complete": { skin: SkinInfo, room: Room };
+//   "skin:change:error": { skin: SkinInfo, error: any, room: Room };
+// }
 
 export interface RoomInfo {
   id: string;

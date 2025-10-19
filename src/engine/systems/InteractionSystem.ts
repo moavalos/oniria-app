@@ -232,13 +232,13 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     if (!this.interactionService) return;
 
     // Desuscribirse de todos los eventos
-    this.interactionService.off('objectEnter');
-    this.interactionService.off('objectLeave');
-    this.interactionService.off('objectClick');
-    this.interactionService.off('nodeEnter');
-    this.interactionService.off('nodeLeave');
-    this.interactionService.off('nodeClick');
-    this.interactionService.off('nodeMove');
+    this.core.off('objectEnter');
+    this.core.off('objectLeave');
+    this.core.off('objectClick');
+    this.core.off('nodeEnter');
+    this.core.off('nodeLeave');
+    this.core.off('nodeClick');
+    this.core.off('nodeMove');
   }
 
   /**
@@ -268,15 +268,15 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     if (!this.interactionService) return;
 
     // Eventos de objetos
-    this.interactionService.on('objectEnter', this.onObjectEnterEvent.bind(this));
-    this.interactionService.on('objectLeave', this.onObjectLeaveEvent.bind(this));
-    this.interactionService.on('objectClick', this.onObjectClickEvent.bind(this));
+    this.core.on('objectEnter', this.onObjectEnterEvent.bind(this));
+    this.core.on('objectLeave', this.onObjectLeaveEvent.bind(this));
+    this.core.on('objectClick', this.onObjectClickEvent.bind(this));
 
     // Eventos de nodos
-    this.interactionService.on('nodeEnter', this.onNodeEnterEvent.bind(this));
-    this.interactionService.on('nodeLeave', this.onNodeLeaveEvent.bind(this));
-    this.interactionService.on('nodeClick', this.onNodeClickEvent.bind(this));
-    this.interactionService.on('nodeMove', this.onNodeMoveEvent.bind(this));
+    this.core.on('nodeEnter', this.onNodeEnterEvent.bind(this));
+    this.core.on('nodeLeave', this.onNodeLeaveEvent.bind(this));
+    this.core.on('nodeClick', this.onNodeClickEvent.bind(this));
+    this.core.on('nodeMove', this.onNodeMoveEvent.bind(this));
 
   }
 

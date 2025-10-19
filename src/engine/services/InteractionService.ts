@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { Room } from "@engine/entities/Room";
 import { Node } from "@engine/entities/Node";
 import type { ObjectEventArray } from "../config/room.type";
-import { EngineCore, EventEmitter } from "../core";
+import { EngineCore } from "../core";
 
 
 
@@ -47,7 +47,7 @@ type InteractionConfig<T> = T extends Room ? RoomInteractionConfig : T extends N
 /**
  * Servicio para gestionar interacciones con objetos 3D mediante raycasting
  */
-export class InteractionService extends EventEmitter<InteractionEventMap> {
+export class InteractionService {
     private raycaster = new THREE.Raycaster();
 
     private mouse = new THREE.Vector2();
@@ -88,7 +88,6 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
     constructor(
         core: EngineCore | null,
     ) {
-        super();
         this.core = core;
         this.init();
 
@@ -273,8 +272,9 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
             data: events
         };
 
-        // Ejecutar el sistema de eventos (EventEmitter)
-        this.emit(phase, [eventArgs]);
+        // Ejecutar el sistema de eventos (Even.core.Emitter)
+
+        this.core?.emit(phase, [eventArgs]);
 
         // Ejecutar callbacks personalizados si existen
         switch (phase) {
@@ -302,8 +302,8 @@ export class InteractionService extends EventEmitter<InteractionEventMap> {
             data: { distance, position }
         };
 
-        // Ejecutar el sistema de eventos (EventEmitter) para Node
-        this.emit(`node${phase.charAt(0).toUpperCase() + phase.slice(1)}`, [eventArgs]);
+        // Ejecutar el sistema de eventos (Even.core.Emitter) para Node
+        this.core?.emit(`node${phase.charAt(0).toUpperCase() + phase.slice(1)}`, [eventArgs]);
 
         // Ejecutar callbacks personalizados si existen
         switch (phase) {
