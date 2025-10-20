@@ -12,7 +12,7 @@ import type { ISystem } from "./ISystem";
 import { EngineState } from "../types/engine.types";
 import { useEngineStore } from "../store/engineStore";
 import { PortalholeRenderer } from "@/engine/services/renderers/PortalholeRenderer";
-import { NebulaRenderer } from "@/engine/services/renderers/Nebularenderer";
+import { NebulaRenderer } from "@/engine/services/renderers/NebulaRenderer";
 
 /**
  * Núcleo del motor 3D que coordina servicios, sistemas y el ciclo de vida del motor.

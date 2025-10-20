@@ -5,7 +5,8 @@ import { MaterialService } from '../MaterialService';
 import { EventEmitter } from '@engine/utils/EventEmitter';
 import { EngineCore, useEngineStore } from '@engine/core';
 import { PortalholeRenderer } from '../renderers/PortalholeRenderer';
-import { NebulaRenderer } from '../renderers/Nebularenderer';
+import { NebulaRenderer } from '../renderers/NebulaRenderer';
+
 
 // Eventos que emite el PortalManager
 interface PortalManagerEventMap {
