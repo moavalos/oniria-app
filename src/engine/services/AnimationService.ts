@@ -29,11 +29,8 @@ export class AnimationService {
         this.animationRepository = new AnimationRepository();
 
         if (!scene) {
-            console.warn("[AnimationService] ⚠️ Escena no está inicializada");
             return;
         }
-
-        console.log("[AnimationService] ✅ Inicializado con escena:", scene);
     }
 
     /**
@@ -70,29 +67,15 @@ export class AnimationService {
      * @param config - Configuración de la animación a ejecutar
      */
     play(config: AnimationAction) {
-        console.log("[AnimationService] 🎬 Intentando reproducir animación:", config);
-
         if (!this.scene) {
-            console.warn("[AnimationService] ⚠️ Scene no está inicializada");
             return;
         }
 
         const target = this.scene.getObjectByName(config.target);
 
         if (target === undefined) {
-            console.warn(`[AnimationService] ⚠️ No se encontró target para animación: ${config.target}`);
-            console.log("[AnimationService] 📋 Objetos disponibles en la escena:",
-                this.scene.children.map(c => ({
-                    name: c.name || '<sin nombre>',
-                    type: c.type,
-                    hasChildren: c.children.length > 0,
-                    children: c.children.map(child => child.name || '<sin nombre>')
-                }))
-            );
             return;
         }
-
-        console.log("[AnimationService] ✅ Target encontrado:", target.name);
 
         // detener animación previa en ese target
         this.stop(config.target);
@@ -100,24 +83,17 @@ export class AnimationService {
         const handler = this.animationRepository.getAnimation(config.type);
 
         if (!handler) {
-            console.warn(`[AnimationService] ❌ No existe animación: ${config.type}. Disponibles: ${this.animationRepository.getAvailableAnimations().join(', ')}`);
             return;
         }
 
-        console.log(`[AnimationService] ✅ Handler encontrado para animación: ${config.type}`);
-        
         const tl = handler(target, config);
         if (tl) {
-            console.log(`[AnimationService] 🎬 Timeline creada para ${config.type}, iniciando animación`);
-            
             // Configurar callbacks de la timeline
             tl.eventCallback("onStart", () => {
-                console.log(`[AnimationService] 🎯 Animación ${config.type} INICIADA`);
                 this.onAnimationStart?.(config.target, config.type);
             });
 
             tl.eventCallback("onComplete", () => {
-                console.log(`[AnimationService] ✅ Animación ${config.type} COMPLETADA`);
                 this.onAnimationComplete?.(config.target, config.type);
             });
 
@@ -127,8 +103,6 @@ export class AnimationService {
             });
 
             this.animations[config.target] = tl;
-        } else {
-            console.warn(`[AnimationService] ❌ Handler no devolvió timeline para ${config.type}`);
         }
     }
 

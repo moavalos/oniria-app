@@ -56,7 +56,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(MaterialService, new MaterialService());
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
         this.registry.registerService(AnimationService, new AnimationService(this._scene));
-        this.registry.registerService(InteractionService, new InteractionService(this));
+        this.registry.registerService(InteractionService, new InteractionService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
 
         // Crear RoomManager y configurar listeners
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
@@ -172,14 +172,6 @@ export class EngineCore extends EventEmitter {
     }
 
     getCurrentNode(): any | null {
-        return this.currentNode;
-    }
-
-    /**
-     * Getter para compatibilidad con InteractionSystem
-     */
-    get activeNode(): any | null {
-        console.log("[EngineCore] 🔍 getter activeNode accedido, currentNode:", !!this.currentNode);
         return this.currentNode;
     }
 

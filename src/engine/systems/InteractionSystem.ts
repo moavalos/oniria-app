@@ -2,526 +2,585 @@ import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } f
 import { BaseSystem } from "@engine/core/src/BaseSystem";
 import type { Injectable } from "@engine/core/src/Injectable";
 import type { EngineCore } from "@engine/core/src/EngineCore.class";
-import { InteractionService } from "@engine/services/InteractionService";
+import { InteractionService, type RoomInteractionResult, type NodeInteractionResult } from "@/engine/services/InteractionService";
 import { AnimationService } from "@engine/services/AnimationService";
 import { NodeManager } from "@engine/services/room/NodeManager";
 import { Node } from "@engine/entities/Node";
 import * as THREE from "three";
 import type { Room } from "../entities";
 
-// Tipos para EventArgs
+// Tipos para EventArgs - compatibilidad con sistema anterior
 interface EventArgs<T = any, D = any> {
-  target: T;
-  data: D;
+    target: T;
+    data: D;
 }
 
 // Interfaces para callbacks organizados por categoría  
 export interface ObjectInteractionCallbacks {
-  onHover?: (_args: EventArgs<string, ObjectEventArray>) => void;
-  onHoverLeave?: (_args: EventArgs<string, ObjectEventArray>) => void;
-  onClick?: (_args: EventArgs<string, ObjectEventArray>) => void;
+    onHover?: (_args: EventArgs<string, ObjectEventArray>) => void;
+    onHoverLeave?: (_args: EventArgs<string, ObjectEventArray>) => void;
+    onClick?: (_args: EventArgs<string, ObjectEventArray>) => void;
 }
 
 export interface NodeInteractionCallbacks {
-  onHover?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
-  onHoverLeave?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
-  onClick?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
-  onMove?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
+    onHover?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
+    onHoverLeave?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
+    onClick?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
+    onMove?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
 }
 
 export interface NavigationCallbacks {
-  onNext?: () => void;
-  onPrevious?: () => void;
+    onNext?: () => void;
+    onPrevious?: () => void;
 }
 
 export interface InteractionCallbacks {
-  objects?: ObjectInteractionCallbacks;
-  nodes?: NodeInteractionCallbacks;
-  navigation?: NavigationCallbacks;
+    objects?: ObjectInteractionCallbacks;
+    nodes?: NodeInteractionCallbacks;
+    navigation?: NavigationCallbacks;
 }
 
 export interface InteractionConfig {
-  enableInteractions?: boolean;
-  interactionRadius?: number;
-  raycastThreshold?: number;
-  callbacks?: InteractionCallbacks;
+    enableInteractions?: boolean;
+    interactionRadius?: number;
+    raycastThreshold?: number;
+    callbacks?: InteractionCallbacks;
 }
 
 // Alias para compatibilidad con componentes React
 export type InteractionSystemProps = InteractionConfig;
 
 /**
- * Sistema de interacciones que extiende BaseSystem.
- * Contiene toda la lógica de handlers y permite inyección de callbacks limpia.
+ * Sistema de interacciones refactorizado que usa el InteractionService puro.
+ * 
+ * Principios aplicados:
+ * - Solo emite eventos a través de this.core.emit()
+ * - No ejecuta animaciones directamente (las escucha el manager)
+ * - Usa el InteractionService refactorizado como fuente de datos
+ * - Mantiene estado de frames anteriores para detectar cambios
  */
 export class InteractionSystem extends BaseSystem implements Injectable {
-  name = "InteractionSystem";
+    name = "InteractionSystem";
 
-  private interactionService!: InteractionService;
+    private interactionService!: InteractionService;
 
-  private animationService!: AnimationService;
+    private animationService!: AnimationService;
 
-  private _interceptableObjects: Record<string, any> = {};
+    // Room actual y configuración
+    private _currentRoom: Room | null = null;
 
-  // Estado para controlar navegación
-  private _isNavigationAnimating: boolean = false;
+    private _interceptableObjects: Record<string, ObjectEventArray> = {};
 
-  // Room actual (se actualiza mediante eventos)
-  private _currentRoom: Room | null = null;
+    private _currentNode: Node | null = null;
 
-  // Callbacks del usuario
-  private _userCallbacks: InteractionCallbacks = {};
+    // Configuración del sistema
+    private _enableInteractions: boolean = true;
 
-  // Configuración
-  private _enableInteractions: boolean = true;
+    private _interactionRadius: number = 1.0;
 
-  private _interactionRadius: number = 1.0;
+    private _userCallbacks: InteractionCallbacks = {};
 
-  constructor(config: InteractionConfig = {}) {
-    super();
+    // Estado anterior para detectar cambios
+    private _previousRoomState: {
+        hoveredObjects: Set<string>;
+    } = {
+            hoveredObjects: new Set()
+        };
 
-    // Aplicar configuración
-    this._enableInteractions = config.enableInteractions ?? true;
-    this._interactionRadius = config.interactionRadius ?? 1.0;
-    this._userCallbacks = config.callbacks ?? {};
+    private _previousNodeState: {
+        hoveredNode: Node | null;
+        isWithinRadius: boolean;
+    } = {
+            hoveredNode: null,
+            isWithinRadius: false
+        };
 
+    constructor(config: InteractionConfig = {}) {
+        super();
 
-  }
-
-  async init(core: EngineCore): Promise<void> {
-    // Asignar referencia al core
-    this.core = core;
-
-    // Obtener servicios del core
-    this.interactionService = core.getService(InteractionService);
-    this.animationService = core.getService(AnimationService);
-
-    if (!this.interactionService) {
-      console.error("[InteractionSystem] InteractionService no disponible");
-      return;
+        // Aplicar configuración
+        this._enableInteractions = config.enableInteractions ?? true;
+        this._interactionRadius = config.interactionRadius ?? 1.0;
+        this._userCallbacks = config.callbacks ?? {};
     }
 
-    if (!this.animationService) {
-      console.error("[InteractionSystem] AnimationService no disponible");
-      return;
+    async init(core: EngineCore): Promise<void> {
+        // Asignar referencia al core
+        this.core = core;
+
+        // Obtener servicios del core
+        this.animationService = core.getService(AnimationService);
+
+        if (!this.animationService) {
+            console.error("[InteractionSystem] AnimationService no disponible");
+            return;
+        }
+
+        this.interactionService = this.core.getService(InteractionService);
+
+        // Suscribirse a eventos del core para cambios de room y node
+        this.subscribeToEvents();
+
+        // Cargar estado inicial si existe
+        const initialRoom = core.getCurrentRoom();
+        if (initialRoom) {
+            this._currentRoom = initialRoom;
+            await this.loadInterceptablesFromRoom(initialRoom);
+        }
+
+        // Obtener nodo actual si existe
+        const nodeManager = core.getService(NodeManager);
+        if (nodeManager) {
+            this._currentNode = nodeManager.getCurrentNode();
+        }
+
+        console.log("[InteractionSystem] ✅ Sistema inicializado");
     }
 
-    // Suscribirse a eventos del core para cambios de room
-    this.subscribeToRoomEvents();
+    update(deltaTime: number): void {
+        if (!this._enableInteractions || !this.interactionService) return;
 
-    // Configurar handlers internos del sistema
-    this.setupInternalHandlers();
+        // Usar deltaTime para evitar warning de lint
+        void deltaTime;
 
-    // Cargar interceptables de la room inicial si existe
-    const initialRoom = this.core.getCurrentRoom();
-    if (initialRoom) {
-      this._currentRoom = initialRoom;
-      await this.loadInterceptablesFromRoom(initialRoom);
+        // Actualizar interacciones con Room
+        this.updateRoomInteractions();
+
+        // Actualizar interacciones con Node
+        this.updateNodeInteractions();
     }
 
-    console.log("[InteractionSystem] ✅ Sistema inicializado");
-  }
+    /**
+     * Actualiza las interacciones con objetos de la Room
+     */
+    private updateRoomInteractions(): void {
+        if (!this._currentRoom || Object.keys(this._interceptableObjects).length === 0) {
+            return;
+        }
 
-  update(deltaTime: number): void {
-    if (!this._enableInteractions || !this.interactionService) return;
+        // Obtener estado actual desde el InteractionService
+        const roomResult = this.interactionService.computeRoomInteraction(
+            this._currentRoom,
+            this._interceptableObjects
+        );
 
-    // Usar deltaTime para evitar warning de lint
-    void deltaTime;
-
-    // Solo ejecutar raycast si tenemos room y objetos interceptables
-    if (this._currentRoom && Object.keys(this._interceptableObjects).length > 0) {
-      // Actualizar el InteractionService con raycast en cada frame
-      this.interactionService.update(this._currentRoom, {
-        interceptableObjects: this._interceptableObjects
-      });
-    }
-  }
-
-  /**
-   * Suscribe a los eventos de cambio de room del core
-   */
-  private subscribeToRoomEvents(): void {
-    if (!this.core) return;
-
-    // Suscribirse a cambios de room
-    this.core.on('room:change', this.onRoomChange.bind(this));
-    this.core.on('room:ready', this.onRoomReady.bind(this));
-  }
-
-  /**
-   * Desuscribe de los eventos de room del core
-   */
-  private unsubscribeFromRoomEvents(): void {
-    if (!this.core) return;
-
-    this.core.off('room:change');
-    this.core.off('room:ready');
-  }
-
-  /**
-   * Maneja el evento de cambio de room
-   */
-  private onRoomChange(newRoom: Room): void {
-    // Actualizar referencia a la room actual
-    this._currentRoom = newRoom;
-
-    // Limpiar interceptables de la room anterior
-    this._interceptableObjects = {};
-  }
-
-  /**
-   * Maneja el evento de room lista
-   */
-  private onRoomReady(room: Room): void {
-    // Actualizar referencia a la room actual
-    this._currentRoom = room;
-
-    // Cargar interceptables de la nueva room
-    this.loadInterceptablesFromRoom(room);
-  }
-
-  /**
-   * Carga los objetos interceptables desde la room activa
-   */
-  private async loadInterceptablesFromRoom(room: Room): Promise<void> {
-    try {
-      // Obtener objetos interceptables de la room
-      const interceptables = await room.getInteractableObjects();
-
-      // Actualizar estado interno
-      this._interceptableObjects = interceptables;
-
-      // Configurar interceptables usando el método update del InteractionService
-      this.interactionService.update(room, { interceptableObjects: interceptables });
-
-    } catch (error) {
-      console.error("[InteractionSystem] Error cargando interceptables:", error);
-      // En caso de error, limpiar estado
-      this._interceptableObjects = {};
-    }
-  }
-
-  dispose(): void {
-    // Limpiar callbacks directos
-    if (this.interactionService) {
-      this.interactionService.setOnObjectEnter(undefined);
-      this.interactionService.setOnObjectLeave(undefined);
-      this.interactionService.setOnObjectClick(undefined);
-      this.interactionService.setOnNodeEnter(undefined);
-      this.interactionService.setOnNodeLeave(undefined);
-      this.interactionService.setOnNodeClick(undefined);
-
-      // Desuscribirse de eventos del EventEmitter
-      this.unsubscribeFromInteractionEvents();
+        // Procesar cambios de estado
+        this.processRoomStateChanges(roomResult);
     }
 
-    // Desuscribirse de eventos de room del core
-    this.unsubscribeFromRoomEvents();
+    /**
+     * Actualiza las interacciones con Node
+     */
+    private updateNodeInteractions(): void {
+        if (!this._currentNode) return;
 
-    // Limpiar estado interno
-    this._interceptableObjects = {};
-    this._currentRoom = null;
-    this._userCallbacks = {};
+        // Obtener estado actual desde el InteractionService
+        const nodeResult = this.interactionService.computeNodeInteraction(
+            this._currentNode,
+            this._interactionRadius
+        );
 
-    console.log("[InteractionSystem] ✅ Disposed");
-  }
+        // Procesar cambios de estado
+        this.processNodeStateChanges(nodeResult);
+    }
 
-  /**
-   * Desuscribe el sistema de los eventos del InteractionService
-   */
-  private unsubscribeFromInteractionEvents(): void {
-    if (!this.interactionService) return;
+    /**
+     * Procesa cambios en el estado de Room y emite eventos
+     */
+    private processRoomStateChanges(result: RoomInteractionResult): void {
+        const currentHovered = new Set(result.interceptedObjects);
+        const previousHovered = this._previousRoomState.hoveredObjects;
 
-    // Desuscribirse de todos los eventos
-    this.core.off('objectEnter');
-    this.core.off('objectLeave');
-    this.core.off('objectClick');
-    this.core.off('nodeEnter');
-    this.core.off('nodeLeave');
-    this.core.off('nodeClick');
-    this.core.off('nodeMove');
-  }
+        // Detectar objetos que salieron del hover
+        for (const objectName of previousHovered) {
+            if (!currentHovered.has(objectName)) {
+                this.emitObjectLeave(objectName, this._interceptableObjects[objectName]);
+            }
+        }
 
-  /**
- * Configura los handlers internos del sistema
- */
-  private setupInternalHandlers(): void {
-    if (!this.interactionService) return;
+        // Detectar objetos que entraron al hover
+        for (const objectName of currentHovered) {
+            if (!previousHovered.has(objectName)) {
+                this.emitObjectEnter(objectName, this._interceptableObjects[objectName]);
+            }
+        }
 
-    // Configurar handlers para objetos usando callbacks directos
-    this.interactionService.setOnObjectEnter(this.handleObjectEnter.bind(this));
-    this.interactionService.setOnObjectLeave(this.handleObjectLeave.bind(this));
-    this.interactionService.setOnObjectClick(this.handleObjectClick.bind(this));
+        // Detectar clicks en objetos
+        if (result.clicked && result.interceptedObjects.length > 0) {
+            // Emitir click para cada objeto interceptado
+            result.interceptedObjects.forEach(objectName => {
+                this.emitObjectClick(objectName, this._interceptableObjects[objectName]);
+            });
+        }
 
-    // Configurar handlers para nodos usando callbacks directos
-    this.interactionService.setOnNodeEnter(this.handleNodeEnter.bind(this));
-    this.interactionService.setOnNodeLeave(this.handleNodeLeave.bind(this));
-    this.interactionService.setOnNodeClick(this.handleNodeClick.bind(this));
+        // Actualizar estado anterior
+        this._previousRoomState.hoveredObjects = currentHovered;
+    }
 
-    // Suscribirse a eventos del EventEmitter para mayor flexibilidad
-    this.subscribeToInteractionEvents();
-  }
+    /**
+     * Procesa cambios en el estado de Node y emite eventos
+     */
+    private processNodeStateChanges(result: NodeInteractionResult): void {
+        const currentWithinRadius = result.withinRadius;
+        const currentNode = result.withinRadius ? this._currentNode : null;
+        const previousWithinRadius = this._previousNodeState.isWithinRadius;
+        const previousNode = this._previousNodeState.hoveredNode;
 
-  /**
-   * Suscribe el sistema a los eventos del InteractionService usando EventEmitter
-   */
-  private subscribeToInteractionEvents(): void {
-    if (!this.interactionService) return;
+        // Detectar entrada al radio del nodo
+        if (currentWithinRadius && !previousWithinRadius && currentNode) {
+            this.emitNodeEnter(currentNode, result.distance, result.intersectionPoint || new THREE.Vector3());
+        }
 
-    // Eventos de objetos
-    this.core.on('objectEnter', this.onObjectEnterEvent.bind(this));
-    this.core.on('objectLeave', this.onObjectLeaveEvent.bind(this));
-    this.core.on('objectClick', this.onObjectClickEvent.bind(this));
+        // Detectar salida del radio del nodo
+        if (!currentWithinRadius && previousWithinRadius && previousNode) {
+            this.emitNodeLeave(previousNode, result.distance, result.intersectionPoint || new THREE.Vector3());
+        }
 
-    // Eventos de nodos
-    this.core.on('nodeEnter', this.onNodeEnterEvent.bind(this));
-    this.core.on('nodeLeave', this.onNodeLeaveEvent.bind(this));
-    this.core.on('nodeClick', this.onNodeClickEvent.bind(this));
-    this.core.on('nodeMove', this.onNodeMoveEvent.bind(this));
+        // Detectar click en nodo
+        if (result.clicked && result.withinRadius && currentNode) {
+            this.emitNodeClick(currentNode, result.distance, result.intersectionPoint || new THREE.Vector3());
+        }
 
-  }
+        // Emitir movimiento si sigue dentro del radio
+        if (currentWithinRadius && previousWithinRadius && currentNode) {
+            this.emitNodeMove(currentNode, result.distance, result.intersectionPoint || new THREE.Vector3());
+        }
 
-  // --- Event Handlers para EventEmitter --- //
+        // Actualizar estado anterior
+        this._previousNodeState.isWithinRadius = currentWithinRadius;
+        this._previousNodeState.hoveredNode = currentNode;
+    }
 
-  /**
-   * Handler para evento objectEnter del EventEmitter
-   */
-  private onObjectEnterEvent(_event: EventArgs<string, ObjectEventArray>): void {
-    // Se puede agregar lógica adicional aquí si es necesario
-    // Los callbacks del usuario ya se ejecutan en handleObjectEnter
-    void _event;
-  }
+    // === EVENTOS EMITIDOS AL CORE === //
 
-  /**
-   * Handler para evento objectLeave del EventEmitter
-   */
-  private onObjectLeaveEvent(event: EventArgs<string, ObjectEventArray>): void {
-    this._userCallbacks.objects?.onHoverLeave?.(event);
-  }
+    /**
+     * Emite evento de entrada a objeto
+     */
+    private emitObjectEnter(objectName: string, events: ObjectEventArray): void {
+        const eventArgs: EventArgs<string, ObjectEventArray> = {
+            target: objectName,
+            data: events
+        };
 
-  /**
-   * Handler para evento objectClick del EventEmitter
-   */
-  private onObjectClickEvent(event: EventArgs<string, ObjectEventArray>): void {
-    this._userCallbacks.objects?.onClick?.(event);
-  }
+        // Emitir al core para que otros sistemas escuchen
+        this.core.emit('objectEnter', eventArgs);
 
-  /**
-   * Handler para evento nodeEnter del EventEmitter
-   */
-  private onNodeEnterEvent(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    this._userCallbacks.nodes?.onHover?.(event);
-  }
+        // Ejecutar lógica interna (animaciones directas por compatibilidad)
+        this.handleObjectEnterInternal(eventArgs);
 
-  /**
-   * Handler para evento nodeLeave del EventEmitter
-   */
-  private onNodeLeaveEvent(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    this._userCallbacks.nodes?.onHoverLeave?.(event);
-  }
+        // Ejecutar callback del usuario si existe
+        this._userCallbacks.objects?.onHover?.(eventArgs);
+    }
 
-  /**
-   * Handler para evento nodeClick del EventEmitter
-   */
-  private onNodeClickEvent(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    this._userCallbacks.nodes?.onClick?.(event);
-  }
+    /**
+     * Emite evento de salida de objeto
+     */
+    private emitObjectLeave(objectName: string, events: ObjectEventArray): void {
+        const eventArgs: EventArgs<string, ObjectEventArray> = {
+            target: objectName,
+            data: events
+        };
 
-  /**
-   * Handler para evento nodeMove del EventEmitter
-   */
-  private onNodeMoveEvent(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    this._userCallbacks.nodes?.onMove?.(event);
-  }
+        this.core.emit('objectLeave', eventArgs);
+        this.handleObjectLeaveInternal(eventArgs);
+        this._userCallbacks.objects?.onHoverLeave?.(eventArgs);
+    }
 
-  /**
-   * Handler interno para cuando se entra en hover sobre un objeto
-   */
-  private handleObjectEnter(event: EventArgs<string, ObjectEventArray>): void {
+    /**
+     * Emite evento de click en objeto
+     */
+    private emitObjectClick(objectName: string, events: ObjectEventArray): void {
+        const eventArgs: EventArgs<string, ObjectEventArray> = {
+            target: objectName,
+            data: events
+        };
 
-    // Lógica interna del sistema
-    event.data.forEach((element: ObjectEvent) => {
-      if (element.type === "animation") {
-        element.action.forEach((animation: AnimationAction) => {
-          if (animation.on === "hoverEnter") {
-            document.body.style.cursor = "grab";
-            this.animationService?.stop(animation.target);
-            this.animationService?.play(animation);
-          }
+        this.core.emit('objectClick', eventArgs);
+        this.handleObjectClickInternal(eventArgs);
+        this._userCallbacks.objects?.onClick?.(eventArgs);
+    }
+
+    /**
+     * Emite evento de entrada a nodo
+     */
+    private emitNodeEnter(node: Node, distance: number, position: THREE.Vector3): void {
+        const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
+            target: node,
+            data: { distance, position }
+        };
+
+        this.core.emit('nodeEnter', eventArgs);
+        this._userCallbacks.nodes?.onHover?.(eventArgs);
+    }
+
+    /**
+     * Emite evento de salida de nodo
+     */
+    private emitNodeLeave(node: Node, distance: number, position: THREE.Vector3): void {
+        const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
+            target: node,
+            data: { distance, position }
+        };
+
+        this.core.emit('nodeLeave', eventArgs);
+        this._userCallbacks.nodes?.onHoverLeave?.(eventArgs);
+    }
+
+    /**
+     * Emite evento de click en nodo
+     */
+    private emitNodeClick(node: Node, distance: number, position: THREE.Vector3): void {
+        console.log("[InteractionSystem] Click en nodo detectado");
+
+        const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
+            target: node,
+            data: { distance, position }
+        };
+
+        this.core.emit('nodeClick', eventArgs);
+
+        // Lógica interna específica para nodos (ping)
+        const nodeManager = this.core.getService(NodeManager);
+        if (nodeManager) {
+            console.log("[InteractionSystem] Ejecutando ping en el nodo");
+            (nodeManager as NodeManager).ping();
+        } else {
+            console.warn("[InteractionSystem] NodeManager no disponible en el core");
+        }
+
+        this._userCallbacks.nodes?.onClick?.(eventArgs);
+    }
+
+    /**
+     * Emite evento de movimiento en nodo
+     */
+    private emitNodeMove(node: Node, distance: number, position: THREE.Vector3): void {
+        const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
+            target: node,
+            data: { distance, position }
+        };
+
+        this.core.emit('nodeMove', eventArgs);
+        this._userCallbacks.nodes?.onMove?.(eventArgs);
+    }
+
+    // === HANDLERS INTERNOS PARA COMPATIBILIDAD === //
+
+    /**
+     * Maneja lógica interna de entrada a objeto (animaciones directas)
+     */
+    private handleObjectEnterInternal(event: EventArgs<string, ObjectEventArray>): void {
+        event.data.forEach((element: ObjectEvent) => {
+            if (element.type === "animation") {
+                element.action.forEach((animation: AnimationAction) => {
+                    if (animation.on === "hoverEnter") {
+                        document.body.style.cursor = "grab";
+                        this.animationService?.stop(animation.target);
+                        this.animationService?.play(animation);
+                    }
+                });
+            }
         });
-      }
-    });
-
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.objects?.onHover?.(event);
-  }
-
-  /**
-   * Handler interno para cuando se sale del hover sobre un objeto
-   */
-  private handleObjectLeave(event: EventArgs<string, ObjectEventArray>): void {
-    // Lógica interna del sistema
-    event.data.forEach((element: ObjectEvent) => {
-      if (element.type === "animation") {
-        element.action.forEach((action: AnimationAction) => {
-          if (action.on === "hoverLeave") {
-            document.body.style.cursor = "default";
-            this.animationService?.stop(action.target);
-            this.animationService?.play(action);
-          }
-        });
-      }
-    });
-
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.objects?.onHoverLeave?.(event);
-  }
-
-  /**
-   * Handler interno para cuando se hace click en un objeto
-   */
-  private handleObjectClick(event: EventArgs<string, ObjectEventArray>): void {
-    // Lógica interna del sistema
-    event.data.forEach((element: ObjectEvent) => {
-      if (element.type === "animation") {
-        element.action.forEach((action: AnimationAction) => {
-          if (action.on === "click") {
-            document.body.style.cursor = "pointer";
-            this.animationService?.stop(action.target);
-            this.animationService?.play(action);
-            document.body.style.cursor = "default";
-          }
-        });
-      }
-
-      if (element.type === "function") {
-        element.action.forEach((action: FunctionAction) => {
-          if (action.on === "click") {
-            // TODO: Ejecutar función personalizada
-          }
-        });
-      }
-    });
-
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.objects?.onClick?.(event);
-  }
-
-  /**
-   * Handler interno para cuando se entra en hover sobre un nodo
-   */
-  private handleNodeEnter(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.nodes?.onHover?.(event);
-  }
-
-  /**
-   * Handler interno para cuando se sale del hover sobre un nodo
-   */
-  private handleNodeLeave(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.nodes?.onHoverLeave?.(event);
-  }
-
-  /**
-   * Handler interno para cuando se hace click en un nodo
-   */
-  private handleNodeClick(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    console.log("[InteractionSystem] Click en nodo detectado");
-
-    // Obtener el NodeManager del core y ejecutar ping
-    const nodeManager = this.core.getService(NodeManager);
-    if (nodeManager) {
-      console.log("[InteractionSystem] Ejecutando ping en el nodo");
-      (nodeManager as NodeManager).ping();
-    } else {
-      console.warn("[InteractionSystem] NodeManager no disponible en el core");
     }
 
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.nodes?.onClick?.(event);
-  }
+    /**
+     * Maneja lógica interna de salida de objeto (animaciones directas)
+     */
+    private handleObjectLeaveInternal(event: EventArgs<string, ObjectEventArray>): void {
+        event.data.forEach((element: ObjectEvent) => {
+            if (element.type === "animation") {
+                element.action.forEach((action: AnimationAction) => {
+                    if (action.on === "hoverLeave") {
+                        document.body.style.cursor = "default";
+                        this.animationService?.stop(action.target);
+                        this.animationService?.play(action);
+                    }
+                });
+            }
+        });
+    }
 
-  /**
-   * Handler para navegación al siguiente nodo
-   */
-  public handleNextNode(): void {
-    // Prevenir múltiples animaciones simultáneas
-    if (this._isNavigationAnimating) return;
+    /**
+     * Maneja lógica interna de click en objeto (animaciones directas)
+     */
+    private handleObjectClickInternal(event: EventArgs<string, ObjectEventArray>): void {
+        event.data.forEach((element: ObjectEvent) => {
+            if (element.type === "animation") {
+                element.action.forEach((action: AnimationAction) => {
+                    if (action.on === "click") {
+                        document.body.style.cursor = "pointer";
+                        this.animationService?.stop(action.target);
+                        this.animationService?.play(action);
+                        document.body.style.cursor = "default";
+                    }
+                });
+            }
 
-    // TODO: Implementar cuando activeNode esté disponible
-    // const activeNode = core.activeNode;
-    // const group = activeNode?.getGroup();
+            if (element.type === "function") {
+                element.action.forEach((action: FunctionAction) => {
+                    if (action.on === "click") {
+                        // TODO: Ejecutar función personalizada
+                    }
+                });
+            }
+        });
+    }
 
-    // if (!group || !this.animationService) {
-    //   return;
-    // }
+    // === GESTIÓN DE EVENTOS DEL CORE === //
 
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.navigation?.onNext?.();
-  }
+    /**
+     * Suscribe a eventos del core para cambios de room y node
+     */
+    private subscribeToEvents(): void {
+        if (!this.core) return;
 
-  /**
-   * Handler para navegación al nodo anterior
-   */
-  public handlePreviousNode(): void {
-    // Prevenir múltiples animaciones simultáneas
-    if (this._isNavigationAnimating) return;
+        // Eventos de room
+        this.core.on('room:change', this.onRoomChange.bind(this));
+        this.core.on('room:ready', this.onRoomReady.bind(this));
 
-    // TODO: Implementar cuando activeNode esté disponible
+        // Eventos de node
+        this.core.on('node:change', this.onNodeChange.bind(this));
+    }
 
-    // Ejecutar callback del usuario si existe
-    this._userCallbacks.navigation?.onPrevious?.();
-  }
+    /**
+     * Desuscribe de eventos del core
+     */
+    private unsubscribeFromEvents(): void {
+        if (!this.core) return;
 
-  // API Pública para configuración
+        this.core.off('room:change');
+        this.core.off('room:ready');
+        this.core.off('node:change');
+    }
 
-  /**
-   * Actualiza los callbacks del usuario
-   */
-  setCallbacks(callbacks: InteractionCallbacks): void {
-    this._userCallbacks = { ...this._userCallbacks, ...callbacks };
-  }
+    /**
+     * Maneja el cambio de room
+     */
+    private onRoomChange(newRoom: Room): void {
+        // Limpiar estado anterior
+        this._currentRoom = newRoom;
+        this._interceptableObjects = {};
+        this._previousRoomState.hoveredObjects.clear();
+    }
 
-  /**
-   * Habilita o deshabilita las interacciones
-   */
-  setInteractionsEnabled(enabled: boolean): void {
-    this._enableInteractions = enabled;
-  }
+    /**
+     * Maneja cuando la room está lista
+     */
+    private onRoomReady(room: Room): void {
+        this._currentRoom = room;
+        this.loadInterceptablesFromRoom(room);
+    }
 
-  /**
-   * Establece el radio de interacción para nodos
-   */
-  setInteractionRadius(radius: number): void {
-    this._interactionRadius = radius;
-  }
+    /**
+     * Maneja el cambio de nodo
+     */
+    private onNodeChange(newNode: Node): void {
+        // Limpiar estado anterior
+        this._currentNode = newNode;
+        this._previousNodeState.hoveredNode = null;
+        this._previousNodeState.isWithinRadius = false;
+    }
 
-  /**
-   * Obtiene el estado de las interacciones
-   */
-  isInteractionsEnabled(): boolean {
-    return this._enableInteractions;
-  }
+    /**
+     * Carga objetos interceptables desde la room
+     */
+    private async loadInterceptablesFromRoom(room: Room): Promise<void> {
+        try {
+            const interceptables = await room.getInteractableObjects();
+            this._interceptableObjects = interceptables;
+        } catch (error) {
+            console.error("[InteractionSystem] Error cargando interceptables:", error);
+            this._interceptableObjects = {};
+        }
+    }
 
-  /**
-   * Obtiene los callbacks actuales
-   */
-  public getCallbacks(): InteractionCallbacks {
-    return { ...this._userCallbacks };
-  }
+    // === API PÚBLICA === //
 
-  /**
-   * Obtiene los objetos interceptables cargados actualmente
-   */
-  public getInterceptableObjects(): Record<string, any> {
-    return { ...this._interceptableObjects };
-  }
+    /**
+     * Actualiza los callbacks del usuario
+     */
+    setCallbacks(callbacks: InteractionCallbacks): void {
+        this._userCallbacks = { ...this._userCallbacks, ...callbacks };
+    }
 
-  /**
-   * Obtiene el radio de interacción actual
-   */
-  public getInteractionRadius(): number {
-    return this._interactionRadius;
-  }
+    /**
+     * Habilita o deshabilita las interacciones
+     */
+    setInteractionsEnabled(enabled: boolean): void {
+        this._enableInteractions = enabled;
+    }
+
+    /**
+     * Establece el radio de interacción para nodos
+     */
+    setInteractionRadius(radius: number): void {
+        this._interactionRadius = radius;
+    }
+
+    /**
+     * Obtiene el estado de las interacciones
+     */
+    isInteractionsEnabled(): boolean {
+        return this._enableInteractions;
+    }
+
+    /**
+     * Obtiene los callbacks actuales
+     */
+    public getCallbacks(): InteractionCallbacks {
+        return { ...this._userCallbacks };
+    }
+
+    /**
+     * Obtiene los objetos interceptables cargados actualmente
+     */
+    public getInterceptableObjects(): Record<string, ObjectEventArray> {
+        return { ...this._interceptableObjects };
+    }
+
+    /**
+     * Obtiene el radio de interacción actual
+     */
+    public getInteractionRadius(): number {
+        return this._interactionRadius;
+    }
+
+    dispose(): void {
+        // Limpiar InteractionService
+        if (this.interactionService) {
+            this.interactionService.dispose();
+        }
+
+        // Desuscribirse de eventos del core
+        this.unsubscribeFromEvents();
+
+        // Limpiar estado interno
+        this._interceptableObjects = {};
+        this._currentRoom = null;
+        this._currentNode = null;
+        this._userCallbacks = {};
+        this._previousRoomState.hoveredObjects.clear();
+        this._previousNodeState.hoveredNode = null;
+        this._previousNodeState.isWithinRadius = false;
+
+        console.log("[InteractionSystem] ✅ Disposed");
+    }
+
+    // === NAVEGACIÓN === //
+
+    /**
+     * Handler para navegación al siguiente nodo
+     */
+    public handleNextNode(): void {
+        this.core.emit('navigation:next', {});
+        this._userCallbacks.navigation?.onNext?.();
+    }
+
+    /**
+     * Handler para navegación al nodo anterior
+     */
+    public handlePreviousNode(): void {
+        this.core.emit('navigation:previous', {});
+        this._userCallbacks.navigation?.onPrevious?.();
+    }
 }

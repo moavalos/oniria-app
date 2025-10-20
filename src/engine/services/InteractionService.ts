@@ -1,341 +1,216 @@
 import * as THREE from "three";
-
 import { Room } from "@engine/entities/Room";
 import { Node } from "@engine/entities/Node";
 import type { ObjectEventArray } from "../config/room.type";
-import { EngineCore } from "../core";
-
-
 
 /**
- * Tipos para argumentos de eventos
+ * Frame de interacción con información completa
  */
-export type EventArgs<T = any, D = any> = {
-    target: T;
-    data: D;
+export interface InteractionFrame {
+    /** Coordenadas del pointer */
+    pointer: THREE.Vector2;
+    /** Todas las intersecciones detectadas */
+    intersections: THREE.Intersection[];
+    /** Objeto más cercano interceptado */
+    hovered?: THREE.Object3D;
+    /** Si está siendo clickeado (pointer down + hover) */
+    clicked: boolean;
+    /** Si el pointer está presionado */
+    pointerDown: boolean;
+    /** Si el pointer acaba de ser presionado */
+    pointerUp: boolean;
 }
 
 /**
- * Mapa de tipos de eventos para inferencia automática de TypeScript
+ * Resultado específico para interacciones con Room
  */
-export interface InteractionEventMap extends Record<string, unknown> {
-    // Eventos de Room
-    objectEnter: EventArgs<string, ObjectEventArray>;
-    objectLeave: EventArgs<string, ObjectEventArray>;
-    objectClick: EventArgs<string, ObjectEventArray>;
-
-    // Eventos de Node
-    nodeEnter: EventArgs<Node, { distance: number; position: THREE.Vector3 }>;
-    nodeLeave: EventArgs<Node, { distance: number; position: THREE.Vector3 }>;
-    nodeMove: EventArgs<Node, { distance: number; position: THREE.Vector3 }>;
-    nodeClick: EventArgs<Node, { distance: number; position: THREE.Vector3 }>;
+export interface RoomInteractionResult extends InteractionFrame {
+    /** Objetos interceptables detectados por nombre */
+    interceptedObjects: string[];
+    /** Datos de eventos para cada objeto interceptado */
+    objectEvents: Record<string, ObjectEventArray>;
 }
-
-type InteractionCallback = (_args: EventArgs<string, ObjectEventArray>) => void;
-type NodeInteractionCallback = (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
-interface RoomInteractionConfig {
-    interceptableObjects: Record<string, ObjectEventArray>;
-}
-
-interface NodeInteractionConfig {
-    radius: number;
-}
-
-// Tipos de entidad para el genérico
-type InteractionConfig<T> = T extends Room ? RoomInteractionConfig : T extends Node ? NodeInteractionConfig : never;
 
 /**
- * Servicio para gestionar interacciones con objetos 3D mediante raycasting
+ * Resultado específico para interacciones con Node
+ */
+export interface NodeInteractionResult extends InteractionFrame {
+    /** Si hay intersección con el nodo */
+    hasIntersection: boolean;
+    /** Distancia al centro del nodo */
+    distance: number;
+    /** Si está dentro del radio de interacción */
+    withinRadius: boolean;
+    /** Punto de intersección */
+    intersectionPoint: THREE.Vector3 | null;
+}
+
+/**
+ * Servicio puro de detección de interacciones mediante raycasting.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Solo detecta interacciones
+ * - No side effects: No emite eventos ni ejecuta callbacks
+ * - Pure functions: Solo retorna información
+ * - Immutable results: Devuelve resultados inmutables
  */
 export class InteractionService {
     private raycaster = new THREE.Raycaster();
 
-    private mouse = new THREE.Vector2();
+    private pointer = new THREE.Vector2();
 
-    private prevHovered = new Set<string>();
+    private isDown = false;
 
-    private interactableCache: Record<string, ObjectEventArray> = {};
+    private isUp = false;
 
-    private currentNodeDistance: number = Infinity;
+    private camera: THREE.Camera;
 
-    private isWithinNodeRadius: boolean = false;
+    private domElement: HTMLElement;
 
-    private currentNode: Node | null = null;
-
-    // Callbacks personalizados para Room
-    private onObjectEnterCallback?: InteractionCallback;
-
-    private onObjectLeaveCallback?: InteractionCallback;
-
-    private onObjectClickCallback?: InteractionCallback;
-
-    // Callbacks personalizados para Node
-    private onNodeEnterCallback?: NodeInteractionCallback;
-
-    private onNodeLeaveCallback?: NodeInteractionCallback;
-
-    private onNodeMoveCallback?: NodeInteractionCallback;
-
-    private onNodeClickCallback?: NodeInteractionCallback;
-
-    private camera: THREE.Camera | null = null;
-
-    private domElement: HTMLElement | undefined = undefined;
-
-    private core: EngineCore | null = null;
-
-
-    constructor(
-        core: EngineCore | null,
-    ) {
-        this.core = core;
-        this.init();
-
-
+    constructor(camera: THREE.Camera, domElement: HTMLElement) {
+        this.camera = camera;
+        this.domElement = domElement;
+        this.addListeners();
     }
 
-    private init() {
-        if (!this.core) return;
-        this.camera = this.core.getCamera();
-        this.domElement = this.core.getGl()?.domElement;
-
-        this.domElement?.addEventListener("mousemove", this.onMouseMove);
-        this.domElement?.addEventListener("click", this.onClick);
+    private addListeners() {
+        this.domElement.addEventListener("pointermove", e => this.onPointerMove(e));
+        this.domElement.addEventListener("pointerdown", () => {
+            this.isDown = true;
+            this.isUp = false;
+        });
+        this.domElement.addEventListener("pointerup", () => {
+            this.isDown = false;
+            this.isUp = true;
+        });
     }
 
-
-    dispose() {
-        this.domElement?.removeEventListener("mousemove", this.onMouseMove);
-        this.domElement?.removeEventListener("click", this.onClick);
-    }
-
-    // Métodos para configurar callbacks personalizados de Room
-    setOnObjectEnter(callback?: InteractionCallback) {
-        this.onObjectEnterCallback = callback;
-    }
-
-    setOnObjectLeave(callback?: InteractionCallback) {
-        this.onObjectLeaveCallback = callback;
-    }
-
-    setOnObjectClick(callback?: InteractionCallback) {
-        this.onObjectClickCallback = callback;
-    }
-
-    // Métodos para configurar callbacks personalizados de Node
-    setOnNodeEnter(callback?: NodeInteractionCallback) {
-        this.onNodeEnterCallback = callback;
-    }
-
-    setOnNodeLeave(callback?: NodeInteractionCallback) {
-        this.onNodeLeaveCallback = callback;
-    }
-
-    setOnNodeMove(callback?: NodeInteractionCallback) {
-        this.onNodeMoveCallback = callback;
-    }
-
-    setOnNodeClick(callback?: NodeInteractionCallback) {
-        this.onNodeClickCallback = callback;
-    }
-
-    private onMouseMove = (event: MouseEvent) => {
-        const rect = this.domElement?.getBoundingClientRect();
-        if (!rect) return;
-        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    };
-
-    private onClick = () => {
-        // Verificar click en Node usando el flag isWithinNodeRadius
-        if (this.isWithinNodeRadius && this.currentNode) {
-            this.handleNodeEvent('click', this.currentNodeDistance, new THREE.Vector3());
-            return;
-        }
-
-        // Si no es Node, verificar clicks en Room
-        if (!this.prevHovered.size) return;
-        const name = Array.from(this.prevHovered)[0];
-        this.handleRoomEvent("objectClick", name, this.interactableCache?.[name]);
-    };
-
-    /**
-     * Método genérico de actualización que maneja tanto Room como Node
-     */
-    update<T extends Room | Node>(entity: T, config: InteractionConfig<T>) {
-        // Verificar el tipo de entidad y llamar al método específico
-        if (entity instanceof Room) {
-            this.rayCastRoom(entity, (config as RoomInteractionConfig).interceptableObjects);
-        } else if (entity instanceof Node) {
-            this.rayCastNode(entity, (config as NodeInteractionConfig).radius);
-        } else {
-            console.warn("Tipo de entidad no reconocido para InteractionService");
-        }
+    private onPointerMove(e: PointerEvent) {
+        const rect = this.domElement.getBoundingClientRect();
+        this.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
     /**
-     * Método específico para Room (mantiene compatibilidad con código existente)
+     * Devuelve un snapshot con toda la información relevante de interacción
      */
-    private rayCastRoom(room: Room, interactableObjects: Record<string, ObjectEventArray>) {
-        const scene = room.get_Scene();
-        if (!scene || !this.camera) return;
+    public compute(interactables: THREE.Object3D[]): InteractionFrame {
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+        const intersections = this.raycaster.intersectObjects(interactables, true);
+        const hovered = intersections[0]?.object;
 
-        this.interactableCache = interactableObjects; // guardar copia fresca
+        const frame: InteractionFrame = {
+            pointer: this.pointer.clone(),
+            intersections,
+            hovered,
+            clicked: this.isDown && this.isUp,
+            pointerDown: this.isDown,
+            pointerUp: this.isUp,
+        };
 
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects(scene.children, true);
+        // limpiar flags one-shot
+        this.isUp = false;
 
-        // nombres actuales intersectados
-        const current = new Set(
-            intersects
-                .map(i => i.object.name)
-                .filter(name => interactableObjects && name in interactableObjects)
-        );
+        return frame;
+    }
 
-        // detectar nuevos (enter)
-        current.forEach(name => {
-            if (!this.prevHovered.has(name)) {
-                this.handleRoomEvent("objectEnter", name, interactableObjects[name]);
+    /**
+     * Análisis específico para interacciones con Room
+     */
+    public computeRoomInteraction(
+        room: Room,
+        interceptableObjects: Record<string, ObjectEventArray>
+    ): RoomInteractionResult {
+        // Buscar objetos interceptables en la room
+        const roomScene = room.get_Scene();
+        if (!roomScene) {
+            return {
+                ...this.getEmptyFrame(),
+                interceptedObjects: [],
+                objectEvents: {}
+            };
+        }
+
+        const roomObjects = Object.keys(interceptableObjects).map(name =>
+            roomScene.getObjectByName(name)
+        ).filter(Boolean) as THREE.Object3D[];
+
+        const frame = this.compute(roomObjects);
+        const interceptedObjects: string[] = [];
+        const objectEvents: Record<string, ObjectEventArray> = {};
+
+        // Identificar objetos interceptados
+        frame.intersections.forEach(intersection => {
+            const objectName = intersection.object.name;
+            if (interceptableObjects[objectName]) {
+                interceptedObjects.push(objectName);
+                objectEvents[objectName] = interceptableObjects[objectName];
             }
         });
 
-        // detectar salidos (leave)
-        this.prevHovered.forEach(name => {
-            if (!current.has(name)) {
-                this.handleRoomEvent("objectLeave", name, interactableObjects[name]);
-            }
-        });
-
-        // actualizar
-        this.prevHovered = current;
-    }
-
-    /**
-     * Método específico para Node con detección de radio
-     */
-    private rayCastNode(node: Node, radius: number) {
-        this.currentNode = node; // Guardar referencia al nodo actual
-        const group = node.getGroup();
-        if (!group || !group.children.length || !this.camera) return;
-
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-
-        // Obtener la posición del centro del nodo
-        const nodePlane = group.children[0].children[0] as THREE.Mesh;
-        const nodePosition = nodePlane.getWorldPosition(new THREE.Vector3());
-
-        // Calcular intersección del rayo con el plano del nodo
-        const hasIntersection = this.raycaster.intersectObject(nodePlane, true);
-
-        if (hasIntersection !== undefined && hasIntersection.length > 0) {
-
-            const intersectionPoint = hasIntersection[0]?.point;
-            // Calcular distancia desde el centro del nodo
-            const distance = nodePosition.distanceTo(intersectionPoint);
-            this.currentNodeDistance = distance;
-
-            const isNowWithinRadius = distance <= radius;
-
-            // Detectar entrada al radio
-            if (isNowWithinRadius && !this.isWithinNodeRadius) {
-                this.currentNode = node; // Asegurar que currentNode está asignado
-                this.isWithinNodeRadius = true;
-                this.handleNodeEvent("enter", distance, intersectionPoint);
-            }
-            // Detectar salida del radio
-            else if (!isNowWithinRadius && this.isWithinNodeRadius) {
-                this.currentNode = null;
-                this.isWithinNodeRadius = false;
-                this.handleNodeEvent("leave", distance, intersectionPoint);
-            }
-            // Detectar movimiento dentro del radio
-            // else if (isNowWithinRadius) {
-            //     this.currentNode = node; // Asegurar que currentNode está asignado
-            //     this.handleNodeEvent("move", distance, intersectionPoint);
-            // }
-        } else if (this.isWithinNodeRadius) {
-            // Si no hay intersección pero estábamos dentro, significa que salimos
-            this.currentNode = null;
-            this.isWithinNodeRadius = false;
-            this.handleNodeEvent("leave", Infinity, new THREE.Vector3());
-        }
-    }
-
-    /**
-     * Maneja eventos de Room (método original renombrado)
-     */
-    private handleRoomEvent(phase: "objectEnter" | "objectLeave" | "objectClick", objectName: string, events: ObjectEventArray) {
-        if (!events) return;
-
-        const eventArgs: EventArgs<string, ObjectEventArray> = {
-            target: objectName,
-            data: events
+        return {
+            ...frame,
+            interceptedObjects,
+            objectEvents
         };
-
-        // Ejecutar el sistema de eventos (Even.core.Emitter)
-
-        this.core?.emit(phase, [eventArgs]);
-
-        // Ejecutar callbacks personalizados si existen
-        switch (phase) {
-            case "objectEnter":
-                this.onObjectEnterCallback?.(eventArgs);
-                break;
-            case "objectLeave":
-                this.onObjectLeaveCallback?.(eventArgs);
-                break;
-            case "objectClick":
-                this.onObjectClickCallback?.(eventArgs);
-                break;
-        }
     }
 
     /**
-     * Maneja eventos de Node
+     * Análisis específico para interacciones con Node
      */
-    private handleNodeEvent(phase: "enter" | "leave" | "move" | "click", distance: number, position: THREE.Vector3) {
+    public computeNodeInteraction(node: Node, radius: number): NodeInteractionResult {
+        // Obtener el grupo del nodo
+        const nodeGroup = node.getGroup();
+        if (!nodeGroup) {
+            return {
+                ...this.getEmptyFrame(),
+                hasIntersection: false,
+                distance: Infinity,
+                withinRadius: false,
+                intersectionPoint: null
+            };
+        }
 
-        if (!this.currentNode) return;
-        console.log("capturando evento de nodo", phase, this.currentNode.id);
-        const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
-            target: this.currentNode,
-            data: { distance, position }
+        const frame = this.compute([nodeGroup]);
+
+        // Calcular distancia real al centro del nodo
+        const nodePosition = new THREE.Vector3();
+        nodeGroup.getWorldPosition(nodePosition);
+
+        // Proyectar la posición del nodo a screen space para calcular distancia 2D
+        const projectedPosition = nodePosition.clone().project(this.camera);
+        const screenDistance = this.pointer.distanceTo(new THREE.Vector2(projectedPosition.x, projectedPosition.y));
+
+        const withinRadius = screenDistance <= radius;
+        const hasIntersection = frame.intersections.length > 0;
+        const intersectionPoint = frame.intersections[0]?.point || null;
+
+        return {
+            ...frame,
+            hasIntersection,
+            distance: screenDistance,
+            withinRadius,
+            intersectionPoint: intersectionPoint ? intersectionPoint.clone() : null
         };
-
-        // Ejecutar el sistema de eventos (Even.core.Emitter) para Node
-        this.core?.emit(`node${phase.charAt(0).toUpperCase() + phase.slice(1)}`, [eventArgs]);
-
-        // Ejecutar callbacks personalizados si existen
-        switch (phase) {
-            case "enter":
-                this.onNodeEnterCallback?.(eventArgs);
-                break;
-            case "leave":
-                console.log(this.isWithinNodeRadius)
-                this.onNodeLeaveCallback?.(eventArgs);
-                break;
-            case "move":
-                console.log(this.isWithinNodeRadius)
-                this.onNodeMoveCallback?.(eventArgs);
-                break;
-            case "click":
-                console.log("clicccc", this.isWithinNodeRadius)
-                this.onNodeClickCallback?.(eventArgs);
-                break;
-        }
-    }    /**
-     * Método legacy para compatibilidad con código existente
-     * @deprecated Usa update<Room>(room, { interceptableObjects }) en su lugar
-     */
-
-    updateRoom(room: Room, interactableObjects: Record<string, ObjectEventArray>) {
-        this.update(room, { interceptableObjects: interactableObjects });
     }
 
     /**
-     * Método de conveniencia para actualizar Node
+     * Devuelve un frame vacío para casos donde no hay datos
      */
-    updateNode(node: Node, radius: number) {
-        this.update(node, { radius });
+    private getEmptyFrame(): InteractionFrame {
+        return {
+            pointer: this.pointer.clone(),
+            intersections: [],
+            hovered: undefined,
+            clicked: false,
+            pointerDown: this.isDown,
+            pointerUp: this.isUp,
+        };
+    }
+
+    public dispose() {
+        this.domElement.removeEventListener("pointermove", this.onPointerMove);
+        this.domElement.removeEventListener("pointerdown", () => { });
+        this.domElement.removeEventListener("pointerup", () => { });
     }
 }
