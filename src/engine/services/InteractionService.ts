@@ -103,13 +103,10 @@ export class InteractionService {
             pointer: this.pointer.clone(),
             intersections,
             hovered,
-            clicked: this.isDown && this.isUp,
+            clicked: this.isUp, // Un click es cuando se acaba de soltar el pointer
             pointerDown: this.isDown,
             pointerUp: this.isUp,
         };
-
-        // limpiar flags one-shot
-        this.isUp = false;
 
         return frame;
     }
@@ -186,7 +183,7 @@ export class InteractionService {
         const withinRadius = screenDistance <= radius;
         const hasIntersection = frame.intersections.length > 0;
         const intersectionPoint = frame.intersections[0]?.point || null;
-
+        //console.log("[InteractionService]: result", { ...frame })
         return {
             ...frame,
             hasIntersection,
@@ -208,6 +205,14 @@ export class InteractionService {
             pointerDown: this.isDown,
             pointerUp: this.isUp,
         };
+    }
+
+    /**
+     * Resetea los flags one-shot al final del frame
+     * Debe ser llamado por el sistema después de procesar todas las interacciones
+     */
+    public resetFrame(): void {
+        this.isUp = false;
     }
 
     public dispose() {

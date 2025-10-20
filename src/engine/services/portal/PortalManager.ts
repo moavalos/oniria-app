@@ -186,41 +186,7 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         }
     }
 
-    checkCameraInPortal = () => {
-        if (!this.currentPortal) return;
-        if (!this.cameraService) return;
-        const cameraPos = this.cameraService.getPosition();
-        const portalPos = new THREE.Vector3();
-        this.currentPortal.getWorldPosition();
-        const distance = cameraPos.distanceTo(portalPos);
-        const threshold = 1.5; // distancia umbral para considerar que la cámara está "dentro" del portal
 
-        // Ajustar controles de cámara según proximidad al portal
-        // para no permitir zoom o paneo cuando estamos dentro del portal
-        // y aumentar la sensacion de gravedad al estar dentro del portal
-        if (distance < threshold) {
-            this.cameraService.setDraggingSmoothTime(1);
-            this.cameraService.setMaxPolarAngle(1.63);
-            this.cameraService.setMinPolarAngle(1.5);
-            this.cameraService.setAzimuthMaxAngle(0.1);
-            this.cameraService.setAzimuthMinAngle(-0.1);
-            this.cameraService.setEnableZoom(false);
-            this.cameraService.setEnablePan(false);
-
-        } else {
-            this.cameraService.setDraggingSmoothTime(0.1);
-            const defaultConfig = this.cameraService.getDefaultConfig();
-            if (defaultConfig) {
-                this.cameraService.setMaxPolarAngle(defaultConfig.maxPolarAngle!);
-                this.cameraService.setMinPolarAngle(defaultConfig.minPolarAngle!);
-                this.cameraService.setAzimuthMaxAngle(defaultConfig.maxAzimuthAngle!);
-                this.cameraService.setAzimuthMinAngle(defaultConfig.minAzimuthAngle!);
-                this.cameraService.setEnableZoom(true);
-                this.cameraService.setEnablePan(!!defaultConfig.enablePan);
-            }
-
-        }
-    };
 
     /**
      * Limpia todos los recursos del manager

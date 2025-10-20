@@ -148,6 +148,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         // Actualizar interacciones con Node
         this.updateNodeInteractions();
+
+        // Resetear flags one-shot al final del frame
+        this.interactionService.resetFrame();
     }
 
     /**
@@ -173,6 +176,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      */
     private updateNodeInteractions(): void {
         if (!this._currentNode) return;
+
 
         // Obtener estado actual desde el InteractionService
         const nodeResult = this.interactionService.computeNodeInteraction(

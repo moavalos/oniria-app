@@ -75,12 +75,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
             return;
         }
 
-        const onRest = () => {
-            console.log("[CameraSystem] Camera rest - viewNodes completado");
-            this.cameraService!.removeEventListener('rest', onRest);
-        };
 
-        this.cameraService.addEventListener('rest', onRest);
         this.cameraService.setRestThreshold(0.8);
         this.cameraService.setLookAt(
             new THREE.Vector3(target.x, target.y, target.z),
