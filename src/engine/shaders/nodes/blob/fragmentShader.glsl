@@ -163,5 +163,22 @@ void main() {
   // Corrección gamma para mejor visualización (configurable)
   color = pow(color, vec3(uGammaCorrection));
 
-  gl_FragColor = vec4(color, 1.0);
+    // === CÁLCULO DE TRANSPARENCIA DIFERENCIADA ===
+  
+  // Alpha para el nodo central (más opaco)
+  float plasmaAlpha = length(colPlasma);
+  plasmaAlpha = smoothstep(0.1, 0.8, plasmaAlpha);
+  
+  // Alpha para el humo (más transparente)
+  float smokeAlpha = length(colGlass) * 0.6; // Factor 0.6 para más transparencia
+  smokeAlpha = smoothstep(0.05, 0.4, smokeAlpha);
+  
+  // Combinar alphas: usar el máximo para que el nodo sea visible
+  float finalAlpha = max(plasmaAlpha, smokeAlpha);
+  
+  // Si estás muy lejos del centro, hacer más transparente
+  float distanceFade = smoothstep(3.0, 1.5, r);
+  finalAlpha *= distanceFade;
+
+  gl_FragColor = vec4(color, finalAlpha);
 }

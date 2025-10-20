@@ -34,7 +34,7 @@ export interface RoomInteractionResult extends InteractionFrame {
 }
 
 /**
- * Resultado específico para interacciones con Node
+ * Resultado específico para interacciones con Nodo
  */
 export interface NodeInteractionResult extends InteractionFrame {
     /** Si hay intersección con el nodo */
@@ -177,11 +177,11 @@ export class InteractionService {
     }
 
     /**
-     * Análisis específico para interacciones con Node
+     * Análisis específico para interacciones con Nodo
      * 
-     * @param node - Instancia de Node para analizar
+     * @param node - Instancia de Nodo para analizar
      * @param radius - Radio de interacción en espacio de pantalla
-     * @returns Resultado de interacción específico para Node
+     * @returns Resultado de interacción específico para Nodo
      */
     public computeNodeInteraction(node: Node, radius: number): NodeInteractionResult {
         // Obtener el grupo del nodo
@@ -210,7 +210,7 @@ export class InteractionService {
         const withinRadius = screenDistance <= radius;
         const hasIntersection = frame.intersections.length > 0;
         const intersectionPoint = frame.intersections[0]?.point || null;
-        console.log({ ...frame })
+
         return {
             ...frame,
             hasIntersection,

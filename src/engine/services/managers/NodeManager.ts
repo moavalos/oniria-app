@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-import { EngineCore, Node, useEngineStore } from "@engine/core";
+import { EngineCore, useEngineStore } from "@engine/core";
+import { Node } from "@engine/entities/Node";
 import { MaterialService } from "../MaterialService";
 import { AnimationService } from "../AnimationService";
 import { CameraService } from "../CameraService";
@@ -105,7 +106,12 @@ export class NodeManager {
         newNode.setGroup(nodeGroup);
         this.currentNode = newNode;
         this.applyNodeMaterials(nodeGroup);
-        this.core.emit('node:created', { newNode });
+
+        console.log("[NodeManager]: Nodo creado, emitiendo evento node:created");
+        // Emitir evento con la instancia del nodo para que EngineCore pueda procesarlo
+        this.core.emit('node:created', {
+            newNode: newNode
+        });
 
         return newNode;
     }
@@ -123,6 +129,7 @@ export class NodeManager {
      * Ejecuta animación idle en el nodo activo
      */
     setNodeIdle(): void {
+        console.log("[NodeManager]: setNodeIdle() llamado");
         this.executeNodeAnimation('nodeIdle');
     }
 

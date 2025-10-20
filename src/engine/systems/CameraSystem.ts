@@ -84,6 +84,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
             new THREE.Vector3(target.x, target.y, target.z - 0.5),
             true
         );
+        this.core.emit("camera:view:nodes", {});
     }
 
     /**

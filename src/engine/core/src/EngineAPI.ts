@@ -185,9 +185,12 @@ export class EngineAPI {
             // Crear el objeto controlador del nodo que se enviará al callback
             const createNodeController = () => ({
                 idle: () => {
+                    console.log("[EngineAPI] nodeController.idle() llamado");
                     const nodeManager = this._core?.getService(NodeManager);
                     if (nodeManager) {
                         (nodeManager as NodeManager).setNodeIdle();
+                    } else {
+                        console.warn("[EngineAPI] NodeManager no disponible para idle()");
                     }
                 },
                 rest: () => {

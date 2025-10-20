@@ -34,7 +34,7 @@ export function EngineCanvas({
       }}
       camera={{
         fov: 45,
-        position: engineSettings.cameraPosition as [number, number, number],
+        position: engineSettings.cameraPosition || [-5, 4, 4],
       }}
       onContextMenu={(e) => e.preventDefault()}
     >

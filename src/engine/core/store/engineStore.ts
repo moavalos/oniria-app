@@ -76,7 +76,7 @@ type EngineStore = {
     setRoomId: (_id: string) => void;
     setSkinId: (_id: string) => void;
 
-    // Node uniforms state para debug
+    // Nodo uniforms state para debug
     nodeUniforms: {
         // Controles de intensidad (existentes)
         uPlasmaStrength: number;
@@ -168,7 +168,7 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     setDream: (dream) => set({ dream }),
     clearDream: () => set({ dream: null }),
 
-    // Node uniforms defaults
+    // Nodo uniforms defaults
     nodeUniforms: { ...uniformDefaults },
     setNodeUniform: (key, value) => {
         set(state => ({

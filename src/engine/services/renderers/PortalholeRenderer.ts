@@ -48,7 +48,7 @@ export class PortalholeRenderer {
 
     private originalOpacity: number = 1.0;
 
-    private fadeSpeed: number = 0.05;
+    private fadeSpeed: number = 0.09;
 
     /**
      * Crea una nueva instancia del efecto Portalhole

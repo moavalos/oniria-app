@@ -152,9 +152,8 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         if (nodeManager) {
             this._currentNode = nodeManager.getCurrentNode();
             if (!this._currentNode) {
-                this.core.on("node:ready", (node: Node) => {
-                    console.log("llego el nodo:", node)
-                    this._currentNode = node;
+                this.core.on("node:ready", () => {
+                    this._currentNode = nodeManager.getCurrentNode();
                 });
             }
         }
@@ -171,7 +170,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         // Actualizar interacciones con Room
         this.updateRoomInteractions();
 
-        // Actualizar interacciones con Node
+        // Actualizar interacciones con Nodo
         this.updateNodeInteractions();
 
         // Resetear flags one-shot al final del frame
@@ -197,7 +196,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     }
 
     /**
-     * Actualiza las interacciones con Node
+     * Actualiza las interacciones con Nodo
      */
     private updateNodeInteractions(): void {
 
@@ -248,7 +247,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     }
 
     /**
-     * Procesa cambios en el estado de Node y emite eventos
+     * Procesa cambios en el estado de Nodo y emite eventos
      */
     private processNodeStateChanges(result: NodeInteractionResult): void {
         const currentWithinRadius = result.withinRadius;

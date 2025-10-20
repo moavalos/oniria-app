@@ -35,10 +35,6 @@ export default function Home() {
     engine.setRoom(roomId, skinId);
   }, []);
 
-  const hoverHandler = (args: any) => {
-    console.log("hovered", args.objectName || args);
-  };
-
   const handleBackHome = () => {
     setDream(null);
     engine.camera.viewReset();

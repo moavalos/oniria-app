@@ -7,7 +7,7 @@ import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/managers/RoomManager";
 import { PortalManager } from "@/engine/services/managers/PortalManager";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
-import type { Room } from "@/engine/entities";
+import { Node, Room } from "@/engine/entities";
 import type { ISystem } from "./ISystem";
 import { EngineState } from "../types/engine.types";
 import { useEngineStore } from "../store/engineStore";
@@ -38,7 +38,7 @@ export class EngineCore extends EventEmitter {
 
     currentRoom: Room | null = null;
 
-    currentNode: any | null = null;
+    currentNode: Node | null = null;
 
     constructor() {
         super();
@@ -113,6 +113,7 @@ export class EngineCore extends EventEmitter {
         this.on("skin:change:complete", (_data: unknown) => this.onSkinChangeComplete(_data as { skin: any, room: Room }));
         this.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
         this.on("node:created", (_data: unknown) => this.onNodeCreated(_data as { newNode: any }));
+        this.on("node:destroyed", (_data: unknown) => this.onNodeDestroyed(_data as { node: any }));
     }
 
     /**
@@ -194,10 +195,22 @@ export class EngineCore extends EventEmitter {
      * 
      * @param data - Datos del nodo creado
      */
-    private onNodeCreated(data: { newNode: any }) {
-        console.log("[EngineCore]: Nodo creado:", data.newNode);
-        this.currentNode = data.newNode;
+    private onNodeCreated(data: { newNode: Node }) {
+        console.log("[EngineCore]: Nodo creado - onNodeCreated ejecutado:", data.newNode);
+        this.currentNode = this.getService(NodeManager).getCurrentNode();
+        console.log("[EngineCore]: Emitiendo evento node:ready");
         this.emit("node:ready", { node: data.newNode });
+    }
+
+    /**
+     * Maneja el evento de destrucción de nodo.
+     * 
+     * @param data - Datos del nodo destruido
+     */
+    private onNodeDestroyed(data: { node: Node }) {
+        console.log("[EngineCore]: Nodo destruido:", data.node);
+        this.currentNode = null
+
     }
 
     /**
