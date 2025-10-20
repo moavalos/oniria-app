@@ -149,6 +149,95 @@ export class EngineAPI {
             }
 
             (nodeManager as NodeManager).setNodePrev();
+        },
+
+        /**
+         * Ejecuta animación ping en el nodo activo - efecto visual de click
+         */
+        ping: () => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para node.ping");
+                return;
+            }
+
+            const nodeManager = this._core.getService(NodeManager);
+            if (!nodeManager) {
+                console.warn("[EngineAPI] NodeManager no disponible");
+                return;
+            }
+
+            (nodeManager as NodeManager).ping();
+        },
+
+        /**
+         * Ejecuta un callback cuando el nodo esté listo.
+         * Si el nodo ya existe, ejecuta el callback inmediatamente.
+         * Si no, se suscribe al evento 'node:ready' y ejecuta el callback cuando se emita.
+         * 
+         * @param callback - Función a ejecutar cuando el nodo esté listo, recibe un objeto con métodos de control del nodo
+         */
+        onReady: (callback: (_nodeController: { idle: () => void, rest: () => void, next: () => void, prev: () => void, ping: () => void }) => void) => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para node.onReady");
+                return;
+            }
+
+            // Crear el objeto controlador del nodo que se enviará al callback
+            const createNodeController = () => ({
+                idle: () => {
+                    const nodeManager = this._core?.getService(NodeManager);
+                    if (nodeManager) {
+                        (nodeManager as NodeManager).setNodeIdle();
+                    }
+                },
+                rest: () => {
+                    const nodeManager = this._core?.getService(NodeManager);
+                    if (nodeManager) {
+                        (nodeManager as NodeManager).setNodeRest();
+                    }
+                },
+                next: () => {
+                    const nodeManager = this._core?.getService(NodeManager);
+                    if (nodeManager) {
+                        (nodeManager as NodeManager).setNodeNext();
+                    }
+                },
+                prev: () => {
+                    const nodeManager = this._core?.getService(NodeManager);
+                    if (nodeManager) {
+                        (nodeManager as NodeManager).setNodePrev();
+                    }
+                },
+                ping: () => {
+                    const nodeManager = this._core?.getService(NodeManager);
+                    if (nodeManager) {
+                        (nodeManager as NodeManager).ping();
+                    }
+                }
+            });
+
+            // Verificar si ya hay un nodo disponible
+            const currentNode = this._core.getCurrentNode();
+            if (currentNode) {
+                console.log("[EngineAPI] Nodo ya disponible, ejecutando callback inmediatamente");
+                callback(createNodeController());
+                return;
+            }
+
+            // Si no hay nodo, suscribirse al evento node:ready
+            console.log("[EngineAPI] Nodo no disponible, suscribiéndose a evento node:ready");
+            let callbackExecuted = false;
+
+            const onNodeReady = () => {
+                // Evitar múltiples ejecuciones del callback
+                if (callbackExecuted) return;
+                callbackExecuted = true;
+
+                console.log("[EngineAPI] Evento node:ready recibido, ejecutando callback");
+                callback(createNodeController());
+            };
+
+            this._core.on("node:ready", onNodeReady);
         }
     };
 

@@ -81,7 +81,14 @@ export class AnimationService {
 
         if (target === undefined) {
             console.warn(`[AnimationService] ⚠️ No se encontró target para animación: ${config.target}`);
-            console.log("[AnimationService] 📋 Objetos disponibles en la escena:", this.scene.children.map(c => c.name).filter(Boolean));
+            console.log("[AnimationService] 📋 Objetos disponibles en la escena:",
+                this.scene.children.map(c => ({
+                    name: c.name || '<sin nombre>',
+                    type: c.type,
+                    hasChildren: c.children.length > 0,
+                    children: c.children.map(child => child.name || '<sin nombre>')
+                }))
+            );
             return;
         }
 
@@ -93,18 +100,24 @@ export class AnimationService {
         const handler = this.animationRepository.getAnimation(config.type);
 
         if (!handler) {
-            console.warn(`No existe animación: ${config.type}. Disponibles: ${this.animationRepository.getAvailableAnimations().join(', ')}`);
+            console.warn(`[AnimationService] ❌ No existe animación: ${config.type}. Disponibles: ${this.animationRepository.getAvailableAnimations().join(', ')}`);
             return;
         }
 
+        console.log(`[AnimationService] ✅ Handler encontrado para animación: ${config.type}`);
+        
         const tl = handler(target, config);
         if (tl) {
+            console.log(`[AnimationService] 🎬 Timeline creada para ${config.type}, iniciando animación`);
+            
             // Configurar callbacks de la timeline
             tl.eventCallback("onStart", () => {
+                console.log(`[AnimationService] 🎯 Animación ${config.type} INICIADA`);
                 this.onAnimationStart?.(config.target, config.type);
             });
 
             tl.eventCallback("onComplete", () => {
+                console.log(`[AnimationService] ✅ Animación ${config.type} COMPLETADA`);
                 this.onAnimationComplete?.(config.target, config.type);
             });
 
@@ -114,6 +127,8 @@ export class AnimationService {
             });
 
             this.animations[config.target] = tl;
+        } else {
+            console.warn(`[AnimationService] ❌ Handler no devolvió timeline para ${config.type}`);
         }
     }
 

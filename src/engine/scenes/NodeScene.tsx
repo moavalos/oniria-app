@@ -21,11 +21,15 @@ export default function NodeScene(props: NodeSceneProps) {
   const isEngineReady = useEngineState();
 
   useEffect(() => {
+    console.log("[NodeScene] useEffect ejecutándose, isEngineReady:", isEngineReady);
     if (isEngineReady) {
       const nodeManager = core.getService(NodeManager);
+      console.log("[NodeScene] nodeManager obtenido:", !!nodeManager);
       const nodeCreated = nodeManager.createNode();
+      console.log("[NodeScene] nodo creado:", !!nodeCreated);
       if (nodeCreated) {
         setNode(nodeCreated);
+        console.log("[NodeScene] ✅ Nodo establecido en estado local");
       }
 
       // Cleanup: destruir el nodo cuando NodeScene se desmonta

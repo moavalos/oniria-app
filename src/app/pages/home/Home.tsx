@@ -48,8 +48,11 @@ export default function Home() {
   const handleInterpretar = async (dream: string) => {
     await engine.camera.viewNodes();
     const response = await fetchDreams(dream);
-
-    setDream(response as Dream);
+    if (!response) return;
+    engine.node?.onReady((nodeController) => {
+      setDream(response as Dream);
+      nodeController.idle();
+    });
 
     //navegar a otra pagina con el resultado
     //navigate("/interpretacion");

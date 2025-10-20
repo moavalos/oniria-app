@@ -117,18 +117,23 @@ export const rotateToAnimation: AnimationHandler = (target, config) => {
 };
 
 /**
- * Animación rest para el nodo - regresa a su posición original
+ * Animación rest para el nodo - regresa suavemente a su posición original guardada
  */
 export const nodeRestAnimation: AnimationHandler = (target, config) => {
     const {
-        duration = 1.5,
-        ease = "power2.inOut"
+        duration = 1.2,
+        ease = "power2.out"
     } = config.params;
 
     const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
 
+    // Usar la posición original guardada si existe, sino usar x: 0 como fallback
+    const originalPosition = (target as any).originalPosition;
+    const targetX = originalPosition ? originalPosition.x : 0;
+
+    // Animar desde la posición actual hacia la posición original guardada
     tl.to(target.position, {
-        x: 0, // Posición original
+        x: targetX,
         duration,
         ease,
     });
@@ -176,6 +181,60 @@ export const nodePrevAnimation: AnimationHandler = (target, config) => {
         duration,
         ease,
     });
+
+    return tl;
+};
+
+/**
+ * Animación ping para el nodo - efecto visual de click con escala y fresnel
+ */
+export const nodePingAnimation: AnimationHandler = (target, config) => {
+    const {
+        scaleFactor = 0.95,
+        scaleDownDuration = 0.1,
+        scaleUpDuration = 0.6,
+        fresnelBright = 1.4,
+        fresnelDuration = 0.7,
+        ease = "elastic.out(1., 0.25)"
+    } = config.params;
+
+    const currentScale = target.scale;
+    const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
+
+    // Buscar el material del nodo para animar el uniform
+    const mesh = target.children[0]?.children[0] as THREE.Mesh;
+    const material = mesh?.material as THREE.ShaderMaterial;
+    const originalFresnelWidth = material?.uniforms?.uFresnelBrightWidth?.value || 0.7;
+
+    // Animación de escala: achicarse y volver con efecto elástico
+    tl.to(target.scale, {
+        x: currentScale.x * scaleFactor,
+        y: currentScale.y * scaleFactor,
+        z: currentScale.z * scaleFactor,
+        duration: scaleDownDuration,
+        ease: "power2.in"
+    })
+        .to(target.scale, {
+            x: currentScale.x,
+            y: currentScale.y,
+            z: currentScale.z,
+            duration: scaleUpDuration,
+            ease: ease
+        });
+
+    // Animar el uniform uFresnelBrightWidth en paralelo si existe
+    if (material?.uniforms?.uFresnelBrightWidth) {
+        tl.to(material.uniforms.uFresnelBrightWidth, {
+            value: fresnelBright,
+            duration: scaleDownDuration,
+            ease: "power2.in"
+        }, "<")
+            .to(material.uniforms.uFresnelBrightWidth, {
+                value: originalFresnelWidth,
+                duration: fresnelDuration,
+                ease: "power2.out"
+            }, "<0.1");
+    }
 
     return tl;
 };
@@ -238,28 +297,33 @@ export const modalElementEnterAnimation: AnimationHandler = (target, config) => 
 };
 
 /**
- * Animación idle para el nodo - movimiento sutil hacia la izquierda
+ * Animación idle para el nodo - movimiento sutil hacia la izquierda y se queda ahí
  */
 export const nodeIdleAnimation: AnimationHandler = (target, config) => {
     const {
-        offsetX = -0.2,
-        duration = 1.5,
-        ease = "power2.inOut"
+        offsetX = -0.5, // Movimiento más pronunciado hacia la izquierda
+        duration = 1.2,
+        ease = "power2.out"
     } = config.params;
+
+    // Guardar la posición original antes de mover (para que rest pueda usarla)
+    if (!(target as any).originalPosition) {
+        (target as any).originalPosition = {
+            x: target.position.x,
+            y: target.position.y,
+            z: target.position.z
+        };
+    }
 
     const originalX = target.position.x;
     const tl = gsap.timeline({ repeat: config.loop ? -1 : 0 });
 
+    // Solo moverse hacia la izquierda y quedarse ahí
     tl.to(target.position, {
         x: originalX + offsetX,
         duration,
         ease,
-    })
-        .to(target.position, {
-            x: originalX,
-            duration,
-            ease,
-        });
+    });
 
     return tl;
 };
@@ -360,12 +424,25 @@ export const defaultAnimationsMetadata: Record<string, AnimationMetadata> = {
         requiredParams: []
     },
     nodePrev: {
-        name: "nodePrev", 
+        name: "nodePrev",
         description: "Animación prev para el nodo - transición al anterior",
         defaultParams: {
             offsetX: -0.3,
             duration: 1.0,
             ease: "power2.out"
+        },
+        requiredParams: []
+    },
+    nodePing: {
+        name: "nodePing",
+        description: "Animación ping para el nodo - efecto visual de click con escala y fresnel",
+        defaultParams: {
+            scaleFactor: 0.95,
+            scaleDownDuration: 0.1,
+            scaleUpDuration: 0.6,
+            fresnelBright: 1.4,
+            fresnelDuration: 0.7,
+            ease: "elastic.out(1., 0.25)"
         },
         requiredParams: []
     }
@@ -384,5 +461,6 @@ export const defaultAnimations: Record<string, AnimationHandler> = {
     nodeIdle: nodeIdleAnimation,
     nodeRest: nodeRestAnimation,
     nodeNext: nodeNextAnimation,
-    nodePrev: nodePrevAnimation
+    nodePrev: nodePrevAnimation,
+    nodePing: nodePingAnimation
 };

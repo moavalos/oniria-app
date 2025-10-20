@@ -33,6 +33,8 @@ export class EngineCore extends EventEmitter {
 
     currentRoom: Room | null = null;
 
+    currentNode: any | null = null;
+
     constructor() {
         super();
     }
@@ -82,6 +84,9 @@ export class EngineCore extends EventEmitter {
         this.on("skin:change:start", (_data: unknown) => this.onSkinChangeStart(_data as { skin: any, room: Room }));
         this.on("skin:change:complete", (_data: unknown) => this.onSkinChangeComplete(_data as { skin: any, room: Room }));
         this.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
+
+        // Listener para eventos de nodos
+        this.on("node:created", (_data: unknown) => this.onNodeCreated(_data as { newNode: any }));
     }
 
 
@@ -147,12 +152,35 @@ export class EngineCore extends EventEmitter {
         this.setState(EngineState.READY); // Volver a ready después del error
     }
 
+    /**
+     * Maneja el evento de creación de nodo
+     */
+    private onNodeCreated(data: { newNode: any }) {
+        console.log("[EngineCore] Nodo creado:", data.newNode);
+        this.currentNode = data.newNode;
+
+        // Emitir evento de nodo listo para callbacks externos
+        this.emit("node:ready", { node: data.newNode });
+    }
+
     getService<T>(service: new (..._args: any[]) => T): T {
         return this.registry.getService(service);
     }
 
     getCurrentRoom(): Room | null {
         return this.currentRoom;
+    }
+
+    getCurrentNode(): any | null {
+        return this.currentNode;
+    }
+
+    /**
+     * Getter para compatibilidad con InteractionSystem
+     */
+    get activeNode(): any | null {
+        console.log("[EngineCore] 🔍 getter activeNode accedido, currentNode:", !!this.currentNode);
+        return this.currentNode;
     }
 
     /** Loop principal */

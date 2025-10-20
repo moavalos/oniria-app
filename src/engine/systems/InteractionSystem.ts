@@ -4,6 +4,7 @@ import type { Injectable } from "@engine/core/src/Injectable";
 import type { EngineCore } from "@engine/core/src/EngineCore.class";
 import { InteractionService } from "@engine/services/InteractionService";
 import { AnimationService } from "@engine/services/AnimationService";
+import { NodeManager } from "@engine/services/room/NodeManager";
 import { Node } from "@engine/entities/Node";
 import * as THREE from "three";
 import type { Room } from "../entities";
@@ -426,58 +427,16 @@ export class InteractionSystem extends BaseSystem implements Injectable {
    * Handler interno para cuando se hace click en un nodo
    */
   private handleNodeClick(event: EventArgs<Node, { distance: number; position: THREE.Vector3 }>): void {
-    const group = event.target.getGroup();
-    if (!group) {
-      console.warn("[InteractionSystem] No se pudo obtener el grupo del nodo");
-      return;
+    console.log("[InteractionSystem] Click en nodo detectado");
+
+    // Obtener el NodeManager del core y ejecutar ping
+    const nodeManager = this.core.getService(NodeManager);
+    if (nodeManager) {
+      console.log("[InteractionSystem] Ejecutando ping en el nodo");
+      (nodeManager as NodeManager).ping();
+    } else {
+      console.warn("[InteractionSystem] NodeManager no disponible en el core");
     }
-
-    // Buscar el material del nodo para animar el uniform
-    const mesh = group.children[0]?.children[0] as THREE.Mesh;
-    const material = mesh?.material as THREE.ShaderMaterial;
-
-    if (!material || !material.uniforms?.uFresnelBrightWidth) {
-      console.warn("[InteractionSystem] No se pudo encontrar el material o el uniform uFresnelBrightWidth");
-    }
-
-    const currentScale = group.scale;
-    const originalFresnelWidth = material?.uniforms?.uFresnelBrightWidth?.value || 0.7;
-
-    // Crear y ejecutar la animación: achicarse y volver con efecto elástico
-    const timeline = this.animationService?.createCustomTimeline();
-    timeline
-      ?.to(group.scale, {
-        x: currentScale.x * 0.95,
-        y: currentScale.y * 0.95,
-        z: currentScale.z * 0.95,
-        duration: 0.1,
-        ease: "power2.in"
-      })
-      .to(group.scale, {
-        x: currentScale.x,
-        y: currentScale.y,
-        z: currentScale.z,
-        duration: 0.6,
-        ease: "elastic.out(1., 0.25)"
-      });
-
-    // Animar el uniform uFresnelBrightWidth en paralelo
-    if (material?.uniforms?.uFresnelBrightWidth) {
-      timeline
-        ?.to(material.uniforms.uFresnelBrightWidth, {
-          value: 1.4,
-          duration: 0.1,
-          ease: "power2.in"
-        }, "<")
-        .to(material.uniforms.uFresnelBrightWidth, {
-          value: originalFresnelWidth,
-          duration: 0.7,
-          ease: "power2.out"
-        }, "<0.1");
-    }
-
-    // Ejecutar la animación
-    timeline?.play();
 
     // Ejecutar callback del usuario si existe
     this._userCallbacks.nodes?.onClick?.(event);

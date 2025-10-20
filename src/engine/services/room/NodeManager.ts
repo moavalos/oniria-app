@@ -62,22 +62,34 @@ export class NodeManager {
 
 
     onCameraControlEnd() {
-        console.log("[NodeManager]:CamaraTerminada")
-        if (!this.cameraService || !this.currentNode) return;
+        console.log("[NodeManager] ⚠️ CameraControlEnd detectado");
+        if (!this.cameraService || !this.currentNode) {
+            console.log("[NodeManager] No hay cameraService o currentNode, ignorando controlend");
+            return;
+        }
+        
         const target = this.core.getCurrentRoom()?.getPortal()?.position;
-        if (!target) return;
-        this.cameraService.setLookAt(new THREE.Vector3(...target), new THREE.Vector3(target.x, target.y, target.z - 0.5), true);
+        if (!target) {
+            console.log("[NodeManager] No hay portal target, ignorando controlend");
+            return;
+        }
 
+        console.log("[NodeManager] 🎥 Moviendo cámara al portal por movimiento de cámara del usuario");
+        this.cameraService.setLookAt(new THREE.Vector3(...target), new THREE.Vector3(target.x, target.y, target.z - 0.5), true);
     }
 
     createNode() {
+        console.log("[NodeManager] 🏗️ createNode() ejecutándose...");
         // Lógica para crear un nodo
         const nodeGroup = this.createMeshForNode();
 
         const newNode = new Node("node")
         newNode.setGroup(nodeGroup);
         this.currentNode = newNode;
+        console.log("[NodeManager] ✅ Nodo creado y asignado a this.currentNode:", !!this.currentNode);
+        
         this.applyNodeMaterials(nodeGroup);
+        console.log("[NodeManager] 📡 Emitiendo evento 'node:created'");
         this.core.emit('node:created', { newNode });
 
         return newNode;
@@ -116,6 +128,14 @@ export class NodeManager {
     }
 
     /**
+     * Ejecuta animación ping en el nodo activo - efecto visual de click
+     */
+    ping() {
+        console.log("[NodeManager] 🎵 ping() llamado - ejecutando animación nodePing");
+        this.executeNodeAnimation('nodePing');
+    }
+
+    /**
      * Método privado para ejecutar animaciones de nodo
      */
     private executeNodeAnimation(animationName: string) {
@@ -129,6 +149,8 @@ export class NodeManager {
             console.warn(`[NodeManager] No se pudo obtener el grupo del nodo activo para ${animationName}`);
             return;
         }
+
+        console.log(`[NodeManager] 🎭 Ejecutando animación ${animationName} en nodo con nombre: ${group.name}`);
 
         // Crear configuración de animación para AnimationService
         const animationConfig = {
@@ -151,6 +173,7 @@ export class NodeManager {
 
         //Agrupamos
         const nodeGroup = new THREE.Group();
+        nodeGroup.name = "currentNode"; // Nombre para que AnimationService pueda encontrarlo
         const nodeMesh = new THREE.Mesh(nodeGeometry);
         const maskMesh = new THREE.Mesh(nodeMask);
         nodeMesh.name = "nodeMesh";

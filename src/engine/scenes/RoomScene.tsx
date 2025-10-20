@@ -14,7 +14,7 @@ export default function RoomScene() {
   const core = useEngineCore();
   const [room, setRoom] = useState<Room | null>(null);
 
-  const [renderNode, setRenderNode] = useState<boolean>(false);
+  const [renderNode, setRenderNode] = useState<boolean>(true); // Temporal: siempre visible para desarrollo
 
   useEffect(() => {
     if (!core) return;
