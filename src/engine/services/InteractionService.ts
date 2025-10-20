@@ -173,6 +173,8 @@ export class InteractionService {
 
         const frame = this.compute([nodeGroup]);
 
+
+
         // Calcular distancia real al centro del nodo
         const nodePosition = new THREE.Vector3();
         nodeGroup.getWorldPosition(nodePosition);

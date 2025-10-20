@@ -4,19 +4,13 @@ import { EngineState } from "@engine/core";
 import { useEngineState } from "@engine/hooks/useEngineState";
 import {
   InteractionSystem,
-  type InteractionConfig,
   type InteractionCallbacks,
-  type ObjectInteractionCallbacks,
-  type NodeInteractionCallbacks,
-  type NavigationCallbacks,
-} from "@engine/systems/InteractionSystem";
+  type InteractionConfig,
+} from "../systems/InteractionSystem";
 
 export interface InteractionProps {
   config?: Omit<InteractionConfig, "callbacks">;
   // Callbacks organizados por categoría
-  objects?: ObjectInteractionCallbacks;
-  nodes?: NodeInteractionCallbacks;
-  navigation?: NavigationCallbacks;
   // Configuración
   enableInteractions?: boolean;
 }
@@ -35,9 +29,7 @@ export interface InteractionProps {
  */
 export function Interaction({
   config = {},
-  objects,
-  nodes,
-  navigation,
+
   enableInteractions = true,
 }: InteractionProps) {
   const core = useEngineCore();
@@ -52,20 +44,20 @@ export function Interaction({
       return;
     }
 
-    // Consolidar callbacks con backward compatibility
-    const consolidatedCallbacks: InteractionCallbacks = {
-      objects: {
-        onHover: objects?.onHover,
-        onHoverLeave: objects?.onHoverLeave,
-        onClick: objects?.onClick,
-      },
-      nodes: {
-        onHover: nodes?.onHover,
-        onHoverLeave: nodes?.onHoverLeave,
-        onClick: nodes?.onClick,
-      },
-      navigation: navigation || {},
-    };
+    // // Consolidar callbacks con backward compatibility
+    // const consolidatedCallbacks: InteractionCallbacks = {
+    //   objects: {
+    //     onHover: objects?.onHover,
+    //     onHoverLeave: objects?.onHoverLeave,
+    //     onClick: objects?.onClick,
+    //   },
+    //   nodes: {
+    //     onHover: nodes?.onHover,
+    //     onHoverLeave: nodes?.onHoverLeave,
+    //     onClick: nodes?.onClick,
+    //   },
+    //   navigation: navigation || {},
+    // };
 
     // Configuración final
     const finalConfig: InteractionConfig = {
@@ -73,7 +65,6 @@ export function Interaction({
       interactionRadius: 1.0,
       raycastThreshold: 0.1,
       ...config,
-      callbacks: consolidatedCallbacks,
     };
 
     // Crear e instanciar el sistema de interacciones
