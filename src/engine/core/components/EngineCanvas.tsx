@@ -30,6 +30,7 @@ export function EngineCanvas({
       gl={{
         outputColorSpace: THREE.SRGBColorSpace,
         toneMapping: THREE.NoToneMapping,
+        alpha: true,
       }}
       camera={{
         fov: 45,

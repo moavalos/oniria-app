@@ -8,6 +8,8 @@ export class AssetManager {
 
     private callbacks: LoadingCallbacks = {};
 
+    private textureCache = new Map<string, THREE.Texture>();
+
     constructor(renderer?: THREE.WebGLRenderer) {
         this.registerLoader(new GltfLoaderService());
         this.registerLoader(new TextureLoaderService());
@@ -53,8 +55,79 @@ export class AssetManager {
         return results;
     }
 
+    /**
+     * Precarga un conjunto de texturas y las almacena en cache para acceso rápido
+     * @param textureUrls - Array con las URLs de las texturas a precargar
+     * @returns Promise que se resuelve cuando todas las texturas están cargadas
+     */
+    public async preloadTextures(textureUrls: string[]): Promise<void> {
+        console.log(`[AssetManager]: Precargando ${textureUrls.length} texturas`);
+
+        const textureLoader = this.loaders.get('texture') as TextureLoaderService;
+        if (!textureLoader) {
+            throw new Error('[AssetManager]: TextureLoader no disponible');
+        }
+
+        const loadPromises = textureUrls.map(async (url) => {
+            if (this.textureCache.has(url)) {
+                console.log(`[AssetManager]: Textura ${url} ya está en cache`);
+                return;
+            }
+
+            try {
+                const texture = await textureLoader.load(url, () => { });
+                this.textureCache.set(url, texture);
+                console.log(`[AssetManager]: Textura ${url} precargada`);
+            } catch (error) {
+                console.error(`[AssetManager]: Error precargando textura ${url}:`, error);
+                throw error;
+            }
+        });
+
+        await Promise.all(loadPromises);
+        console.log(`[AssetManager]: Precarga completa de ${textureUrls.length} texturas`);
+    }
+
+    /**
+     * Obtiene una textura del cache
+     * @param url - URL de la textura
+     * @returns La textura si está en cache, undefined si no
+     */
+    public getTexture(url: string): THREE.Texture | undefined {
+        return this.textureCache.get(url);
+    }
+
+    /**
+     * Verifica si una textura está en cache
+     * @param url - URL de la textura
+     * @returns true si la textura está en cache
+     */
+    public hasTextureInCache(url: string): boolean {
+        return this.textureCache.has(url);
+    }
+
+    /**
+     * Obtiene estadísticas del cache de texturas
+     * @returns Objeto con información del estado del cache
+     */
+    public getTextureStats(): { cached: number; urls: string[] } {
+        return {
+            cached: this.textureCache.size,
+            urls: Array.from(this.textureCache.keys())
+        };
+    }
+
     dispose() {
+        // Limpiar cache de texturas
+        for (const texture of this.textureCache.values()) {
+            texture.dispose();
+        }
+        this.textureCache.clear();
+
+        // Limpiar loaders
         for (const loader of this.loaders.values()) loader.dispose?.();
         this.loaders.clear();
+
+        console.log('[AssetManager]: Recursos liberados');
     }
 }

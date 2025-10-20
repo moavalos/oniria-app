@@ -136,8 +136,12 @@ export default function RoomScene() {
     if (!core) return;
 
     const handleInsidePortal = () => {
-      console.log("entro al portal");
-      setRenderNode(true);
+      const portalManager = core.getService(PortalManager);
+      portalManager.startTravel();
+      setTimeout(() => {
+        portalManager.stopTravel();
+        setRenderNode(true);
+      }, 3000);
     };
 
     const handleOutsidePortal = () => {

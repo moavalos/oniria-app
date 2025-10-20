@@ -4,6 +4,8 @@ import { Portal } from '@engine/entities/Portal';
 import { MaterialService } from '../MaterialService';
 import { EventEmitter } from '@engine/utils/EventEmitter';
 import { EngineCore, useEngineStore } from '@engine/core';
+import { PortalholeRenderer } from '../renderers/PortalholeRenderer';
+import { NebulaRenderer } from '../renderers/Nebularenderer';
 
 // Eventos que emite el PortalManager
 interface PortalManagerEventMap {
@@ -23,12 +25,17 @@ interface PortalManagerEventMap {
  * comunicación basada en eventos con otros componentes del sistema.
  */
 export class PortalManager extends EventEmitter<PortalManagerEventMap> {
+
+
     private currentPortal: Portal | null = null;
 
     private store = useEngineStore.getState();
 
     private materialService: MaterialService | null = null;
 
+    private portalholeRenderer: PortalholeRenderer | null = null;
+
+    private nebulaRenderer: NebulaRenderer | null = null;
 
     private core: EngineCore;
 
@@ -48,6 +55,8 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
      */
     init(): void {
         this.materialService = this.core.getService(MaterialService);
+        this.portalholeRenderer = this.core.getService(PortalholeRenderer);
+        this.nebulaRenderer = this.core.getService(NebulaRenderer);
     }
 
     /**
@@ -73,6 +82,23 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         this.emit('portal:created', { portal });
 
         return portal;
+    }
+
+    startTravel() {
+        console.log(this.portalholeRenderer, this.currentPortal)
+        if (!this.portalholeRenderer || !this.currentPortal || !this.nebulaRenderer) return;
+        this.nebulaRenderer.setInitialPosition(this.currentPortal.getPosition());
+        this.portalholeRenderer.setPosition(this.currentPortal.getPosition());
+
+        this.nebulaRenderer.start();
+        // this.portalholeRenderer.start();
+
+    }
+
+    stopTravel() {
+        if (!this.portalholeRenderer || !this.currentPortal || !this.nebulaRenderer) return;
+        this.portalholeRenderer.stop();
+        this.nebulaRenderer.stop();
     }
 
     /**
@@ -139,6 +165,12 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
     update(delta: number): void {
         if (this.currentPortal && this.currentPortal.isAnimating()) {
             this.currentPortal.updateAnimation(delta);
+        }
+        if (this.portalholeRenderer) {
+            this.portalholeRenderer.update();
+        }
+        if (this.nebulaRenderer) {
+            this.nebulaRenderer.update();
         }
     }
 

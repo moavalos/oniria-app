@@ -11,6 +11,8 @@ import type { Room } from "@/engine/entities";
 import type { ISystem } from "./ISystem";
 import { EngineState } from "../types/engine.types";
 import { useEngineStore } from "../store/engineStore";
+import { PortalholeRenderer } from "@/engine/services/renderers/PortalholeRenderer";
+import { NebulaRenderer } from "@/engine/services/renderers/Nebularenderer";
 
 /**
  * Núcleo del motor 3D que coordina servicios, sistemas y el ciclo de vida del motor.
@@ -56,8 +58,19 @@ export class EngineCore extends EventEmitter {
         this._scene = scene;
         this._camera = camera;
         this.initializeService();
+        this.setupAssets();
         this.setState(EngineState.READY);
         console.log("[EngineCore]: Motor inicializado correctamente");
+    }
+
+    async setupAssets() {
+        await this.getService(AssetManager).preloadTextures(["/textures/water.jpg", "/textures/bg.jpg"]);
+        const holeTexture = this.getService(AssetManager).getTexture('/textures/water.jpg');
+        const bgTexture = this.getService(AssetManager).getTexture('/textures/bg.jpg');
+        if (holeTexture && bgTexture) {
+            this.getService(PortalholeRenderer).init(holeTexture);
+            this.getService(NebulaRenderer).init(bgTexture);
+        }
     }
 
     /**
@@ -73,10 +86,16 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(AnimationService, new AnimationService(this._scene));
         this.registry.registerService(InteractionService, new InteractionService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
 
+        // Rendererers especializados
+        this.registry.registerService(PortalholeRenderer, new PortalholeRenderer(this._scene!, this._camera!));
+        this.registry.registerService(NebulaRenderer, new NebulaRenderer(this._scene!));
+
         // Crear managers especializados
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
+
+
 
         this.setupRoomEventListeners();
         console.log("[EngineCore]: Servicios registrados correctamente");
