@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 
 import { useProgress } from "../hooks/useProgress";
+import { useEngineStore } from "../core/store/engineStore";
+import { EngineState } from "../core/types/engine.types";
 
 // Interfaces
 export interface LoaderProps {
@@ -108,12 +110,16 @@ export default function LoaderSystem({
   onLoadError,
 }: LoaderSystemProps = {}) {
   const { active: isLoading, progress, errors } = useProgress();
+  const engineState = useEngineStore((state) => state.engineState);
   const [timeoutError, setTimeoutError] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Obtener el primer error como string o null
   const error = errors.length > 0 ? errors[0] : null;
+
+  // Si el motor está READY pero no hay contenido, no mostrar el loader
+  const shouldShowLoader = isLoading || engineState !== EngineState.READY;
 
   // Añadir keyframes CSS al head
   useEffect(() => {
@@ -205,6 +211,11 @@ export default function LoaderSystem({
   const finalError = timeoutError || error;
   const finalProgress = Math.min(Math.max(progress, 0), 100); // Clamp entre 0-100
   const finalIsLoading = isLoading;
+
+  // Si el motor está listo y no hay contenido que cargar, no mostrar el loader
+  if (!shouldShowLoader) {
+    return null;
+  }
 
   return (
     <CustomLoader

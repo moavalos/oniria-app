@@ -1,5 +1,6 @@
 
 import { create } from "zustand";
+import { EngineState } from "../types/engine.types";
 
 // Tipo para los datos del sueño
 export interface Dream {
@@ -140,6 +141,10 @@ type EngineStore = {
     items: LoadingItem[];
     errors: string[];
 
+    // Engine state - estado del motor 3D
+    engineState: EngineState;
+    setEngineState: (_state: EngineState) => void;
+
     // Loading actions
     startLoading: () => void;
     finishLoading: () => void;
@@ -226,6 +231,10 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     progress: 0,
     items: [],
     errors: [],
+
+    // Engine state inicial
+    engineState: EngineState.DISPOSED,
+    setEngineState: (state) => set({ engineState: state }),
 
     // Loading actions
     startLoading: () => {

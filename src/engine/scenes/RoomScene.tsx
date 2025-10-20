@@ -1,7 +1,7 @@
 import { Room, useEngineCore } from "@engine/core";
 import { useEffect, useState } from "react";
-import { RoomManager } from "../services/room/RoomManager";
-import { PortalManager } from "../services/portal/PortalManager";
+import { RoomManager } from "../services/managers/RoomManager";
+import { PortalManager } from "../services/managers/PortalManager";
 import { EngineState } from "@engine/core";
 import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
@@ -14,7 +14,7 @@ export default function RoomScene() {
   const core = useEngineCore();
   const [room, setRoom] = useState<Room | null>(null);
 
-  const [renderNode, setRenderNode] = useState<boolean>(true); // Temporal: siempre visible para desarrollo
+  const [renderNode, setRenderNode] = useState<boolean>(false);
 
   useEffect(() => {
     if (!core) return;

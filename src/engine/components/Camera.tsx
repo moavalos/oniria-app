@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core/";
-import { useEngineState } from "@engine/hooks/useEngineState";
+import { useEngineState } from "@/engine/core/hooks/useEngineState";
 import { CameraSystem } from "@engine/systems/CameraSystem";
 import {
   CameraService,
@@ -90,7 +90,7 @@ export function Camera({
 
     // Configurar el sistema con las opciones recibidas
     cameraSystem.setControlsEnabled(enableControls);
-    cameraSystem.setAutoConfigureForRoom(autoConfigureForRoom);
+    //cameraSystem.setAutoConfigureForRoom(autoConfigureForRoom);
 
     // Registrar el sistema en el core
     core.addSystem(cameraSystem);

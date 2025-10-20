@@ -1,4 +1,4 @@
-import type { EngineCore } from "./EngineCore.class";
+import type { EngineCore } from "./EngineCore";
 
 /**
  * Interfaz base para todos los sistemas del motor.

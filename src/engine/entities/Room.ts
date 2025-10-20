@@ -1,16 +1,15 @@
 import * as THREE from 'three';
-import { type AnimationAction, type LookatableObject, type ObjectEventArray } from '../config/room.type';
+
 import { Skin } from './Skin';
 import { ConfigManager, type ProcessedRoomObjects } from '../utils/ConfigManager';
-
-
-
+import { type AnimationAction, type LookatableObject, type ObjectEventArray } from '../config/room.type';
 
 /**
- * Entidad que representa una sala 3D con su geometría, materiales y configuración
+ * Entidad que representa una Room 3D completa con su geometría, materiales,
+ * configuración y funcionalidades de interacción. Gestiona el portal de navegación,
+ * objetos interactivos y la aplicación de skins personalizados.
  */
 export class Room {
-
     private objectTexture: THREE.Texture | null = null;
 
     private environmentTexture: THREE.Texture | null = null;
@@ -18,10 +17,13 @@ export class Room {
     private portal: THREE.Object3D | undefined = undefined;
 
     /**
-     * Crea una nueva instancia de Room
+     * Crea una nueva instancia de Room.
      * 
-     * @param _id - Identificador único de la sala
-     * @param _skin - Skin asociado a la sala
+     * @param _id - Identificador único de la Room
+     * @param _skin - Skin asociado a la Room para texturas y materiales
+     * @param _scene - Grupo de Three.js que contiene la geometría de la Room
+     * @param _configManager - Gestor de configuración para objetos interactivos
+     * @throws Error si el ID está vacío o el skin es nulo
      */
     constructor(
         private _id: string,
@@ -30,92 +32,89 @@ export class Room {
         private _configManager: ConfigManager) {
 
         if (!_id?.trim()) {
-            throw new Error('El ID de la room no puede estar vacío');
+            throw new Error('El ID de la Room no puede estar vacío');
         }
         if (!_skin) {
-            throw new Error('El _skin es requerido');
+            throw new Error('El skin es requerido para la Room');
         }
 
-        // Buscar y asignar el portal en la escena
         this.searchAndAssignPortal(_scene);
     }
 
     /**
-     * Busca y asigna el portal en la escena dada
+     * Busca y asigna el portal de navegación en la escena de la Room.
+     * El portal es el objeto que permite la navegación entre Rooms.
+     * 
+     * @param _scene - Escena donde buscar el portal
      */
     private searchAndAssignPortal(_scene: THREE.Group<THREE.Object3DEventMap>): void {
-        console.log("[Room] Buscando portal en scene:", _scene.name);
-        console.log("[Room] Objetos en la scene:", _scene.children.map(child => ({
-            name: child.name,
-            type: child.type,
-            uuid: child.uuid.substring(0, 8)
-        })));
-
         this.portal = _scene.getObjectByName('portal') || undefined;
-
-        console.log("[Room.searchAndAssignPortal] Portal asignado:", this.portal?.name);
-        console.log("[Room.searchAndAssignPortal] Portal type:", this.portal?.type);
-        console.log("[Room.searchAndAssignPortal] Portal uuid:", this.portal?.uuid);
-
-        if (this.portal) {
-            console.log("[Room] Portal encontrado:", this.portal.name, this.portal.type);
-        } else {
-            console.warn("[Room] Portal NO encontrado con nombre 'portal'");
-            // Buscar objetos que podrían ser el portal
-            const portalCandidates = _scene.children.filter(child =>
-                child.name.toLowerCase().includes('portal') ||
-                child.name.toLowerCase().includes('gate') ||
-                child.name.toLowerCase().includes('door')
-            );
-            console.log("[Room] Candidatos a portal:", portalCandidates.map(c => c.name));
-        }
     }
 
     /**
-     * Carga la configuración de la sala de forma asíncrona
+     * Carga la configuración de objetos interactivos de la Room de forma asíncrona.
      * 
-     * @returns Promesa con los objetos procesados de la sala
+     * @returns Promesa con los objetos procesados de la Room
+     * @throws Error si no se puede cargar la configuración
      */
     async loadConfig(): Promise<ProcessedRoomObjects> {
         try {
             return await this._configManager.getProcessedObjects(this._id);
         } catch (error) {
-            throw new Error(`No se pudo cargar la configuración: ${error}`);
+            throw new Error(`No se pudo cargar la configuración de la Room ${this._id}: ${error}`);
         }
     }
 
-
     /**
-     * Aplica un nuevo _skin a la sala
+     * Aplica un nuevo skin a la Room, actualizando texturas y materiales.
      * 
-     * @param _skin - Nuevo _skin a aplicar
+     * @param _skin - Nuevo skin a aplicar
+     * @throws Error si el skin es nulo
      */
     applySkin(_skin: Skin): void {
         if (!_skin) {
-            throw new Error('El _skin no puede ser nulo');
+            throw new Error('El skin no puede ser nulo');
         }
         this._skin = _skin;
     }
 
+    /**
+     * Establece una nueva escena para la Room y busca el portal en ella.
+     * 
+     * @param _scene - Nueva escena de Three.js
+     * @throws Error si la escena es nula
+     */
     set_Scene(_scene: THREE.Group<THREE.Object3DEventMap>): void {
         if (!_scene) {
             throw new Error('La escena no puede ser nula');
         }
         this._scene = _scene;
-
-        // Buscar y asignar el portal en la nueva escena
         this.searchAndAssignPortal(_scene);
     }
 
+    /**
+     * Establece un nuevo skin para la Room.
+     * 
+     * @param _skin - Skin a establecer
+     * @throws Error si el skin es nulo
+     */
     setSkin(_skin: Skin): void {
         if (!_skin) {
-            throw new Error('El _skin no puede ser nulo');
+            throw new Error('El skin no puede ser nulo');
         }
         this._skin = _skin;
-
     }
 
-    setTextures({ objectTexture, environmentTexture }: { objectTexture: THREE.Texture; environmentTexture: THREE.Texture }): void {
+    /**
+     * Establece las texturas de objeto y ambiente de la Room.
+     * 
+     * @param textures - Objeto con texturas de objeto y ambiente
+     * @throws Error si alguna textura es nula
+     */
+    setTextures({ objectTexture, environmentTexture }: {
+        objectTexture: THREE.Texture;
+        environmentTexture: THREE.Texture
+    }): void {
         if (!objectTexture || !environmentTexture) {
             throw new Error('Ambas texturas (objeto y ambiente) son requeridas');
         }
@@ -123,32 +122,57 @@ export class Room {
         this.environmentTexture = environmentTexture;
     }
 
+    /**
+     * Obtiene el identificador único de la Room.
+     * 
+     * @returns ID de la Room
+     */
     get_Id(): string {
         return this._id;
     }
 
+    /**
+     * Obtiene el skin actual de la Room.
+     * 
+     * @returns Skin asociado a la Room
+     */
     get_Skin(): Skin {
         return this._skin;
     }
 
-
+    /**
+     * Obtiene la textura de objeto de la Room.
+     * 
+     * @returns Textura de objeto o null si no está establecida
+     */
     getObjectTexture(): THREE.Texture | null {
         return this.objectTexture;
     }
 
+    /**
+     * Obtiene la textura de ambiente de la Room.
+     * 
+     * @returns Textura de ambiente o null si no está establecida
+     */
     getEnvironmentTexture(): THREE.Texture | null {
         return this.environmentTexture;
     }
 
+    /**
+     * Obtiene la escena de Three.js de la Room.
+     * 
+     * @returns Grupo de Three.js que contiene la geometría de la Room
+     */
     get_Scene(): THREE.Group<THREE.Object3DEventMap> | null {
         return this._scene;
     }
 
+    /**
+     * Obtiene el portal de navegación de la Room.
+     * 
+     * @returns Portal de la Room o undefined si no existe
+     */
     getPortal(): THREE.Object3D | undefined {
-        console.log("[Room.getPortal] Portal actual:", this.portal);
-        console.log("[Room.getPortal] Portal type:", this.portal?.type);
-        console.log("[Room.getPortal] Portal name:", this.portal?.name);
-        console.log("[Room.getPortal] Portal uuid:", this.portal?.uuid);
         return this.portal;
     }
 
@@ -194,7 +218,11 @@ export class Room {
         return { target, position };
     }
 
-    // Métodos delegados al ConfigManager
+    /**
+     * Obtiene todos los objetos "lookatable" (enfocables) de la Room.
+     * 
+     * @returns Record con objetos enfocables y sus posiciones
+     */
     async getLookAtableObjects(): Promise<Record<string, THREE.Vector3>> {
         if (!this._scene) {
             return {};
@@ -202,12 +230,20 @@ export class Room {
         return this._configManager.getLookAtableObjects(this._id, this._scene);
     }
 
-
+    /**
+     * Obtiene todos los objetos animables de la Room.
+     * 
+     * @returns Record con objetos animables y sus acciones
+     */
     async getAnimatableObjects(): Promise<Record<string, AnimationAction>> {
         return this._configManager.getAnimatableObjects(this._id);
     }
 
-
+    /**
+     * Obtiene todos los objetos interactivos de la Room.
+     * 
+     * @returns Record con objetos interactivos y sus eventos
+     */
     async getInteractableObjects(): Promise<Record<string, ObjectEventArray>> {
         if (!this._scene) {
             return {};
@@ -215,28 +251,48 @@ export class Room {
         return this._configManager.getInteractableObjects(this._id, this._scene);
     }
 
-
+    /**
+     * Obtiene todos los objetos coloreables de la Room.
+     * 
+     * @returns Record con objetos coloreables y sus colores
+     */
     async getColorableObjects(): Promise<Record<string, string>> {
         return this._configManager.getColorableObjects(this._id);
     }
 
-
+    /**
+     * Obtiene todos los objetos procesados de la Room.
+     * 
+     * @returns Objetos procesados completos de la Room
+     */
     async getAllObjects(): Promise<ProcessedRoomObjects> {
         return this._configManager.getProcessedObjects(this._id, this._scene || undefined);
     }
 
-    // Utility methods
+    /**
+     * Verifica si la Room tiene una escena asignada.
+     * 
+     * @returns true si tiene escena, false en caso contrario
+     */
     has_Scene(): boolean {
         return this._scene !== null;
     }
 
+    /**
+     * Verifica si la Room tiene texturas asignadas.
+     * 
+     * @returns true si tiene ambas texturas, false en caso contrario
+     */
     hasTextures(): boolean {
         return this.objectTexture !== null && this.environmentTexture !== null;
     }
 
+    /**
+     * Libera todos los recursos de la Room incluyendo geometrías,
+     * materiales, texturas y referencias.
+     */
     dispose(): void {
-        console.log("[Room.dispose] Disposing room:", this._id);
-        console.log("[Room.dispose] Portal antes de dispose:", this.portal?.name);
+        console.log("[Room]: Liberando recursos de la Room", this._id);
 
         if (this._scene) {
             // Limpieza de recursos de Three.js
@@ -257,9 +313,7 @@ export class Room {
         if (this.objectTexture) this.objectTexture.dispose();
         if (this.environmentTexture) this.environmentTexture.dispose();
 
-        // Limpiar configuración actual si coincide con esta room
         this._configManager.clearCurrent();
-
         this._scene.clear();
         this.objectTexture = null;
         this.environmentTexture = null;

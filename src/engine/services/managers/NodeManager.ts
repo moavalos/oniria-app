@@ -1,18 +1,18 @@
 import * as THREE from "three";
-import { EngineCore, Node, useEngineStore } from "@/engine/core";
+
+import { EngineCore, Node, useEngineStore } from "@engine/core";
 import { MaterialService } from "../MaterialService";
 import { AnimationService } from "../AnimationService";
 import { CameraService } from "../CameraService";
 
-
-
-
-// Eventos que emite el NodeManager
-// interface NodeManagerEventMap {
-//     'node:created': { newNode: Node };
-//     // Definir eventos relacionados con la gestión de nodos aquí
-// }
-
+/**
+ * Gestor para la creación, gestión y control de nodos de navegación 3D
+ * 
+ * Proporciona funcionalidad completa para manejar nodos interactivos en escenas 3D,
+ * incluyendo creación de geometrías, aplicación de materiales, control de animaciones
+ * y gestión del ciclo de vida. Integra servicios de cámara, materiales y animaciones
+ * para proporcionar una experiencia de navegación fluida.
+ */
 export class NodeManager {
 
     private store = useEngineStore.getState();
@@ -29,29 +29,43 @@ export class NodeManager {
 
     private core: EngineCore;
 
+    /**
+     * Crea una nueva instancia del gestor de nodos
+     * 
+     * @param core - Instancia del núcleo del motor para acceso a servicios
+     */
     constructor(core: EngineCore) {
         this.core = core;
-        this.init()
-        this.configListeners()
+        this.init();
+        this.configListeners();
     }
 
-    init() {
+    /**
+     * Inicializa los servicios necesarios del motor
+     */
+    init(): void {
         this.materialService = this.core.getService(MaterialService);
         this.cameraService = this.core.getService(CameraService);
-        console.log(this.cameraService)
         this.animationService = this.core.getService(AnimationService);
-
+        console.log("[NodeManager]: Servicios inicializados");
     }
 
-    configListeners() {
-        // Configurar listeners DE CAMARA
+    /**
+     * Configura los listeners de eventos de cámara
+     */
+    configListeners(): void {
+        // Configurar listeners de cámara
         if (!this.cameraService) return;
         this.cameraService.addEventListener('controlend', () => {
             this.onCameraControlEnd();
         });
-
     }
 
+    /**
+     * Remueve todos los listeners de eventos configurados
+     * 
+     * @returns Esta instancia para encadenamiento
+     */
     removeAllListeners(): this {
         this.cameraService?.removeEventListener('controlend', () => {
             this.onCameraControlEnd();
@@ -59,22 +73,35 @@ export class NodeManager {
         return this;
     }
 
-
-
-    onCameraControlEnd() {
-        console.log("[NodeManager]:CamaraTerminada")
+    /**
+     * Maneja el evento de finalización de control de cámara
+     * 
+     * Reposiciona la cámara hacia el portal cuando termina el control manual
+     */
+    onCameraControlEnd(): void {
+        console.log("[NodeManager]: Control de cámara terminado");
         if (!this.cameraService || !this.currentNode) return;
+
         const target = this.core.getCurrentRoom()?.getPortal()?.position;
         if (!target) return;
-        this.cameraService.setLookAt(new THREE.Vector3(...target), new THREE.Vector3(target.x, target.y, target.z - 0.5), true);
 
+        this.cameraService.setLookAt(
+            new THREE.Vector3(...target),
+            new THREE.Vector3(target.x, target.y, target.z - 0.5),
+            true
+        );
     }
 
-    createNode() {
-        // Lógica para crear un nodo
+    /**
+     * Crea un nuevo nodo con geometría y materiales
+     * 
+     * @returns El nodo creado
+     */
+    createNode(): Node {
+        // Crear geometría para el nodo
         const nodeGroup = this.createMeshForNode();
 
-        const newNode = new Node("node")
+        const newNode = new Node("node");
         newNode.setGroup(nodeGroup);
         this.currentNode = newNode;
         this.applyNodeMaterials(nodeGroup);
@@ -83,61 +110,68 @@ export class NodeManager {
         return newNode;
     }
 
-    getCurrentNode() {
+    /**
+     * Obtiene el nodo actualmente activo
+     * 
+     * @returns El nodo actual o null si no hay ninguno
+     */
+    getCurrentNode(): Node | null {
         return this.currentNode;
     }
 
     /**
      * Ejecuta animación idle en el nodo activo
      */
-    setNodeIdle() {
+    setNodeIdle(): void {
         this.executeNodeAnimation('nodeIdle');
     }
 
     /**
      * Ejecuta animación rest en el nodo activo  
      */
-    setNodeRest() {
+    setNodeRest(): void {
         this.executeNodeAnimation('nodeRest');
     }
 
     /**
      * Ejecuta animación next en el nodo activo
      */
-    setNodeNext() {
+    setNodeNext(): void {
         this.executeNodeAnimation('nodeNext');
     }
 
     /**
      * Ejecuta animación prev en el nodo activo
      */
-    setNodePrev() {
+    setNodePrev(): void {
         this.executeNodeAnimation('nodePrev');
     }
 
     /**
      * Ejecuta animación ping en el nodo activo - efecto visual de click
      */
-    ping() {
+    ping(): void {
         this.executeNodeAnimation('nodePing');
     }
 
     /**
      * Método privado para ejecutar animaciones de nodo
+     * 
+     * @param animationName - Nombre de la animación a ejecutar
      */
-    private executeNodeAnimation(animationName: string) {
+    private executeNodeAnimation(animationName: string): void {
         if (!this.currentNode || !this.animationService) {
-            console.warn(`[NodeManager] No hay nodo activo o AnimationService no disponible para ${animationName}`);
+            console.warn(`[NodeManager]: No hay nodo activo o AnimationService no disponible para ${animationName}`);
             return;
         }
 
         const group = this.currentNode.getGroup();
         if (!group) {
-            console.warn(`[NodeManager] No se pudo obtener el grupo del nodo activo para ${animationName}`);
+            console.warn(`[NodeManager]: No se pudo obtener el grupo del nodo activo para ${animationName}`);
             return;
         }
 
-        console.log(`[NodeManager] 🎭 Ejecutando animación ${animationName} en nodo con nombre: ${group.name}`);
+        console.log(`[NodeManager]: Ejecutando animación ${animationName} en nodo: ${group.name}`);
 
         // Crear configuración de animación para AnimationService
         const animationConfig = {
@@ -147,56 +181,78 @@ export class NodeManager {
             loop: false
         };
 
-        // Usar AnimationService para ejecutar la animación por defecto
+        // Usar AnimationService para ejecutar la animación
         this.animationService.play(animationConfig);
-
-        console.log(`[NodeManager] Animación ${animationName} ejecutada`);
     }
 
-    createMeshForNode() {
-        // Lógica para crear un nodo
+    /**
+     * Crea la geometría mesh para un nuevo nodo
+     * 
+     * @returns Grupo que contiene las geometrías del nodo
+     */
+    createMeshForNode(): THREE.Group {
         const nodeGeometry = new THREE.PlaneGeometry(2, 2);
         const nodeMask = new THREE.PlaneGeometry(2, 2);
 
-        //Agrupamos
+        // Agrupar las geometrías
         const nodeGroup = new THREE.Group();
         nodeGroup.name = "currentNode"; // Nombre para que AnimationService pueda encontrarlo
+
         const nodeMesh = new THREE.Mesh(nodeGeometry);
         const maskMesh = new THREE.Mesh(nodeMask);
         nodeMesh.name = "nodeMesh";
         maskMesh.name = "maskMesh";
+
         nodeGroup.add(nodeMesh);
         nodeGroup.add(maskMesh);
+
         return nodeGroup;
     }
 
-    update(deltaTime: number) {
-        // Actualiza los uniforms del material del nodo si existe
+    /**
+     * Actualiza el nodo en cada frame
+     * 
+     * @param deltaTime - Tiempo transcurrido desde el último frame
+     */
+    update(deltaTime: number): void {
+        // Actualizar los uniforms del material del nodo si existe
         if (this.currentNode) {
             this.currentNode.updateAnimation(deltaTime);
         }
     }
 
-    applyNodeMaterials(nodeGroup: THREE.Group) {
+    /**
+     * Aplica materiales con shaders al grupo del nodo
+     * 
+     * @param nodeGroup - Grupo del nodo al que aplicar materiales
+     */
+    applyNodeMaterials(nodeGroup: THREE.Group): void {
         if (!this.materialService) return;
+
         this.materialService.applyMaterialsToNodes(nodeGroup, this.getUniformsForNode());
         this.currentNode?.setMaterial((nodeGroup.getObjectByName("nodeMesh") as THREE.Mesh).material as THREE.ShaderMaterial);
-        // Lógica para aplicar materiales al nodo
     }
 
-    dispose() {
-        // Lógica para limpiar recursos del NodeManager
+    /**
+     * Limpia recursos y remueve listeners
+     */
+    dispose(): void {
         this.removeAllListeners();
         this.currentNode = null;
     }
 
-    getUniformsForNode() {
+    /**
+     * Obtiene los uniforms configurados para el material del nodo
+     * 
+     * @returns Objeto con todos los uniforms necesarios para el shader
+     */
+    getUniformsForNode(): Record<string, any> {
         return {
             uTime: { value: 0 },
             uResolution: {
                 value: new THREE.Vector2(window.innerWidth, window.innerHeight),
             },
-            // Uniforms sincronizados con el debug store (existentes)
+            // Uniforms sincronizados con el debug store
             uPlasmaStrength: { value: this.store.nodeUniforms.uPlasmaStrength },
             uGlassStrength: { value: this.store.nodeUniforms.uGlassStrength },
             uPlasmaRadius: { value: this.store.nodeUniforms.uPlasmaRadius },
@@ -206,17 +262,17 @@ export class NodeManager {
             uFresnelBright: { value: this.store.nodeUniforms.uFresnelBright },
             uFresnelBrightWidth: { value: this.store.nodeUniforms.uFresnelBrightWidth },
 
-            // Nuevos uniforms de dirección del humo/flujo
+            // Uniforms de dirección del humo/flujo
             uSmokeTurbulence: { value: this.store.nodeUniforms.uSmokeTurbulence },
             uSmokeDirectionOffset: { value: this.store.nodeUniforms.uSmokeDirectionOffset },
 
-            // Nuevos uniforms de color del blob
+            // Uniforms de color del blob
             uPlasmaColor: { value: new THREE.Vector3(...this.store.nodeUniforms.uPlasmaColor) },
             uPlasmaColorIntensity: { value: this.store.nodeUniforms.uPlasmaColorIntensity },
             uPlasmaColorMap: {
                 value: new THREE.Vector4(...this.store.nodeUniforms.uPlasmaColorMap),
             },
-            // Paleta procedural del plasma (nuevos)
+            // Paleta procedural del plasma
             uPlasmaOffset: {
                 value: new THREE.Vector3(...this.store.nodeUniforms.uPlasmaOffset),
             },
@@ -251,9 +307,9 @@ export class NodeManager {
     /**
      * Destruye el nodo actual y limpia recursos
      */
-    destroyNode() {
+    destroyNode(): void {
         if (this.currentNode) {
-            console.log('[NodeManager] Destroying current node');
+            console.log('[NodeManager]: Destruyendo nodo actual');
 
             // Obtener el grupo del nodo y limpiar recursos
             const nodeGroup = this.currentNode.getGroup();

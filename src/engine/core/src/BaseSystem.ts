@@ -1,4 +1,4 @@
-import { EngineCore } from "./EngineCore.class";
+import { EngineCore } from "./EngineCore";
 import { type ISystem } from "./ISystem";
 
 /**

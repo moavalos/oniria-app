@@ -1,6 +1,6 @@
+import * as THREE from "three";
 import CameraControls from "camera-controls";
 import type { CameraControlsEventMap } from "camera-controls/dist/types";
-import * as THREE from "three";
 
 export type CameraConfig = {
     minDistance?: number;
@@ -17,7 +17,11 @@ export type CameraConfig = {
 };
 
 /**
- * Servicio para gestionar controles de cámara y transiciones suaves
+ * Servicio para gestión de controles de cámara 3D con transiciones suaves
+ * 
+ * Proporciona una interfaz unificada para controlar la cámara en escenas 3D,
+ * incluyendo posicionamiento, rotación, zoom y restricciones de movimiento.
+ * Utiliza la librería camera-controls para funcionalidad avanzada.
  */
 export class CameraService {
     private static installed = false;
@@ -43,20 +47,21 @@ export class CameraService {
     /**
      * Actualiza los controles de cámara en cada frame
      * 
-     * @param delta - Tiempo transcurrido desde el último frame
+     * @param delta - Tiempo transcurrido desde el último frame en segundos
+     * @returns Verdadero si la cámara necesita renderizado, falso en caso contrario
      */
-    update(delta: number) {
-        this.controls.update(delta);
+    update(delta: number): boolean {
+        return this.controls.update(delta);
     }
 
     /**
      * Establece la posición y objetivo de la cámara
      * 
-     * @param pos - Posición de la cámara
-     * @param target - Objetivo al que mira la cámara
-     * @param smooth - Si la transición debe ser suave
+     * @param pos - Posición de la cámara en coordenadas 3D
+     * @param target - Objetivo al que mira la cámara en coordenadas 3D
+     * @param smooth - Si la transición debe ser suave (por defecto: true)
      */
-    setLookAt(pos: THREE.Vector3, target: THREE.Vector3, smooth = true) {
+    setLookAt(pos: THREE.Vector3, target: THREE.Vector3, smooth = true): void {
         this.controls.setLookAt(
             pos.x,
             pos.y,
@@ -68,10 +73,20 @@ export class CameraService {
         );
     }
 
-    reset(smooth = true) {
+    /**
+     * Resetea la cámara a su estado inicial
+     * 
+     * @param smooth - Si la transición debe ser suave (por defecto: true)
+     */
+    reset(smooth = true): void {
         this.controls.reset(smooth);
     }
 
+    /**
+     * Establece la configuración de la cámara con valores por defecto
+     * 
+     * @param config - Configuración de la cámara a aplicar
+     */
     setConfig(config: CameraConfig = {
         minDistance: 3,
         maxDistance: 6,
@@ -84,41 +99,50 @@ export class CameraService {
         minAzimuthAngle: -Math.PI / 2.5,
         boundaryEnclosesCamera: true,
         enablePan: false,
-    }) {
-        console.log("[CameraService] 🔧 setConfig llamado con:", config);
+    }): void {
+        console.log("[CameraService]: Configurando cámara con nueva configuración");
         this.applyConfig(config);
         this.defaultConfig = config;
-
-        // Verificar que se aplicó correctamente
-        console.log("[CameraService] 📊 Posición actual después de setConfig:", this.getPosition());
-        console.log("[CameraService] 🎯 Target actual después de setConfig:", this.getTarget());
     }
 
-    resetToDefault() {
+    /**
+     * Resetea la cámara a la configuración por defecto
+     */
+    resetToDefault(): void {
         this.applyConfig(this.defaultConfig);
     }
 
-    getDefaultConfig() {
+    /**
+     * Obtiene la configuración por defecto de la cámara
+     * 
+     * @returns Configuración por defecto actual
+     */
+    getDefaultConfig(): CameraConfig {
         return this.defaultConfig;
     }
 
-    applyConfig(config: CameraConfig) {
-        console.log("[CameraService] 🔧 applyConfig llamado con:", config);
-
-        // Aplicar configuraciones solo si están definidas
+    /**
+     * Aplica una configuración específica a los controles de cámara
+     * 
+     * @param config - Configuración a aplicar
+     */
+    applyConfig(config: CameraConfig): void {
+        // Aplicar distancias mínima y máxima
         if (config.minDistance !== undefined && config.maxDistance !== undefined) {
             this.setMinMaxDistance(config.minDistance, config.maxDistance);
         }
 
+        // Aplicar posición y objetivo
         if (config.position && config.target) {
-            console.log("[CameraService] 📍 Aplicando posición:", config.position, "y target:", config.target);
             this.setLookAt(config.position, config.target, true);
         }
 
+        // Aplicar tiempo de suavizado
         if (config.smoothTime !== undefined) {
             this.setSmoothTime(config.smoothTime);
         }
 
+        // Aplicar ángulos polares
         if (config.maxPolarAngle !== undefined) {
             this.setMaxPolarAngle(config.maxPolarAngle);
         }
@@ -127,6 +151,7 @@ export class CameraService {
             this.setMinPolarAngle(config.minPolarAngle);
         }
 
+        // Aplicar ángulos azimutales
         if (config.maxAzimuthAngle !== undefined) {
             this.setAzimuthMaxAngle(config.maxAzimuthAngle);
         }
@@ -135,106 +160,213 @@ export class CameraService {
             this.setAzimuthMinAngle(config.minAzimuthAngle);
         }
 
+        // Aplicar límites de frontera
         if (config.boundaryEnclosesCamera !== undefined) {
             this.setBoundaryEnclosesCamera(config.boundaryEnclosesCamera);
         }
 
+        // Aplicar habilitación de paneo
         if (config.enablePan !== undefined) {
             this.setEnablePan(config.enablePan);
         }
-
-        console.log("[CameraService] ✅ applyConfig completado");
     }
 
-    resetInitialPosition(smooth = true) {
+    /**
+     * Resetea la cámara a su posición inicial configurada
+     * 
+     * @param smooth - Si la transición debe ser suave (por defecto: true)
+     */
+    resetInitialPosition(smooth = true): void {
         if (this.defaultConfig.position && this.defaultConfig.target) {
             this.setLookAt(this.defaultConfig.position, this.defaultConfig.target, smooth);
         }
     }
 
-    setMinMaxDistance(min: number, max: number) {
+    /**
+     * Establece las distancias mínima y máxima de la cámara
+     * 
+     * @param min - Distancia mínima
+     * @param max - Distancia máxima
+     */
+    setMinMaxDistance(min: number, max: number): void {
         this.controls.minDistance = min;
         this.controls.maxDistance = max;
     }
 
-    moveTo(x: number, y: number, z: number, smooth = true) {
+    /**
+     * Mueve la cámara a una posición específica
+     * 
+     * @param x - Coordenada X
+     * @param y - Coordenada Y
+     * @param z - Coordenada Z
+     * @param smooth - Si el movimiento debe ser suave (por defecto: true)
+     */
+    moveTo(x: number, y: number, z: number, smooth = true): void {
         this.controls.setPosition(x, y, z, smooth);
     }
 
-    setSmoothTime(time: number) {
+    /**
+     * Establece el tiempo de suavizado para las transiciones
+     * 
+     * @param time - Tiempo de suavizado en segundos
+     */
+    setSmoothTime(time: number): void {
         this.controls.smoothTime = time;
     }
 
-    setMaxPolarAngle(angle: number) {
+    /**
+     * Establece el ángulo polar máximo
+     * 
+     * @param angle - Ángulo máximo en radianes
+     */
+    setMaxPolarAngle(angle: number): void {
         this.controls.maxPolarAngle = angle;
     }
 
-    setMinPolarAngle(angle: number) {
+    /**
+     * Establece el ángulo polar mínimo
+     * 
+     * @param angle - Ángulo mínimo en radianes
+     */
+    setMinPolarAngle(angle: number): void {
         this.controls.minPolarAngle = angle;
     }
 
-    setAzimuthMaxAngle(angle: number) {
+    /**
+     * Establece el ángulo azimutal máximo
+     * 
+     * @param angle - Ángulo máximo en radianes
+     */
+    setAzimuthMaxAngle(angle: number): void {
         this.controls.maxAzimuthAngle = angle;
     }
 
-    setAzimuthMinAngle(angle: number) {
+    /**
+     * Establece el ángulo azimutal mínimo
+     * 
+     * @param angle - Ángulo mínimo en radianes
+     */
+    setAzimuthMinAngle(angle: number): void {
         this.controls.minAzimuthAngle = angle;
     }
 
-    zoomTo(distance: number, smooth = true) {
+    /**
+     * Hace zoom a una distancia específica
+     * 
+     * @param distance - Distancia objetivo
+     * @param smooth - Si el zoom debe ser suave (por defecto: true)
+     */
+    zoomTo(distance: number, smooth = true): void {
         this.controls.zoomTo(distance, smooth);
     }
 
-    setDraggingSmoothTime(time: number) {
+    /**
+     * Establece el tiempo de suavizado durante el arrastre
+     * 
+     * @param time - Tiempo de suavizado en segundos
+     */
+    setDraggingSmoothTime(time: number): void {
         this.controls.draggingSmoothTime = time;
     }
 
-    setBoundaryFriction(friction: number) {
+    /**
+     * Establece la fricción en los límites de la cámara
+     * 
+     * @param friction - Factor de fricción
+     */
+    setBoundaryFriction(friction: number): void {
         this.controls.boundaryFriction = friction;
     }
 
-    setDampingFactor(factor: number) {
+    /**
+     * Establece el factor de amortiguamiento
+     * 
+     * @param factor - Factor de amortiguamiento
+     */
+    setDampingFactor(factor: number): void {
         this.controls.dampingFactor = factor;
     }
 
-    setBoundaryEnclosesCamera(value: boolean) {
+    /**
+     * Configura si los límites encierran la cámara
+     * 
+     * @param value - Si los límites deben encerrar la cámara
+     */
+    setBoundaryEnclosesCamera(value: boolean): void {
         this.controls.boundaryEnclosesCamera = value;
     }
 
-    setEnablePan(value: boolean) {
+    /**
+     * Habilita o deshabilita el paneo con el botón derecho del ratón
+     * 
+     * @param value - Si el paneo debe estar habilitado
+     */
+    setEnablePan(value: boolean): void {
         this.controls.mouseButtons.right = value ? CameraControls.ACTION.TRUCK : CameraControls.ACTION.NONE;
     }
 
-    setEnableZoom(value: boolean) {
+    /**
+     * Habilita o deshabilita el zoom con la rueda del ratón
+     * 
+     * @param value - Si el zoom debe estar habilitado
+     */
+    setEnableZoom(value: boolean): void {
         this.controls.mouseButtons.wheel = value ? CameraControls.ACTION.DOLLY : CameraControls.ACTION.NONE;
     }
 
-    addEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void) {
+    /**
+     * Agrega un listener para eventos de los controles de cámara
+     * 
+     * @param type - Tipo de evento a escuchar
+     * @param listener - Función callback para manejar el evento
+     */
+    addEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void): void {
         this.controls.addEventListener(type, listener);
     }
 
-    removeEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void) {
+    /**
+     * Remueve un listener de eventos de los controles de cámara
+     * 
+     * @param type - Tipo de evento
+     * @param listener - Función callback a remover
+     */
+    removeEventListener(type: keyof CameraControlsEventMap, listener: (_event: any) => void): void {
         this.controls.removeEventListener(type, listener);
     }
 
-    setRestThreshold(threshold: number) {
+    /**
+     * Establece el umbral de reposo para detectar cuando la cámara está quieta
+     * 
+     * @param threshold - Umbral de reposo
+     */
+    setRestThreshold(threshold: number): void {
         this.controls.restThreshold = threshold;
     }
 
-    // Métodos para obtener información actual de la cámara
+    /**
+     * Obtiene la posición actual de la cámara
+     * 
+     * @returns Posición actual de la cámara
+     */
     getPosition(): THREE.Vector3 {
         return this.controls.camera.position.clone();
     }
 
+    /**
+     * Obtiene el objetivo actual de la cámara
+     * 
+     * @returns Objetivo actual de la cámara
+     */
     getTarget(): THREE.Vector3 {
         return this.controls.getTarget(new THREE.Vector3());
     }
 
+    /**
+     * Obtiene la distancia actual de la cámara al objetivo
+     * 
+     * @returns Distancia actual
+     */
     getDistance(): number {
         return this.controls.distance;
     }
-
-
-
-
 }

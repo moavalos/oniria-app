@@ -1,15 +1,16 @@
 import * as THREE from "three";
+
 import { Room } from "@engine/entities/Room";
 import { Node } from "@engine/entities/Node";
-import type { ObjectEventArray } from "../config/room.type";
+import type { ObjectEventArray } from "@engine/config/room.type";
 
 /**
- * Frame de interacción con información completa
+ * Frame de interacción con información completa del estado actual
  */
 export interface InteractionFrame {
-    /** Coordenadas del pointer */
+    /** Coordenadas del pointer en espacio normalizado (-1 a 1) */
     pointer: THREE.Vector2;
-    /** Todas las intersecciones detectadas */
+    /** Todas las intersecciones detectadas por el raycaster */
     intersections: THREE.Intersection[];
     /** Objeto más cercano interceptado */
     hovered?: THREE.Object3D;
@@ -17,7 +18,7 @@ export interface InteractionFrame {
     clicked: boolean;
     /** Si el pointer está presionado */
     pointerDown: boolean;
-    /** Si el pointer acaba de ser presionado */
+    /** Si el pointer acaba de ser soltado */
     pointerUp: boolean;
 }
 
@@ -37,22 +38,23 @@ export interface RoomInteractionResult extends InteractionFrame {
 export interface NodeInteractionResult extends InteractionFrame {
     /** Si hay intersección con el nodo */
     hasIntersection: boolean;
-    /** Distancia al centro del nodo */
+    /** Distancia al centro del nodo en espacio de pantalla */
     distance: number;
     /** Si está dentro del radio de interacción */
     withinRadius: boolean;
-    /** Punto de intersección */
+    /** Punto de intersección en espacio 3D */
     intersectionPoint: THREE.Vector3 | null;
 }
 
 /**
- * Servicio puro de detección de interacciones mediante raycasting.
+ * Servicio puro de detección de interacciones mediante raycasting
  * 
- * Principios aplicados:
- * - Single Responsibility: Solo detecta interacciones
- * - No side effects: No emite eventos ni ejecuta callbacks
- * - Pure functions: Solo retorna información
- * - Immutable results: Devuelve resultados inmutables
+ * Proporciona funcionalidad de raycasting para detectar interacciones del usuario
+ * con objetos 3D. Implementa principios de programación funcional:
+ * - Responsabilidad única: Solo detecta interacciones
+ * - Sin efectos secundarios: No emite eventos ni ejecuta callbacks
+ * - Funciones puras: Solo retorna información calculada
+ * - Resultados inmutables: Devuelve copias de los datos
  */
 export class InteractionService {
     private raycaster = new THREE.Raycaster();
@@ -67,13 +69,22 @@ export class InteractionService {
 
     private domElement: HTMLElement;
 
+    /**
+     * Crea una nueva instancia del servicio de interacciones
+     * 
+     * @param camera - Cámara para el raycasting
+     * @param domElement - Elemento DOM para capturar eventos de pointer
+     */
     constructor(camera: THREE.Camera, domElement: HTMLElement) {
         this.camera = camera;
         this.domElement = domElement;
         this.addListeners();
     }
 
-    private addListeners() {
+    /**
+     * Agrega los listeners de eventos de pointer al elemento DOM
+     */
+    private addListeners(): void {
         this.domElement.addEventListener("pointermove", e => this.onPointerMove(e));
         this.domElement.addEventListener("pointerdown", () => {
             this.isDown = true;
@@ -85,14 +96,22 @@ export class InteractionService {
         });
     }
 
-    private onPointerMove(e: PointerEvent) {
+    /**
+     * Maneja el movimiento del pointer y actualiza las coordenadas normalizadas
+     * 
+     * @param e - Evento de pointer
+     */
+    private onPointerMove(e: PointerEvent): void {
         const rect = this.domElement.getBoundingClientRect();
         this.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         this.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
     /**
-     * Devuelve un snapshot con toda la información relevante de interacción
+     * Calcula y devuelve un snapshot con toda la información de interacción
+     * 
+     * @param interactables - Array de objetos 3D con los que se puede interactuar
+     * @returns Frame completo con información de interacción
      */
     public compute(interactables: THREE.Object3D[]): InteractionFrame {
         this.raycaster.setFromCamera(this.pointer, this.camera);
@@ -113,6 +132,10 @@ export class InteractionService {
 
     /**
      * Análisis específico para interacciones con Room
+     * 
+     * @param room - Instancia de Room para analizar
+     * @param interceptableObjects - Mapa de objetos interceptables y sus eventos
+     * @returns Resultado de interacción específico para Room
      */
     public computeRoomInteraction(
         room: Room,
@@ -154,6 +177,10 @@ export class InteractionService {
 
     /**
      * Análisis específico para interacciones con Node
+     * 
+     * @param node - Instancia de Node para analizar
+     * @param radius - Radio de interacción en espacio de pantalla
+     * @returns Resultado de interacción específico para Node
      */
     public computeNodeInteraction(node: Node, radius: number): NodeInteractionResult {
         // Obtener el grupo del nodo
@@ -170,8 +197,6 @@ export class InteractionService {
 
         const frame = this.compute([nodeGroup]);
 
-
-
         // Calcular distancia real al centro del nodo
         const nodePosition = new THREE.Vector3();
         nodeGroup.getWorldPosition(nodePosition);
@@ -183,7 +208,7 @@ export class InteractionService {
         const withinRadius = screenDistance <= radius;
         const hasIntersection = frame.intersections.length > 0;
         const intersectionPoint = frame.intersections[0]?.point || null;
-        //console.log("[InteractionService]: result", { ...frame })
+
         return {
             ...frame,
             hasIntersection,
@@ -194,7 +219,9 @@ export class InteractionService {
     }
 
     /**
-     * Devuelve un frame vacío para casos donde no hay datos
+     * Devuelve un frame vacío para casos donde no hay datos disponibles
+     * 
+     * @returns Frame de interacción vacío
      */
     private getEmptyFrame(): InteractionFrame {
         return {
@@ -209,13 +236,18 @@ export class InteractionService {
 
     /**
      * Resetea los flags one-shot al final del frame
+     * 
      * Debe ser llamado por el sistema después de procesar todas las interacciones
+     * para limpiar estados temporales como 'pointerUp'
      */
     public resetFrame(): void {
         this.isUp = false;
     }
 
-    public dispose() {
+    /**
+     * Limpia recursos y remueve listeners de eventos
+     */
+    public dispose(): void {
         this.domElement.removeEventListener("pointermove", this.onPointerMove);
         this.domElement.removeEventListener("pointerdown", () => { });
         this.domElement.removeEventListener("pointerup", () => { });

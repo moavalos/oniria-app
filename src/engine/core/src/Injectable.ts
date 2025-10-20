@@ -1,5 +1,5 @@
 // engine/core/Injectable.ts
-import type { EngineCore } from "./EngineCore.class";
+import type { EngineCore } from "./EngineCore";
 
 export interface Injectable {
     /**

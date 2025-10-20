@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core";
-import { useEngineState } from "@engine/hooks/useEngineState";
+import { useEngineState } from "@/engine/core/hooks/useEngineState";
 import {
   AnimationSystem,
   type AnimationConfig,

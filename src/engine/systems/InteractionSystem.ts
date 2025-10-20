@@ -1,27 +1,35 @@
-import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } from "@engine/config/room.type";
-import { BaseSystem } from "@engine/core/src/BaseSystem";
-import type { Injectable } from "@engine/core/src/Injectable";
-import type { EngineCore } from "@engine/core/src/EngineCore.class";
-import { InteractionService, type RoomInteractionResult, type NodeInteractionResult } from "@/engine/services/InteractionService";
-import { AnimationService } from "@engine/services/AnimationService";
-import { NodeManager } from "@engine/services/room/NodeManager";
-import { Node } from "@engine/entities/Node";
 import * as THREE from "three";
+
+import { BaseSystem } from "@engine/core/src/BaseSystem";
+import { InteractionService, type RoomInteractionResult, type NodeInteractionResult } from "@engine/services/InteractionService";
+import { AnimationService } from "@engine/services/AnimationService";
+import { NodeManager } from "@/engine/services/managers/NodeManager";
+import { Node } from "@engine/entities/Node";
+import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } from "@engine/config/room.type";
+import type { Injectable } from "@engine/core/src/Injectable";
+import type { EngineCore } from "@engine/core/src/EngineCore";
 import type { Room } from "../entities";
 
-// Tipos para EventArgs - compatibilidad con sistema anterior
+/**
+ * Tipos para argumentos de eventos - compatibilidad con sistema anterior
+ */
 interface EventArgs<T = any, D = any> {
     target: T;
     data: D;
 }
 
-// Interfaces para callbacks organizados por categoría  
+/**
+ * Callbacks para interacciones con objetos de la sala
+ */
 export interface ObjectInteractionCallbacks {
     onHover?: (_args: EventArgs<string, ObjectEventArray>) => void;
     onHoverLeave?: (_args: EventArgs<string, ObjectEventArray>) => void;
     onClick?: (_args: EventArgs<string, ObjectEventArray>) => void;
 }
 
+/**
+ * Callbacks para interacciones con nodos
+ */
 export interface NodeInteractionCallbacks {
     onHover?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
     onHoverLeave?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
@@ -29,17 +37,26 @@ export interface NodeInteractionCallbacks {
     onMove?: (_args: EventArgs<Node, { distance: number; position: THREE.Vector3 }>) => void;
 }
 
+/**
+ * Callbacks para navegación
+ */
 export interface NavigationCallbacks {
     onNext?: () => void;
     onPrevious?: () => void;
 }
 
+/**
+ * Configuración completa de callbacks de interacción
+ */
 export interface InteractionCallbacks {
     objects?: ObjectInteractionCallbacks;
     nodes?: NodeInteractionCallbacks;
     navigation?: NavigationCallbacks;
 }
 
+/**
+ * Configuración del sistema de interacciones
+ */
 export interface InteractionConfig {
     enableInteractions?: boolean;
     interactionRadius?: number;
@@ -51,13 +68,15 @@ export interface InteractionConfig {
 export type InteractionSystemProps = InteractionConfig;
 
 /**
- * Sistema de interacciones refactorizado que usa el InteractionService puro.
+ * Sistema de interacciones que coordina las interacciones del usuario con objetos
+ * y nodos en la escena 3D. Utiliza InteractionService para detectar interacciones
+ * y emite eventos para que otros sistemas reaccionen apropiadamente.
  * 
- * Principios aplicados:
- * - Solo emite eventos a través de this.core.emit()
- * - No ejecuta animaciones directamente (las escucha el manager)
- * - Usa el InteractionService refactorizado como fuente de datos
- * - Mantiene estado de frames anteriores para detectar cambios
+ * Responsabilidades:
+ * - Detectar interacciones con objetos de la sala y nodos
+ * - Emitir eventos de interacción a través del núcleo del motor
+ * - Coordinar animaciones de retroalimentación visual
+ * - Gestionar callbacks de usuario configurables
  */
 export class InteractionSystem extends BaseSystem implements Injectable {
     name = "InteractionSystem";
@@ -134,7 +153,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
             this._currentNode = nodeManager.getCurrentNode();
         }
 
-        console.log("[InteractionSystem] ✅ Sistema inicializado");
+        console.log("[InteractionSystem]: Sistema inicializado correctamente");
     }
 
     update(deltaTime: number): void {
@@ -334,7 +353,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      * Emite evento de click en nodo
      */
     private emitNodeClick(node: Node, distance: number, position: THREE.Vector3): void {
-        console.log("[InteractionSystem] Click en nodo detectado");
+        // Click en nodo detectado - ejecutar callback si existe
 
         const eventArgs: EventArgs<Node, { distance: number; position: THREE.Vector3 }> = {
             target: node,
@@ -346,7 +365,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         // Lógica interna específica para nodos (ping)
         const nodeManager = this.core.getService(NodeManager);
         if (nodeManager) {
-            console.log("[InteractionSystem] Ejecutando ping en el nodo");
+            // Ejecutar ping en el nodo
             (nodeManager as NodeManager).ping();
         } else {
             console.warn("[InteractionSystem] NodeManager no disponible en el core");
@@ -567,7 +586,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         this._previousNodeState.hoveredNode = null;
         this._previousNodeState.isWithinRadius = false;
 
-        console.log("[InteractionSystem] ✅ Disposed");
+        console.log("[InteractionSystem]: Recursos liberados");
     }
 
     // === NAVEGACIÓN === //

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Node, useEngineCore } from "@engine/core";
-import { useEngineState } from "../hooks";
-import { NodeManager } from "../services/room/NodeManager";
+import { useEngineState } from "@engine/core/hooks";
+import { NodeManager } from "../services/managers/NodeManager";
 import { Float } from "@react-three/drei";
 
 interface NodeSceneProps {
@@ -21,15 +21,11 @@ export default function NodeScene(props: NodeSceneProps) {
   const isEngineReady = useEngineState();
 
   useEffect(() => {
-    console.log("[NodeScene] useEffect ejecutándose, isEngineReady:", isEngineReady);
     if (isEngineReady) {
       const nodeManager = core.getService(NodeManager);
-      console.log("[NodeScene] nodeManager obtenido:", !!nodeManager);
       const nodeCreated = nodeManager.createNode();
-      console.log("[NodeScene] nodo creado:", !!nodeCreated);
       if (nodeCreated) {
         setNode(nodeCreated);
-        console.log("[NodeScene] ✅ Nodo establecido en estado local");
       }
 
       // Cleanup: destruir el nodo cuando NodeScene se desmonta

@@ -6,10 +6,11 @@
 export { EngineCanvas } from "./components/EngineCanvas";
 //export { EngineCore } from "./components/EngineCore";
 export { DefaultEngineIndicator } from "./components/DefaultEngineIndicator";
-export { EngineCore } from './src/EngineCore.class';
+export { EngineCore } from './src/EngineCore';
 
 // Hooks principales del core
 export { useEngineCore } from "./context/EngineCoreProvider";
+export { useEngineState } from "./hooks/useEngineState";
 
 // Entidades principales
 export { Room } from "@engine/entities/Room";

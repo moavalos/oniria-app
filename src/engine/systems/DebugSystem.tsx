@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { button, useControls } from "leva";
+import * as THREE from "three";
 
-import { useEngineCore } from "@engine/core";
+import { useEngineCore, useEngineState } from "@engine/core";
 import { useEngineAPI } from "@engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@engine/core/store/engineStore";
-import { useEngineState } from "../hooks";
 import { EngineState } from "@engine/core/types/engine.types";
-import * as THREE from "three";
 import { CameraService } from "../services";
 
+/**
+ * Configuración de paneles disponibles en el sistema de debug
+ */
 export interface DebugSystemProps {
   enabled?: boolean;
   panels?: {
@@ -24,8 +26,11 @@ export interface DebugSystemProps {
 }
 
 /**
- * Sistema de debug del motor 3D.
- * Proporciona paneles de debug para inspeccionar el estado del motor en tiempo real.
+ * Sistema de debug del motor 3D que proporciona paneles de inspección
+ * en tiempo real para desarrolladores. Permite monitorear y controlar
+ * diferentes aspectos del motor como cámara, nodos, portales y estado general.
+ *
+ * Utiliza Leva para crear interfaces de debug interactivas.
  */
 export default function DebugSystem({
   enabled = true,
@@ -84,7 +89,6 @@ function CameraDebugPanel() {
         }
 
         const roomLookAtables = await room.getLookAtableObjects();
-        console.log(roomLookAtables);
         setLookAtables(roomLookAtables || {});
       } catch (error) {
         console.error("Error cargando objetos lookAtables:", error);

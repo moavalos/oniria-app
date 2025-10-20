@@ -1,17 +1,14 @@
 import { useEffect } from "react";
 import { useEngineCore } from "@engine/core";
 import { EngineState } from "@engine/core";
-import { useEngineState } from "@engine/hooks/useEngineState";
+import { useEngineState } from "@/engine/core/hooks/useEngineState";
 import {
   InteractionSystem,
-  type InteractionCallbacks,
   type InteractionConfig,
 } from "../systems/InteractionSystem";
 
 export interface InteractionProps {
   config?: Omit<InteractionConfig, "callbacks">;
-  // Callbacks organizados por categoría
-  // Configuración
   enableInteractions?: boolean;
 }
 
@@ -44,21 +41,6 @@ export function Interaction({
       return;
     }
 
-    // // Consolidar callbacks con backward compatibility
-    // const consolidatedCallbacks: InteractionCallbacks = {
-    //   objects: {
-    //     onHover: objects?.onHover,
-    //     onHoverLeave: objects?.onHoverLeave,
-    //     onClick: objects?.onClick,
-    //   },
-    //   nodes: {
-    //     onHover: nodes?.onHover,
-    //     onHoverLeave: nodes?.onHoverLeave,
-    //     onClick: nodes?.onClick,
-    //   },
-    //   navigation: navigation || {},
-    // };
-
     // Configuración final
     const finalConfig: InteractionConfig = {
       enableInteractions,
@@ -77,16 +59,7 @@ export function Interaction({
     return () => {
       interactionSystem.dispose();
     };
-  }, [
-    core,
-    // config, // Removido temporalmente para evitar reinicializaciones
-    enableInteractions,
-    isEngineReady,
-    // engineState, // Removido: ya está incluido implícitamente en isEngineReady
-    // objects, // Removido: las funciones causan reinicializaciones innecesarias
-    // nodes, // Removido: las funciones causan reinicializaciones innecesarias
-    // navigation, // Removido: las funciones causan reinicializaciones innecesarias
-  ]);
+  }, [core, enableInteractions, isEngineReady]);
 
   return null;
 }

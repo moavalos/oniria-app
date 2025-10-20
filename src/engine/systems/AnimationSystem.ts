@@ -1,7 +1,7 @@
 import type { AnimationAction } from "@engine/config/room.type";
 import { BaseSystem } from "@engine/core/src/BaseSystem";
 import type { Injectable } from "@engine/core/src/Injectable";
-import type { EngineCore } from "@engine/core/src/EngineCore.class";
+import type { EngineCore } from "@/engine/core/src/EngineCore";
 import { AnimationService } from "@engine/services/AnimationService";
 
 export type AnimationConfig = {

@@ -2,4 +2,4 @@
 // Core Hooks - Hooks principales del Engine Core
 // ===================================================================
 
-// Hook del Engine API
+export { useEngineState } from "./useEngineState";

@@ -1,24 +1,12 @@
-// engine/services/RoomManager.ts
 import { AssetManager } from "../assets/AssetManager";
-import { Room } from "../../entities/Room";
-import { Skin } from "../../entities/Skin";
-import { EngineCore } from "@/engine/core/";
-import { useEngineStore } from "@/engine/core/store/engineStore";
-import type { Injectable } from "../../core/src/Injectable";
-import type { LoadingCallbacks } from "../assets/types";
-import { ConfigManager } from '../../utils/ConfigManager';
+import { Room } from "@engine/entities/Room";
+import { Skin } from "@engine/entities/Skin";
+import { EngineCore } from "@engine/core";
+import { useEngineStore } from "@engine/core/store/engineStore";
+import { ConfigManager } from "@engine/utils/ConfigManager";
 import { MaterialService } from "../MaterialService";
-
-// Tipos de eventos que emite el RoomManager
-// interface RoomManagerEvents {
-//   "room:loading": { room: RoomInfo, skin?: SkinInfo };
-//   "room:ready": { room: Room, skin?: SkinInfo };
-//   "room:error": { error: any, room: RoomInfo, skin?: SkinInfo };
-//   "room:unloading": { room: Room };
-//   "skin:change:start": { skin: SkinInfo, room: Room };
-//   "skin:change:complete": { skin: SkinInfo, room: Room };
-//   "skin:change:error": { skin: SkinInfo, error: any, room: Room };
-// }
+import type { Injectable } from "@engine/core/src/Injectable";
+import type { LoadingCallbacks } from "../assets/types";
 
 export interface RoomInfo {
   id: string;
@@ -33,6 +21,14 @@ export interface RoomLoadOptions {
   skin?: SkinInfo;
 }
 
+/**
+ * Gestor para la carga, gestión y control del ciclo de vida de la Room 3D
+ * 
+ * Proporciona funcionalidad completa para cargar Rooms con sus texturas (skins),
+ * gestionar la transición entre Rooms, aplicar materiales y mantener el estado
+ * de carga. Integra servicios de assets, materiales y configuración para
+ * ofrecer una experiencia de carga optimizada y con retroalimentación visual.
+ */
 export class RoomManager implements Injectable {
 
 
@@ -44,11 +40,20 @@ export class RoomManager implements Injectable {
 
   private loading = false;
 
+  /**
+   * Crea una nueva instancia del gestor de Room
+   * 
+   * @param _core - Instancia del núcleo del motor
+   * @param _configManager - Gestor de configuración
+   */
   constructor(private _core: EngineCore, private _configManager: ConfigManager) {
     this.init();
   }
 
-  init() {
+  /**
+   * Inicializa los servicios y configuraciones necesarios
+   */
+  init(): void {
     this.assetManager = this._core.getService(AssetManager);
     this.setupProgressCallbacks();
     this.setupEventListeners();
@@ -106,12 +111,12 @@ export class RoomManager implements Injectable {
     });
   }
 
-  // ===========================================
-  // ASSET PREPARATION METHODS - Responsabilidad única: preparación de assets
-  // ===========================================
-
   /**
-   * Prepara la lista de assets necesarios para una room
+   * Prepara la lista de assets necesarios para una sala
+   * 
+   * @param roomId - ID de la sala a cargar
+   * @param skinId - ID opcional de la skin a aplicar
+   * @returns Array de assets a cargar con sus tipos
    */
   private prepareRoomAssets(roomId: string, skinId?: string): Array<{ url: string, type: "gltf" | "ktx2" }> {
     const assets: Array<{ url: string, type: "gltf" | "ktx2" }> = [
@@ -130,6 +135,8 @@ export class RoomManager implements Injectable {
 
   /**
    * Inicializa los items de loading en el store
+   * 
+   * @param assets - Array de assets para inicializar en el store
    */
   private initializeLoadingItems(assets: Array<{ url: string, type: "gltf" | "ktx2" }>): void {
     const store = useEngineStore.getState();
@@ -142,21 +149,19 @@ export class RoomManager implements Injectable {
     store.setItems(loadingItems);
   }
 
-  // ===========================================
-  // ROOM LIFECYCLE METHODS - Responsabilidad única: gestión del ciclo de vida
-  // ===========================================
-
   /**
-   * Valida si se puede proceder con la carga
+   * Valida si se puede proceder con la operación de carga
+   * 
+   * @throws Error si ya hay una carga en progreso
    */
   private validateLoadOperation(): void {
     if (this.loading) {
-      throw new Error("Ya se está cargando una room");
+      throw new Error("Ya se está cargando una sala");
     }
   }
 
   /**
-   * Limpia la room actual antes de cargar una nueva
+   * Limpia la sala actual antes de cargar una nueva
    */
   private cleanupCurrentRoom(): void {
     if (this.currentRoom) {
@@ -167,7 +172,10 @@ export class RoomManager implements Injectable {
   }
 
   /**
-   * Actualiza el estado interno con la nueva room
+   * Actualiza el estado interno con la nueva sala
+   * 
+   * @param newRoom - Nueva instancia de sala
+   * @param skinId - ID opcional de la skin aplicada
    */
   private updateRoomState(newRoom: Room, skinId?: string): void {
     this.currentRoom = newRoom;
@@ -176,6 +184,9 @@ export class RoomManager implements Injectable {
 
   /**
    * Carga una habitación completa con su skin
+   * 
+   * @param options - Opciones de carga que incluyen room y skin opcional
+   * @returns Promesa que resuelve con la instancia de Room cargada
    */
   async loadRoom({ room, skin }: RoomLoadOptions): Promise<Room> {
     try {
@@ -192,15 +203,15 @@ export class RoomManager implements Injectable {
 
       // Cargar assets
       const assets = await this.assetManager?.loadAssets(assetsToLoad);
-      if (!assets) throw new Error("No se pudieron cargar los assets de la room");
+      if (!assets) throw new Error("No se pudieron cargar los assets de la sala");
 
       // Obtener recursos cargados
       const gltf = assets[`models/rooms/${room.id}/room.gltf`];
 
-      // Limpiar room anterior
+      // Limpiar sala anterior
       this.cleanupCurrentRoom();
 
-      // Crear nueva room
+      // Crear nueva sala
       const skinInstance = skin ? new Skin(skin.id) : new Skin('default');
       const newRoom = new Room(room.id, skinInstance, gltf.scene, this._configManager);
 
@@ -214,20 +225,18 @@ export class RoomManager implements Injectable {
             objectTexture,
             environmentTexture,
           });
-          console.log("🎨 RoomManager - Texturas aplicadas a room:", newRoom.get_Id());
+          console.log("[RoomManager]: Texturas aplicadas a sala:", newRoom.get_Id());
         }
       }
 
-      //aplicamos materiales
+      // Aplicar materiales
       const materialService = this._core.getService(MaterialService);
       await materialService.applyMaterialsToRoom(newRoom);
-
 
       // Actualizar estado
       this.updateRoomState(newRoom, skin?.id);
 
-      // Emitir evento de room lista (completamente materializada)
-
+      // Emitir evento de sala lista
       this._core.emit("room:ready", { room: newRoom });
       return newRoom;
 
@@ -241,11 +250,13 @@ export class RoomManager implements Injectable {
   }
 
   /**
-   * Cambia la skin de la room actual
+   * Cambia la skin de la sala actual
+   * 
+   * @param skin - Información de la nueva skin a aplicar
    */
   async changeSkin(skin: SkinInfo): Promise<void> {
     if (!this.currentRoom) {
-      console.warn("[RoomManager] No hay room activa para cambiar skin.");
+      console.warn("[RoomManager]: No hay sala activa para cambiar skin");
       return;
     }
 
@@ -269,7 +280,7 @@ export class RoomManager implements Injectable {
         throw new Error(`No se pudieron cargar los assets de la skin: ${skin.id}`);
       }
 
-      // Aplicar la skin a la room actual
+      // Aplicar la skin a la sala actual
       const texture = assets[`skins/${skin.id}/object.ktx2`];
       this.currentRoom.applySkin(texture);
       this.currentSkin = skin.id;
@@ -281,24 +292,35 @@ export class RoomManager implements Injectable {
       });
 
     } catch (error) {
-      console.warn(`[RoomManager] Error al cambiar skin: ${skin.id}`, error);
+      console.warn(`[RoomManager]: Error al cambiar skin: ${skin.id}`, error);
       // Emitir evento de error en cambio de skin
       this._core.emit("skin:change:error", { skin, error, room: this.currentRoom });
     }
   }
 
-  // ===========================================
-  // PUBLIC GETTERS - Responsabilidad única: acceso a estado
-  // ===========================================
-
+  /**
+   * Obtiene la sala actualmente cargada
+   * 
+   * @returns La sala actual o null si no hay ninguna
+   */
   getCurrentRoom(): Room | null {
     return this.currentRoom;
   }
 
+  /**
+   * Obtiene la skin actualmente aplicada
+   * 
+   * @returns El ID de la skin actual o null si no hay ninguna
+   */
   getCurrentSkin(): string | null {
     return this.currentSkin;
   }
 
+  /**
+   * Verifica si hay una operación de carga en progreso
+   * 
+   * @returns Verdadero si se está cargando una sala
+   */
   isLoading(): boolean {
     return this.loading;
   }

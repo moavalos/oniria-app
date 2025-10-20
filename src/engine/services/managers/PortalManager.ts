@@ -1,9 +1,9 @@
-import { Portal } from '../../entities/Portal';
-import { MaterialService } from '../MaterialService';
-import { EventEmitter } from '../../utils/EventEmitter';
 import * as THREE from 'three';
-import { CameraService } from '../CameraService';
-import { EngineCore, useEngineStore } from '@/engine/core';
+
+import { Portal } from '@engine/entities/Portal';
+import { MaterialService } from '../MaterialService';
+import { EventEmitter } from '@engine/utils/EventEmitter';
+import { EngineCore, useEngineStore } from '@engine/core';
 
 // Eventos que emite el PortalManager
 interface PortalManagerEventMap {
@@ -15,8 +15,12 @@ interface PortalManagerEventMap {
 }
 
 /**
- * Gestor de portales - maneja la creación, materiales y animaciones de portales
- * Responsabilidad única: gestión completa del ciclo de vida de portales
+ * Gestor para la creación, gestión y control de portales de navegación
+ * 
+ * Proporciona funcionalidad completa para manejar el ciclo de vida de portales,
+ * incluyendo creación, aplicación de materiales con shaders personalizados,
+ * control de animaciones y gestión de eventos. Extiende EventEmitter para
+ * comunicación basada en eventos con otros componentes del sistema.
  */
 export class PortalManager extends EventEmitter<PortalManagerEventMap> {
     private currentPortal: Portal | null = null;
@@ -25,23 +29,32 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
 
     private materialService: MaterialService | null = null;
 
-    private cameraService: CameraService | null = null;
 
     private core: EngineCore;
 
+    /**
+     * Crea una nueva instancia del gestor de portales
+     * 
+     * @param core - Instancia del núcleo del motor para acceso a servicios
+     */
     constructor(core: EngineCore) {
         super();
         this.core = core;
-        this.init()
+        this.init();
     }
 
-    init() {
+    /**
+     * Inicializa los servicios necesarios del motor
+     */
+    init(): void {
         this.materialService = this.core.getService(MaterialService);
-        this.cameraService = this.core.getService(CameraService);
     }
 
     /**
      * Crea un portal a partir de un Object3D
+     * 
+     * @param object3D - Objeto 3D base para el portal
+     * @returns La instancia de Portal creada
      */
     createPortal(object3D: THREE.Object3D): Portal {
         // Limpiar portal anterior si existe
@@ -63,9 +76,11 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
     }
 
     /**
-     * Aplica materiales al portal actual
+     * Aplica materiales con shaders al portal actual
+     * 
+     * @param uniforms - Uniforms para el shader del portal
      */
-    applyMaterialsToPortal(uniforms: Record<string, any>) {
+    applyMaterialsToPortal(uniforms: Record<string, any>): void {
         if (!this.currentPortal) return;
         if (!this.materialService) return;
 
@@ -84,7 +99,7 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
             this.emit('portal:material:applied', { portal: this.currentPortal });
 
         } catch (error) {
-            console.error('[PortalManager]:Error aplicando materiales:', error);
+            console.error('[PortalManager]: Error aplicando materiales:', error);
             throw error;
         }
     }
@@ -114,11 +129,12 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         this.currentPortal.stopAnimation();
 
         this.emit('portal:animation:stopped', { portal: this.currentPortal });
-
     }
 
     /**
-     * Método update llamado desde el core - actualiza animaciones de portales
+     * Actualiza las animaciones del portal en cada frame
+     * 
+     * @param delta - Tiempo transcurrido desde el último frame
      */
     update(delta: number): void {
         if (this.currentPortal && this.currentPortal.isAnimating()) {
@@ -127,7 +143,9 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
     }
 
     /**
-     * Obtiene el portal actual
+     * Obtiene el portal actualmente activo
+     * 
+     * @returns El portal actual o null si no hay ninguno
      */
     getCurrentPortal(): Portal | null {
         return this.currentPortal;
@@ -135,6 +153,8 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
 
     /**
      * Configura listeners para eventos del portal
+     * 
+     * @param portal - Portal al que agregar los listeners
      */
     private setupPortalListeners(portal: Portal): void {
         portal.on('material:applied', () => {
@@ -151,7 +171,7 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
     }
 
     /**
-     * Libera el portal actual
+     * Libera el portal actual y limpia recursos
      */
     private disposeCurrentPortal(): void {
         if (!this.currentPortal) return;
@@ -167,9 +187,14 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
 
         this.emit('portal:disposed', { portalId });
 
-        console.log(`🗑️ PortalManager - Portal disposed:`, portalId);
+        console.log(`[PortalManager]: Portal destruido:`, portalId);
     }
 
+    /**
+     * Obtiene los uniforms configurados para el portal actual
+     * 
+     * @returns Objeto con uniforms para el shader del portal o null si no hay portal
+     */
     getUniformsForCurrentPortal(): Record<string, any> | null {
         // Configuración de uniforms del Portal usando el store
         return {
@@ -183,10 +208,8 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
             uRadiusFactor: { value: this.store.portalUniforms.uRadiusFactor },
             uGainOffset: { value: this.store.portalUniforms.uGainOffset },
             uGainScale: { value: this.store.portalUniforms.uGainScale },
-        }
+        };
     }
-
-
 
     /**
      * Limpia todos los recursos del manager
@@ -195,6 +218,6 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         this.disposeCurrentPortal();
         this.removeAllListeners();
 
-        console.log('🗑️ PortalManager - Disposed');
+        console.log('[PortalManager]: Recursos liberados');
     }
 }
