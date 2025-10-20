@@ -1,4 +1,4 @@
-import Card from "@shared/components/Card";
+import Card from "@/app/shared/components/Card";
 import AuthTitle from "@/app/features/auth/components/AuthTitle";
 import RegisterForm from "@/app/features/auth/components/RegisterForm";
 import AuthLinks from "@/app/features/auth/components/AuthLinks";

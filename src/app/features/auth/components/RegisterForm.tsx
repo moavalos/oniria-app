@@ -1,8 +1,7 @@
 import { useState } from "react";
-import Button from "../../../../shared/components/Button";
+import Button from "../../../shared/components/Button";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@features/auth/hooks/useAuth";
-
 
 export default function RegisterForm() {
   const [username, setUsername] = useState("");
@@ -14,27 +13,32 @@ export default function RegisterForm() {
   const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  if (password !== confirmPassword) {
-    setError(
-      t("register.errorPasswordMatch", {
-        defaultValue: "Las contraseñas no coinciden",
-      })
-    );
-    return;
-  }
+    if (password !== confirmPassword) {
+      setError(
+        t("register.errorPasswordMatch", {
+          defaultValue: "Las contraseñas no coinciden",
+        })
+      );
+      return;
+    }
 
-  const { error } = await signUp(email, password, username);
+    const { error } = await signUp(email, password, username);
 
-  if (error) {
-    console.error(error);
-    setError(t("register.error", { defaultValue: "Error al registrarse" }));
-  } else {
-    alert(t("register.success", { defaultValue: "Registro exitoso. Revisa tu email para verificar la cuenta." }));
-  }
-};
+    if (error) {
+      console.error(error);
+      setError(t("register.error", { defaultValue: "Error al registrarse" }));
+    } else {
+      alert(
+        t("register.success", {
+          defaultValue:
+            "Registro exitoso. Revisa tu email para verificar la cuenta.",
+        })
+      );
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">

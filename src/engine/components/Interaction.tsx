@@ -6,10 +6,18 @@ import {
   InteractionSystem,
   type InteractionConfig,
 } from "../systems/InteractionSystem";
+import {
+  OutlineSystem,
+  type AutoOutlineConfig,
+} from "../systems/OutlineSystem";
 
 export interface InteractionProps {
   config?: Omit<InteractionConfig, "callbacks">;
   enableInteractions?: boolean;
+  /** Configuración de outlines automáticos */
+  outlines?: AutoOutlineConfig;
+  /** Usar sistema con outlines automáticos (por defecto: true) */
+  useOutlines?: boolean;
 }
 
 /**
@@ -26,8 +34,9 @@ export interface InteractionProps {
  */
 export function Interaction({
   config = {},
-
   enableInteractions = true,
+  outlines = {},
+  useOutlines = true,
 }: InteractionProps) {
   const core = useEngineCore();
 
@@ -49,8 +58,14 @@ export function Interaction({
       ...config,
     };
 
-    // Crear e instanciar el sistema de interacciones
-    const interactionSystem = new InteractionSystem(finalConfig);
+    // Crear el sistema apropiado (con o sin outlines)
+    let interactionSystem: InteractionSystem;
+
+    if (useOutlines) {
+      interactionSystem = new OutlineSystem(core, outlines);
+    } else {
+      interactionSystem = new InteractionSystem(finalConfig);
+    }
 
     // Registrar el sistema en el core
     core.addSystem(interactionSystem);
@@ -59,7 +74,7 @@ export function Interaction({
     return () => {
       interactionSystem.dispose();
     };
-  }, [core, enableInteractions, isEngineReady]);
+  }, [core, enableInteractions, isEngineReady, useOutlines, outlines]);
 
   return null;
 }

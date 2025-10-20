@@ -1,7 +1,7 @@
-import Starfield from "@shared/components/Starfield";
+import Starfield from "@/app/shared/components/Starfield";
 import { useTranslation } from "react-i18next";
-import HeaderContainer from "@/shared/components/users/HeaderContainer";
-import UnifiedSidePanel from "../home/components/Panel";
+import HeaderContainer from "@/app/shared/components/users/HeaderContainer";
+import UnifiedSidePanel from "../main/components/Panel";
 import { useTimelineData } from "@/app/features/history/hooks/useTimelineData";
 import HistoryContent from "./components/HistoryContent";
 

@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { EventEmitter } from "@engine/utils/EventEmitter";
 import { ServiceRegistry } from "./ServiceRegistry";
-import { AssetManager, CameraService, MaterialService, AnimationService, InteractionService } from "@/engine/services";
+import { AssetManager, CameraService, MaterialService, AnimationService, InteractionService, OutlineManager } from "@/engine/services";
 import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/managers/RoomManager";
 import { PortalManager } from "@/engine/services/managers/PortalManager";
@@ -84,6 +84,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(MaterialService, new MaterialService());
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
         this.registry.registerService(AnimationService, new AnimationService(this._scene));
+
         this.registry.registerService(InteractionService, new InteractionService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
 
         // Rendererers especializados
@@ -91,6 +92,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(NebulaRenderer, new NebulaRenderer(this._scene!));
 
         // Crear managers especializados
+        this.registry.registerService(OutlineManager, new OutlineManager(this));
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
@@ -196,9 +198,8 @@ export class EngineCore extends EventEmitter {
      * @param data - Datos del nodo creado
      */
     private onNodeCreated(data: { newNode: Node }) {
-        console.log("[EngineCore]: Nodo creado - onNodeCreated ejecutado:", data.newNode);
+        console.log("[EngineCore]: Nodo creado:", data.newNode);
         this.currentNode = this.getService(NodeManager).getCurrentNode();
-        console.log("[EngineCore]: Emitiendo evento node:ready");
         this.emit("node:ready", { node: data.newNode });
     }
 

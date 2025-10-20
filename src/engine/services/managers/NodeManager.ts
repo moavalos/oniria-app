@@ -107,10 +107,10 @@ export class NodeManager {
         this.currentNode = newNode;
         this.applyNodeMaterials(nodeGroup);
 
-        console.log("[NodeManager]: Nodo creado, emitiendo evento node:created");
-        // Emitir evento con la instancia del nodo para que EngineCore pueda procesarlo
+        // Emitir solo información básica, no la instancia completa
         this.core.emit('node:created', {
-            newNode: newNode
+            nodeId: newNode.id,
+            hasGroup: newNode.hasGroup()
         });
 
         return newNode;
@@ -129,7 +129,6 @@ export class NodeManager {
      * Ejecuta animación idle en el nodo activo
      */
     setNodeIdle(): void {
-        console.log("[NodeManager]: setNodeIdle() llamado");
         this.executeNodeAnimation('nodeIdle');
     }
 

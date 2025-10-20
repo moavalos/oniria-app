@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import "@pages/home/styles/LeftPanel.css";
+import "@pages/main/styles/LeftPanel.css";
 import QuoteIcon from "@/assets/icons/QuoteIcon";
 import RefreshIcon from "@/assets/icons/RefreshIcon";
 import Card from "./Card";

@@ -1,12 +1,17 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { RouterProvider } from "react-router";
-import { routes } from "@/app/routes";
-import "@/i18n";
+import "@/app/i18n";
 import { AuthProvider } from "@features/auth/context/AuthProvider";
+import AuthRoute from "./app/routes/AuthRoute";
+import { BrowserRouter } from "react-router-dom";
+import { EngineApiProvider } from "./engine";
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <RouterProvider router={routes} />
+    <EngineApiProvider>
+      <BrowserRouter>
+        <AuthRoute />
+      </BrowserRouter>
+    </EngineApiProvider>
   </AuthProvider>
 );

@@ -1,7 +1,7 @@
 import ModalActions from "@/app/pages/node/modal/ModalActions";
 import ModalHeader from "@/app/pages/node/modal/ModalHeader";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
-import Card from "@/shared/components/Card";
+import Card from "@/app/shared/components/Card";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface DreamCardModalProps {

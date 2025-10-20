@@ -5,5 +5,6 @@ export { InteractionSystem, type InteractionSystemProps } from "./InteractionSys
 
 // Nueva arquitectura de sistemas (clases)
 export { CameraSystem } from "./CameraSystem";
+export { OutlineSystem, type AutoOutlineConfig } from "./OutlineSystem";
 
 

@@ -1,6 +1,6 @@
 import "./styles/Header.css";
 import HeaderLogo from "./HeaderLogo";
-import HeaderActions from "@/app/features/users/actions/HeaderActions";
+import HeaderActions from "@/app/features/users/actions/UserActions";
 
 type HeaderProps = {
   logoText?: string;
@@ -25,8 +25,6 @@ export default function Header({
     <header className="header container-header mx-auto">
       <HeaderLogo text={logoText} onClick={onLogoClick} />
       <HeaderActions
-        userName={userName}
-        userEmail={userEmail}
         onNotificationClick={onNotificationClick}
         onProfileClick={onProfileClick}
         onMenuClick={onMenuClick}
