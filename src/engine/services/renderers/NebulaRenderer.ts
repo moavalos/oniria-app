@@ -55,7 +55,7 @@ export class NebulaRenderer {
 
         const material = new THREE.MeshLambertMaterial({
             color: 0xff0000,  // ROJO para debug - debería ser muy visible
-            // map: texture,  // Temporalmente sin textura
+            map: texture,  // Temporalmente sin textura
             blending: THREE.NormalBlending,
             side: THREE.DoubleSide,
             transparent: false,

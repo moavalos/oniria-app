@@ -44,6 +44,12 @@ export class PortalholeRenderer {
         downScale: 1.85,
     };
 
+    private fading: boolean = false;
+
+    private originalOpacity: number = 1.0;
+
+    private fadeSpeed: number = 0.05;
+
     /**
      * Crea una nueva instancia del efecto Portalhole
      * 
@@ -89,6 +95,23 @@ export class PortalholeRenderer {
      */
     update(): void {
         if (!this.ready || !this.group || !this.texture || !this.camera) return;
+
+        // Manejar fadeOut
+        if (this.fading) {
+            this.group.children.forEach(child => {
+                if (child instanceof THREE.Mesh) {
+                    const material = child.material as THREE.MeshLambertMaterial;
+                    if (material.opacity > 0) {
+                        material.opacity -= this.fadeSpeed;
+                        if (material.opacity <= 0) {
+                            material.opacity = 0;
+                            this.completeFadeOut();
+                        }
+                    }
+                }
+            });
+            return; // No continuar con la animación normal durante el fade
+        }
 
         if (this.hyper) {
             // Acelerar durante el hiper-viaje
@@ -147,7 +170,7 @@ export class PortalholeRenderer {
             color: 0xffffff,
             opacity: 1,
             map: this.texture,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending,
             side: THREE.BackSide,
             transparent: true,
             depthTest: true,
@@ -155,9 +178,9 @@ export class PortalholeRenderer {
 
         // Crear luz de color aleatorio
         const color = new THREE.Color();
-        color.setHSL(Math.random(), 1, 0.8);
+        color.setHSL(.9, 1, 0.6);
 
-        const light = new THREE.PointLight(color, 4, 100);
+        const light = new THREE.PointLight(color, 20, 100);
         light.position.set(this.startPosition.x, this.startPosition.y, this.startPosition.z);
 
         const cylinder = new THREE.Mesh(geometry, material);
@@ -194,13 +217,34 @@ export class PortalholeRenderer {
             return;
         }
 
+        // Restaurar opacidad original si venimos de un fade
+        this.fading = false;
+        this.group.children.forEach(child => {
+            if (child instanceof THREE.Mesh) {
+                const material = child.material as THREE.MeshLambertMaterial;
+                material.opacity = this.originalOpacity;
+            }
+        });
+
         this.scene.add(this.group);
         this.hyper = true;
         console.log("[Portalhole]: Hiper-viaje iniciado");
     }
 
     /**
-     * Detiene el efecto de hiper-viaje
+     * Completa el efecto de fadeOut removiendo el objeto de la escena
+     */
+    private completeFadeOut(): void {
+        if (!this.scene || !this.group) return;
+
+        this.fading = false;
+        this.hyper = false;
+        this.scene.remove(this.group);
+        console.log("[Portalhole]: FadeOut completado, túnel removido");
+    }
+
+    /**
+     * Detiene el efecto de hiper-viaje con fadeOut animation
      */
     stop(): void {
         if (!this.scene || !this.group) {
@@ -208,12 +252,10 @@ export class PortalholeRenderer {
             return;
         }
 
-        //this.scene.background = null;
+        console.log("[Portalhole]: Iniciando fadeOut del túnel...");
 
-
-        this.scene.remove(this.group);
-        this.hyper = false;
-        console.log("[Portalhole]: Hiper-viaje detenido");
+        // Iniciar el proceso de fadeOut en lugar de remover inmediatamente
+        this.fading = true;
     }
 
     /**

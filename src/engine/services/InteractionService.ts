@@ -1,8 +1,9 @@
 import * as THREE from "three";
 
 import { Room } from "@engine/entities/Room";
-import { Node } from "@engine/entities/Node";
+
 import type { ObjectEventArray } from "@engine/config/room.type";
+import { Node } from "../entities";
 
 /**
  * Frame de interacción con información completa del estado actual
@@ -184,6 +185,7 @@ export class InteractionService {
      */
     public computeNodeInteraction(node: Node, radius: number): NodeInteractionResult {
         // Obtener el grupo del nodo
+
         const nodeGroup = node.getGroup();
         if (!nodeGroup) {
             return {
@@ -208,7 +210,7 @@ export class InteractionService {
         const withinRadius = screenDistance <= radius;
         const hasIntersection = frame.intersections.length > 0;
         const intersectionPoint = frame.intersections[0]?.point || null;
-
+        console.log({ ...frame })
         return {
             ...frame,
             hasIntersection,

@@ -92,7 +92,7 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         this.portalholeRenderer.setPosition(this.currentPortal.getPosition());
 
         this.nebulaRenderer.start();
-        // this.portalholeRenderer.start();
+        this.portalholeRenderer.start();
 
     }
 

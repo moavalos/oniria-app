@@ -4,11 +4,11 @@ import { BaseSystem } from "@engine/core/src/BaseSystem";
 import { InteractionService, type RoomInteractionResult, type NodeInteractionResult } from "@engine/services/InteractionService";
 import { AnimationService } from "@engine/services/AnimationService";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
-import { Node } from "@engine/entities/Node";
+
 import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } from "@engine/config/room.type";
 import type { Injectable } from "@engine/core/src/Injectable";
 import type { EngineCore } from "@engine/core/src/EngineCore";
-import type { Room } from "../entities";
+import type { Node, Room } from "../entities";
 
 /**
  * Tipos para argumentos de eventos - compatibilidad con sistema anterior
@@ -151,6 +151,12 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         const nodeManager = core.getService(NodeManager);
         if (nodeManager) {
             this._currentNode = nodeManager.getCurrentNode();
+            if (!this._currentNode) {
+                this.core.on("node:ready", (node: Node) => {
+                    console.log("llego el nodo:", node)
+                    this._currentNode = node;
+                });
+            }
         }
 
         console.log("[InteractionSystem]: Sistema inicializado correctamente");
@@ -194,6 +200,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      * Actualiza las interacciones con Node
      */
     private updateNodeInteractions(): void {
+
         if (!this._currentNode) return;
 
 
