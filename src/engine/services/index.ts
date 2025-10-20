@@ -6,4 +6,3 @@ export * from "./TargetRegisterService";
 export * from "./InteractionService";
 export * from "./animation";
 export * from "./assets/AssetManager";
-export * from "./managers/OutlineManager";

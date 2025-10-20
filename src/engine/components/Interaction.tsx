@@ -6,18 +6,9 @@ import {
   InteractionSystem,
   type InteractionConfig,
 } from "../systems/InteractionSystem";
-import {
-  OutlineSystem,
-  type AutoOutlineConfig,
-} from "../systems/OutlineSystem";
 
 export interface InteractionProps {
   config?: Omit<InteractionConfig, "callbacks">;
-  enableInteractions?: boolean;
-  /** Configuración de outlines automáticos */
-  outlines?: AutoOutlineConfig;
-  /** Usar sistema con outlines automáticos (por defecto: true) */
-  useOutlines?: boolean;
 }
 
 /**
@@ -32,12 +23,7 @@ export interface InteractionProps {
  * @returns Componente React que no renderiza nada pero gestiona las interacciones
  *
  */
-export function Interaction({
-  config = {},
-  enableInteractions = true,
-  outlines = {},
-  useOutlines = true,
-}: InteractionProps) {
+export function Interaction({ config = {} }: InteractionProps) {
   const core = useEngineCore();
 
   // Usar el hook que se suscribe reactivamente a cambios de estado
@@ -52,20 +38,13 @@ export function Interaction({
 
     // Configuración final
     const finalConfig: InteractionConfig = {
-      enableInteractions,
       interactionRadius: 1.0,
       raycastThreshold: 0.1,
       ...config,
     };
 
     // Crear el sistema apropiado (con o sin outlines)
-    let interactionSystem: InteractionSystem;
-
-    if (useOutlines) {
-      interactionSystem = new OutlineSystem(core, outlines);
-    } else {
-      interactionSystem = new InteractionSystem(finalConfig);
-    }
+    const interactionSystem = new InteractionSystem(finalConfig);
 
     // Registrar el sistema en el core
     core.addSystem(interactionSystem);
@@ -74,7 +53,7 @@ export function Interaction({
     return () => {
       interactionSystem.dispose();
     };
-  }, [core, enableInteractions, isEngineReady, useOutlines, outlines]);
+  }, [core, isEngineReady]);
 
   return null;
 }

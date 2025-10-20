@@ -73,17 +73,7 @@ export default function MainLayout() {
         >
           <Engine.Core>
             <DebugSystem enabled={true} />
-            <Systems.Interaction
-              useOutlines={true}
-              outlines={{
-                enableObjectHover: true, // Outline en hover de objetos
-                enableNodeHover: true, // Outline en hover de nodos
-                objectHoverColor: "#00ff88", // Verde para objetos
-                nodeHoverColor: "#ff6b00", // Naranja para nodos
-                objectThickness: 0.03, // Grosor para objetos
-                nodeThickness: 0.05,
-              }}
-            />
+            <Systems.Interaction />
             <Systems.Animation
               config={{
                 autoPlay: true,

@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { EventEmitter } from "@engine/utils/EventEmitter";
 import { ServiceRegistry } from "./ServiceRegistry";
-import { AssetManager, CameraService, MaterialService, AnimationService, InteractionService, OutlineManager } from "@/engine/services";
+import { AssetManager, CameraService, MaterialService, AnimationService, InteractionService } from "@/engine/services";
 import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/managers/RoomManager";
 import { PortalManager } from "@/engine/services/managers/PortalManager";
@@ -92,7 +92,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(NebulaRenderer, new NebulaRenderer(this._scene!));
 
         // Crear managers especializados
-        this.registry.registerService(OutlineManager, new OutlineManager(this));
+
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
