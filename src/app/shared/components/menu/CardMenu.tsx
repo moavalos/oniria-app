@@ -22,20 +22,35 @@ export function MenuItem({
   label,
   description,
   icon,
+  active = false,
 }: PropsWithChildren<{
   className?: string;
   onClick: () => void;
   label: string;
   description: string;
   icon?: IconName;
+  active?: boolean;
 }>) {
   return (
-    <button onClick={onClick} className={className}>
+    <button
+      onClick={onClick}
+      className={`${className} flex flex-col p-4 border rounded-xl hover:bg-purple-600/5 transition-all justify-start backdrop-blur-2xl hover:shadow-lg hover:cursor-pointer ${
+        active ? "border-primary border-2" : "border-gray-400/30"
+      }`}
+      style={
+        active
+          ? {
+              background:
+                "radial-gradient(circle at right, rgba(108, 58, 133, 1.0) 0%, rgba(63, 49, 72, .7) 50%, transparent 100%)",
+            }
+          : undefined
+      }
+    >
       <div className="flex items-center mb-2 gap-3">
-        <Icon name={icon || "sparkles"} />
+        <Icon name={icon || "sparkles"} className="w-6 h-6" />
         <h3 className="text-xl font-medium mb-1">{label}</h3>
       </div>
-      <p className="text-sm text-gray-400">{description}</p>
+      <p className="text-sm text-start text-gray-400">{description}</p>
     </button>
   );
 }
@@ -86,7 +101,11 @@ export function MenuBody({
   className,
   children,
 }: PropsWithChildren<{ className?: string }>) {
-  return <div className={`pointer-events-auto ${className}`}>{children}</div>;
+  return (
+    <div className={`pointer-events-auto flex flex-col gap-2 ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 export function MenuFooter({

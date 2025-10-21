@@ -1,12 +1,12 @@
 import HudMenu from "@/app/shared/components/menu/CardMenu";
-import menuFactory from "@features/hud/components/menu/MenuFactory";
+import menuFactory from "../menuFactory";
 
 export interface MenuPortalProps {
   data?: Record<string, any>;
   onClose: () => void;
 }
 
-export default function MenuPortal({ data, onClose }: MenuPortalProps) {
+export default function MenuPortal({ onClose }: MenuPortalProps) {
   const menu = menuFactory.portal;
   return (
     <HudMenu.Container className="w-96 max-w-full flex flex-col gap-4 mt-20 ml-20">
