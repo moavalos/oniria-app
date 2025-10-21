@@ -60,7 +60,8 @@ export class NebulaManager {
         // Aplicar el shader de nebula al mesh
         this.applyNebulaMaterial(mesh);
 
-        console.log("[NebulaManager]: Nebula creada");
+        // Emitir evento de nebula lista
+        this.core.emit('nebula:ready', { nebula: mesh });
 
         return mesh;
     }
@@ -72,6 +73,15 @@ export class NebulaManager {
      */
     getNebula(): THREE.Mesh | null {
         return this.nebulaPlane;
+    }
+
+    /**
+     * Verifica si la nebula está lista (creada)
+     * 
+     * @returns true si la nebula existe, false si no
+     */
+    isNebulaReady(): boolean {
+        return this.nebulaPlane !== null;
     }
 
     /**
@@ -95,7 +105,7 @@ export class NebulaManager {
      */
     update(deltaTime: number): void {
         if (!this.nebulaPlane || !this.nebulaPlane.material) return;
-        console.log("test")
+
         const material = this.nebulaPlane.material as THREE.ShaderMaterial;
 
         // Actualizar uniforms animados
@@ -120,6 +130,9 @@ export class NebulaManager {
 
             this.nebulaPlane = null;
             console.log("[NebulaManager]: Nebula destruida");
+
+            // Emitir evento de nebula destruida
+            this.core.emit('nebula:destroyed', {});
         }
     }
 

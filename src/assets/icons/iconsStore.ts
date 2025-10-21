@@ -15,6 +15,7 @@ import SparklesIcon from "./store/SparklesIcon";
 import UserIcon from "./store/UserIcon";
 import DreamJournal from './store/DreamJournal';
 import NodeJournal from './store/NodeJournal';
+import MagicIcon from './store/MagicIcon';
 
 
 export type IconName =
@@ -33,7 +34,8 @@ export type IconName =
     | "sparkles"
     | "user"
     | "dreamJournal"
-    | "nodeJournal";
+    | "nodeJournal"
+    | "magic";
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -54,4 +56,5 @@ export const iconsStore: Record<IconName, IconComponent> = {
     user: UserIcon,
     dreamJournal: DreamJournal,
     nodeJournal: NodeJournal,
+    magic: MagicIcon,
 };

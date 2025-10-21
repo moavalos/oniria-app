@@ -16,11 +16,12 @@ import HeaderLogo from "@/app/shared/components/users/HeaderLogo";
 import BadgeCard from "@/app/features/hud/components/badges/BadgeCard";
 import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
 import MenuSystem from "@/app/features/hud/components/MenuSystem";
+import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
-  const { setDream } = useEngineStore();
+  const { setDream, isDreamSystemActive } = useEngineStore();
   const handler = useHudHandler();
 
   const engine = useEngineAPI();
@@ -55,6 +56,7 @@ export default function MainLayout() {
         </HudSystem.TopBar>
         <HudSystem.Body>
           <MenuSystem />
+          {isDreamSystemActive && <DreamSystem />}
         </HudSystem.Body>
       </HudSystem.Container>
       <LoaderSystem />

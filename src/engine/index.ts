@@ -11,6 +11,7 @@ export { EngineApiProvider } from "@engine/core/context/EngineApiProvider";
 
 // Store
 export { useEngineStore } from "@engine/core/store/engineStore";
+export type { Dream, DreamFormType, DreamFormState } from "@engine/core/store/engineStore";
 
 // Escenas
 export { default as RoomScene } from "./scenes/RoomScene";

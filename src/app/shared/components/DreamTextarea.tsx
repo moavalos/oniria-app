@@ -34,13 +34,13 @@ export default function DreamTextarea({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={t("node.placeholderNode")}
-        className={`
-          min-h-[160px] w-full resize-y rounded-xl
+        className={`scrollbar
+          min-h-[160px] h-[300px] w-full resize-y rounded-sm
           border focus:outline-none focus:ring-1
           px-3 py-3 text-[13px] leading-relaxed
           placeholder:text-[var(--placeholder-text)]
           focus:ring-[var(--focus-ring)]
-          bg-[var(--input-bg)] text-[var(--color-text-90)]
+          bg-gray-800/60 text-light/75
           transition-colors duration-200
         `}
         style={{

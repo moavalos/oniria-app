@@ -42,6 +42,8 @@ export class EngineCore extends EventEmitter {
 
     currentNode: Node | null = null;
 
+    private store = useEngineStore.getState();
+
     constructor() {
         super();
     }
@@ -121,6 +123,10 @@ export class EngineCore extends EventEmitter {
         this.on("skin:change:error", (_data: unknown) => this.onSkinChangeError(_data as { skin: any, error: any, room: Room }));
         this.on("node:created", (_data: unknown) => this.onNodeCreated(_data as { newNode: any }));
         this.on("node:destroyed", (_data: unknown) => this.onNodeDestroyed(_data as { node: any }));
+        this.on("nebula:ready", () => {
+            this.store.setDreamSystemActive(true);
+            console.log("[EngineCore]: Actualizando store")
+        });
     }
 
     /**

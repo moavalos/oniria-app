@@ -1,6 +1,9 @@
+import * as THREE from "three";
 import type { EngineCore } from "./EngineCore";
 import { CameraSystem } from "@engine/systems/CameraSystem";
+import { InteractionSystem } from "@engine/systems/InteractionSystem";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
+import { NebulaManager } from "@/engine/services/managers/NebulaManager";
 import { AnimationService } from "@engine/services/AnimationService";
 
 interface PendingRoomRequest {
@@ -245,6 +248,96 @@ export class EngineAPI {
     };
 
     /**
+     * API de control de nebula
+     */
+    nebula = {
+        /**
+         * Ejecuta un callback cuando la nebula esté lista.
+         * Si la nebula ya existe, ejecuta el callback inmediatamente.
+         * Si no, se suscribe al evento 'nebula:ready' y ejecuta el callback cuando se emita.
+         * 
+         * @param callback - Función a ejecutar cuando la nebula esté lista, recibe la mesh de la nebula
+         */
+        onReady: (callback: (_nebula: THREE.Mesh) => void) => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para nebula.onReady");
+                return;
+            }
+
+            const nebulaManager = this._core.getService(NebulaManager);
+            if (!nebulaManager) {
+                console.warn("[EngineAPI] NebulaManager no disponible");
+                return;
+            }
+
+            // Verificar si ya hay una nebula disponible
+            if ((nebulaManager as NebulaManager).isNebulaReady()) {
+                const nebula = (nebulaManager as NebulaManager).getNebula();
+                if (nebula) {
+                    console.log("[EngineAPI] Nebula ya disponible, ejecutando callback inmediatamente");
+                    callback(nebula);
+                    return;
+                }
+            }
+
+            // Si no hay nebula, suscribirse al evento nebula:ready
+            console.log("[EngineAPI] Nebula no disponible, suscribiéndose a evento nebula:ready");
+            let callbackExecuted = false;
+
+            const onNebulaReady = ({ nebula }: { nebula: THREE.Mesh }) => {
+                // Evitar múltiples ejecuciones del callback
+                if (callbackExecuted) return;
+                callbackExecuted = true;
+
+                console.log("[EngineAPI] Evento nebula:ready recibido, ejecutando callback");
+                callback(nebula);
+            };
+
+            this._core.on("nebula:ready", onNebulaReady);
+        },
+
+        /**
+         * Obtiene la mesh de la nebula si está disponible
+         * 
+         * @returns Mesh de la nebula o null si no está creada
+         */
+        get: () => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para nebula.get");
+                return null;
+            }
+
+            const nebulaManager = this._core.getService(NebulaManager);
+            if (!nebulaManager) {
+                console.warn("[EngineAPI] NebulaManager no disponible");
+                return null;
+            }
+
+            return (nebulaManager as NebulaManager).getNebula();
+        },
+
+        /**
+         * Verifica si la nebula está lista
+         * 
+         * @returns true si la nebula está creada, false si no
+         */
+        isReady: () => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para nebula.isReady");
+                return false;
+            }
+
+            const nebulaManager = this._core.getService(NebulaManager);
+            if (!nebulaManager) {
+                console.warn("[EngineAPI] NebulaManager no disponible");
+                return false;
+            }
+
+            return (nebulaManager as NebulaManager).isNebulaReady();
+        }
+    };
+
+    /**
      * API de control de cámara
      */
     camera = {
@@ -308,18 +401,50 @@ export class EngineAPI {
      * 
      * @returns AnimationService o null si no está disponible
      */
-    get animation(): AnimationService | null {
-        if (!this._core) {
-            console.warn("[EngineAPI] Core no disponible para animation");
-            return null;
-        }
-
-        const animationService = this._core.getService(AnimationService);
-        if (!animationService) {
-            console.warn("[EngineAPI] AnimationService no disponible");
-            return null;
-        }
-
-        return animationService as AnimationService;
+    get animation(): AnimationService {
+        return this._core?.getService(AnimationService) as AnimationService;
     }
+
+    /**
+     * Namespace for interaction control
+     */
+    public readonly interactions = {
+        /**
+         * Enable or disable interactions with 3D objects
+         * @param enabled - Whether interactions should be enabled
+         */
+        setEnabled: (enabled: boolean): void => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para interactions.setEnabled");
+                return;
+            }
+
+            const interactionSystem = this._core.getSystem(InteractionSystem);
+            if (!interactionSystem) {
+                console.warn("[EngineAPI] InteractionSystem no disponible");
+                return;
+            }
+
+            (interactionSystem as InteractionSystem).setInteractionsEnabled(enabled);
+        },
+
+        /**
+         * Check if interactions are currently enabled
+         * @returns Whether interactions are enabled
+         */
+        isEnabled: (): boolean => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para interactions.isEnabled");
+                return false;
+            }
+
+            const interactionSystem = this._core.getSystem(InteractionSystem);
+            if (!interactionSystem) {
+                console.warn("[EngineAPI] InteractionSystem no disponible");
+                return false;
+            }
+
+            return (interactionSystem as InteractionSystem).isInteractionsEnabled();
+        },
+    };
 } 

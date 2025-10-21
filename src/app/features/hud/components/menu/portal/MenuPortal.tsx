@@ -21,6 +21,7 @@ export default function MenuPortal({
   const handleItemClick = (itemIndex: number) => {
     switch (itemIndex) {
       case 0:
+        engine.interactions.setEnabled(false);
         engine.camera.viewTravel();
         closeMenu();
 
@@ -61,14 +62,7 @@ export default function MenuPortal({
             />
           ))}
         </HudMenu.Body>
-        <HudMenu.Footer>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-          >
-            Cerrar
-          </button>
-        </HudMenu.Footer>
+        <HudMenu.Footer></HudMenu.Footer>
       </HudMenu.Container>
       <HudMenu.Description className="text-sm max-w-sm mt-20">
         {menu?.description}

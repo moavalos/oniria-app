@@ -10,6 +10,15 @@ export interface Dream {
     emotion: string;
 }
 
+// Tipo para los formularios de dreams
+export type DreamFormType = 'create' | 'edit' | 'view';
+
+export interface DreamFormState {
+    isOpen: boolean;
+    type: DreamFormType;
+    data?: Dream | null;
+}
+
 type LoadingItem = {
     url: string;
     type: 'gltf' | 'texture' | 'ktx2' | 'audio' | 'binary';
@@ -141,6 +150,16 @@ type EngineStore = {
     setActiveMenu: (_menu: string | null, _data?: Record<string, any>) => void;
     closeMenu: () => void;
 
+    // Dream forms state
+    dreamForm: DreamFormState;
+    openDreamForm: (_type: DreamFormType, _data?: Dream | null) => void;
+    closeDreamForm: () => void;
+    updateDreamFormData: (_data: Dream | null) => void;
+
+    // Dream system state - controla si DreamSystem debe estar montado
+    isDreamSystemActive: boolean;
+    setDreamSystemActive: (_active: boolean) => void;
+
     // Loading state - nuestro sistema propio
     active: boolean;
     progress: number;
@@ -237,6 +256,43 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     menuData: undefined,
     setActiveMenu: (menu, data) => set({ activeMenu: menu, menuData: data }),
     closeMenu: () => set({ activeMenu: null, menuData: undefined }),
+
+    // Dream forms state
+    dreamForm: {
+        isOpen: false,
+        type: 'create',
+        data: null
+    },
+    openDreamForm: (type, data = null) => {
+        set({
+            dreamForm: {
+                isOpen: true,
+                type,
+                data
+            }
+        });
+    },
+    closeDreamForm: () => {
+        set({
+            dreamForm: {
+                isOpen: false,
+                type: 'create',
+                data: null
+            }
+        });
+    },
+    updateDreamFormData: (data) => {
+        set(state => ({
+            dreamForm: {
+                ...state.dreamForm,
+                data
+            }
+        }));
+    },
+
+    // Dream system state
+    isDreamSystemActive: false,
+    setDreamSystemActive: (active) => set({ isDreamSystemActive: active }),
 
     // Loading state inicial
     active: false,

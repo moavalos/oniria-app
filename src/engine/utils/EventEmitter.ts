@@ -57,6 +57,11 @@ export class EventEmitter<T extends EventMap = EventMap> {
 
             // Add callback
             this.callbacks[name.namespace][name.value].push(callback as CallbackFunction)
+
+            // Log para debug de nebula:ready
+            if (name.value === 'nebula:ready') {
+                console.log(`[EventEmitter] 🎧 Listener registrado para '${name.value}', total listeners:`, this.callbacks[name.namespace][name.value].length)
+            }
         })
 
         return this
@@ -136,6 +141,11 @@ export class EventEmitter<T extends EventMap = EventMap> {
         const nameArray = this.resolveNames(eventName as string)
         const name = this.resolveName(nameArray[0])
 
+        // Log para debug de nebula:ready
+        if (name.value === 'nebula:ready') {
+            console.log(`[EventEmitter] 📢 Emitiendo evento '${name.value}'`)
+        }
+
         let hasListeners = false
 
         // Default namespace
@@ -146,6 +156,11 @@ export class EventEmitter<T extends EventMap = EventMap> {
                     this.callbacks[namespace] instanceof Object &&
                     this.callbacks[namespace][name.value] instanceof Array
                 ) {
+                    // Log para debug de nebula:ready
+                    if (name.value === 'nebula:ready') {
+                        console.log(`[EventEmitter] 📢 Ejecutando ${this.callbacks[namespace][name.value].length} listeners para '${name.value}'`)
+                    }
+
                     this.callbacks[namespace][name.value].forEach((callback: CallbackFunction) => {
                         callback(data as Record<string, any>)
                         hasListeners = true

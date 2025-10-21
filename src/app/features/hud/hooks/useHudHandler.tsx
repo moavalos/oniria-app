@@ -33,9 +33,14 @@ export default function useHudHandler() {
     document.body.style.cursor = "default";
   }, []);
 
+  const closeDreamForm = useCallback(() => {
+    setActiveMenu(null);
+  }, [setActiveMenu]);
+
   return {
     objectClickHandler,
     objectEnterHandler,
     objectLeaveHandler,
+    closeDreamForm,
   };
 }

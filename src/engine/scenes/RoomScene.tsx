@@ -6,6 +6,7 @@ import { EngineState } from "@engine/core";
 import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
+import { useEngineStore } from "@/engine/core/store/engineStore";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -137,14 +138,22 @@ export default function RoomScene() {
   useEffect(() => {
     if (!core) return;
 
+    let timer: NodeJS.Timeout | null = null;
+
     const handleInsidePortal = ({ travel }: { travel: boolean }) => {
       if (core.getCurrentNode()) return;
       const portalManager = core.getService(PortalManager);
       if (travel) {
         portalManager.startTravel();
-        setTimeout(() => {
+        timer = setTimeout(() => {
           portalManager.stopTravel();
           setRenderNebula(true);
+          
+          // Abrir el formulario de dreams cuando la nebula está lista
+          // Usar getState() para acceder al store sin importar el hook
+          const state = useEngineStore.getState();
+          console.log("[RoomScene] Nebula renderizada, abriendo formulario de dreams");
+          state.openDreamForm("create");
         }, 3000);
       } else {
         setRenderNode(true);
@@ -155,13 +164,24 @@ export default function RoomScene() {
       console.log("salio del portal");
       setRenderNode(false);
       setRenderNebula(false);
+
+      // Limpiar timer si existe cuando sale del portal
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
     };
 
     core.on("camera:inside-portal", handleInsidePortal);
     core.on("camera:outside-portal", handleOutsidePortal);
     return () => {
-      core.off("core:camera:inside-portal");
-      core.off("core:camera:outside-portal");
+      core.off("camera:inside-portal");
+      core.off("camera:outside-portal");
+
+      // Limpiar timer en cleanup
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, [core]);
 
