@@ -1,15 +1,15 @@
 import {
   Engine,
   RoomScene,
-  LoaderSystem,
   DebugSystem,
-  useEngineStore,
   Systems,
+  LoaderSystem,
+  useEngineStore,
 } from "@/engine";
 import { useEffect } from "react";
-import useDreams from "@/app/features/dreams/hooks/useDreams";
+//import useDreams from "@/app/features/dreams/hooks/useDreams";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
-import type { Dream } from "@/engine/core/store/engineStore";
+//import type { Dream } from "@/engine/core/store/engineStore";
 import HudSystem from "@/app/features/hud/components/Hudsystem";
 import UserActions from "@/app/features/hud/components/header/UserActions";
 import HeaderLogo from "@/app/features/hud/components/header/HeaderLogo";
@@ -20,8 +20,8 @@ import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
-  const { fetchDreams } = useDreams();
-  const { setDream, isDreamSystemActive } = useEngineStore();
+  // const { fetchDreams } = useDreams();
+  const { isDreamSystemActive } = useEngineStore();
   const handler = useHudHandler();
 
   const engine = useEngineAPI();
@@ -34,18 +34,18 @@ export default function MainLayout() {
     engine.setRoom(roomId, skinId);
   }, []);
 
-  const handleInterpretar = async (dream: string) => {
-    await engine.camera.viewNodes();
-    const response = await fetchDreams(dream);
-    if (!response) return;
-    engine.node?.onReady((nodeController) => {
-      setDream(response as Dream);
-      nodeController.idle();
-    });
+  // const handleInterpretar = async (dream: string) => {
+  //   await engine.camera.viewNodes();
+  //   const response = await fetchDreams(dream);
+  //   if (!response) return;
+  //   engine.node?.onReady((nodeController) => {
+  //     setDream(response as Dream);
+  //     nodeController.idle();
+  //   });
 
-    //navegar a otra pagina con el resultado
-    //navigate("/interpretacion");
-  };
+  //navegar a otra pagina con el resultado
+  //navigate("/interpretacion");
+  //};
 
   return (
     <main className="relative w-full h-dvh ">
