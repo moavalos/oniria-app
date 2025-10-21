@@ -10,6 +10,7 @@ import type { Injectable } from "@engine/core/src/Injectable";
 import type { EngineCore } from "@engine/core/src/EngineCore";
 import { HighlightService } from "@engine/services";
 import type { Node, Room } from "../entities";
+import { useEngineStore } from "@engine/core/store/engineStore";
 
 /**
  * Tipos para argumentos de eventos - compatibilidad con sistema anterior
@@ -227,6 +228,10 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      * Procesa cambios en el estado de Room y emite eventos
      */
     private processRoomStateChanges(result: RoomInteractionResult): void {
+        // Verificar si hay un menú activo - si es así, deshabilitar highlights
+        const { activeMenu } = useEngineStore.getState();
+        const shouldProcessHighlight = !activeMenu;
+
         // Sólo considerar el primer interceptable (más cercano)
         const first = result.interceptedObjects[0];
         const currentHovered = new Set<string>(first ? [first] : []);
@@ -239,12 +244,19 @@ export class InteractionSystem extends BaseSystem implements Injectable {
             }
         }
 
-        // Detectar objetos que entraron al hover
-        if (first && !previousHovered.has(first)) {
+        // Detectar objetos que entraron al hover (solo si no hay menú activo)
+        if (first && !previousHovered.has(first) && shouldProcessHighlight) {
             this.emitObjectEnter(first, this._interceptableObjects[first]);
         }
 
-        // Detectar clicks en objetos
+        // Si hay menú activo y había highlight, limpiarlo
+        if (activeMenu && previousHovered.size > 0) {
+            for (const objectName of previousHovered) {
+                this.emitObjectLeave(objectName, this._interceptableObjects[objectName]);
+            }
+        }
+
+        // Detectar clicks en objetos (siempre permitir clicks)
         if (result.clicked && first) {
             this.emitObjectClick(first, this._interceptableObjects[first]);
         }
@@ -300,7 +312,6 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         // Emitir al core para que otros sistemas escuchen
         this.core.emit('object:Enter', eventArgs);
-        document.body.style.cursor = "pointer";
 
         // Ejecutar lógica interna (animaciones directas por compatibilidad)
         this.handleObjectEnterInternal(eventArgs);
@@ -337,7 +348,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         };
 
         this.core.emit('object:Leave', eventArgs);
-        document.body.style.cursor = "default";
+
         this.handleObjectLeaveInternal(eventArgs);
 
         // Desactivar highlight shader overlay del objeto

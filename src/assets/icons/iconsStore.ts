@@ -13,6 +13,9 @@ import SaveIcon from "./store/SaveIcon";
 import SettingsIcon from "./store/SettingsIcon";
 import SparklesIcon from "./store/SparklesIcon";
 import UserIcon from "./store/UserIcon";
+import DreamJournal from './store/DreamJournal';
+import NodeJournal from './store/NodeJournal';
+
 
 export type IconName =
     | "portal"
@@ -28,7 +31,9 @@ export type IconName =
     | "save"
     | "settings"
     | "sparkles"
-    | "user";
+    | "user"
+    | "dreamJournal"
+    | "nodeJournal";
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -47,4 +52,6 @@ export const iconsStore: Record<IconName, IconComponent> = {
     settings: SettingsIcon,
     sparkles: SparklesIcon,
     user: UserIcon,
+    dreamJournal: DreamJournal,
+    nodeJournal: NodeJournal,
 };

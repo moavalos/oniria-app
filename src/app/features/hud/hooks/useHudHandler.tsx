@@ -26,11 +26,11 @@ export default function useHudHandler() {
   );
 
   const objectEnterHandler = useCallback((_event: any) => {
-    //TODO: Manejar la entrada del objeto HUD aca
+    document.body.style.cursor = "pointer";
   }, []);
 
   const objectLeaveHandler = useCallback((_event: any) => {
-    //TODO: Manejar la salida del objeto HUD aca
+    document.body.style.cursor = "default";
   }, []);
 
   return {

@@ -1,3 +1,5 @@
+import type { IconName } from "@/assets/icons/iconsStore";
+
 /**
  * Tipos de menús disponibles en la aplicación
  */
@@ -17,3 +19,20 @@ export interface MenuState {
     activeMenu: MenuType;
     menuData?: MenuData;
 }
+
+export interface MenuItem {
+    label: string;
+    description: string;
+    action: () => void;
+    icon?: IconName;
+    disabled?: boolean;
+}
+
+export interface MenuObject {
+    title: string;
+    description: string;
+    icon?: IconName;
+    items: MenuItem[]
+}
+
+export type MenuFactory = Record<string, MenuObject>
