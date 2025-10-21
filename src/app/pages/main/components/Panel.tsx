@@ -1,9 +1,3 @@
-import { useHistoryPanel } from "@/app/features/history/hooks/useHistoryPanel";
-import type { TimelineItem } from "@/app/features/history/model/TimelineItem";
-import SidebarHeader from "../../history/components/SidebarHeader";
-import Card from "@/app/shared/components/Card";
-import { TimelineProgressBar } from "@/app/features/history/timeLine/TimelineProgressBar";
-import { TimelineList } from "@/app/features/history/timeLine/TimelineList";
 import CtaButton from "@/app/shared/components/CtaButton";
 import { useTranslation } from "react-i18next";
 import { useHomePanel } from "@/app/features/home/hooks/useHomePanel";
@@ -14,19 +8,8 @@ import SettingsIcon from "@/assets/icons/store/SettingsIcon";
 import BadgeIcon from "@/assets/icons/store/BadgeIcon";
 import ClockIcon from "@/assets/icons/store/ClockIcon";
 import { useState } from "react";
+import Card from "@/app/shared/components/Card";
 
-type HistoryVariantProps = {
-  variant: "history";
-  title: string;
-  description: string;
-  ctaText: string;
-  timeline: TimelineItem[];
-  initialSelectedId?: number;
-  onSelectItem?: (_item: TimelineItem) => void;
-  onCta?: (_item: TimelineItem) => void;
-  ctaDisabled?: boolean;
-  loading?: boolean;
-};
 
 type HomeVariantProps = {
   variant: "home";
@@ -41,76 +24,9 @@ type HomeVariantProps = {
   loadingQuote?: boolean;
   showQuoteCard?: boolean;
   scrollable?: boolean;
-};
-
-type UnifiedSidePanelProps = HistoryVariantProps | HomeVariantProps;
-
-function HistoryPanel(props: HistoryVariantProps) {
-  const { title, description, ctaText, timeline, loading = false } = props;
-
-  const {
-    items,
-    selectedId,
-    handleSelect,
-    handleCTA,
-    ctaPressed,
-    listRef,
-    itemRefs,
-    progress,
-    barHeight,
-  } = useHistoryPanel({
-    timeline,
-    initialSelectedId: props.initialSelectedId,
-    onSelectItem: props.onSelectItem,
-    onCta: props.onCta,
-    ctaDisabled: props.ctaDisabled,
-  });
-
-  return (
-    <Card.Container className="col-span-12 md:col-span-4 xl:col-span-4 p-6 h-[88vh] flex flex-col text-[15px]">
-      <SidebarHeader title={title} description={description} />
-
-      {loading ? (
-        <div className="space-y-4 flex-1">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="h-6 w-full rounded animate-pulse"
-              style={{ backgroundColor: "var(--skeleton-bg)" }}
-            />
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="relative flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <TimelineProgressBar progress={progress} height={barHeight} />
-            <TimelineList
-              items={items}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              listRef={listRef}
-              itemRefs={itemRefs}
-            />
-          </div>
-
-          <div
-            className="mt-4 pt-4 border-t"
-            style={{ borderColor: "var(--surface-weak)" }}
-          >
-            <CtaButton
-              ctaText={ctaText}
-              onClick={handleCTA}
-              disabled={props.ctaDisabled}
-              pressed={ctaPressed}
-            />
-          </div>
-        </>
-      )}
-    </Card.Container>
-  );
 }
 
-function HomePanel(props: HomeVariantProps) {
+export function HomePanel(props: HomeVariantProps) {
   const { showQuoteCard = true } = props;
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -262,12 +178,5 @@ function HomePanel(props: HomeVariantProps) {
         />
       )}
     </Card.Container>
-  );
-}
-export default function UnifiedSidePanel(props: UnifiedSidePanelProps) {
-  return props.variant === "history" ? (
-    <HistoryPanel {...props} />
-  ) : (
-    <HomePanel {...props} />
   );
 }

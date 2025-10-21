@@ -27,6 +27,7 @@ export default function MenuPortal({
 
         break;
       case 1:
+        engine.interactions.setEnabled(false);
         engine.camera.viewNodes();
         closeMenu();
         break;
