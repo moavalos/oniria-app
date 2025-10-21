@@ -7,6 +7,7 @@ import { ConfigManager } from "@/engine/utils/ConfigManager";
 import { RoomManager } from "@/engine/services/managers/RoomManager";
 import { PortalManager } from "@/engine/services/managers/PortalManager";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
+import { NebulaManager } from "@/engine/services/managers/NebulaManager";
 import { Node, Room } from "@/engine/entities";
 import type { ISystem } from "./ISystem";
 import { EngineState } from "../types/engine.types";
@@ -65,7 +66,8 @@ export class EngineCore extends EventEmitter {
     }
 
     async setupAssets() {
-        await this.getService(AssetManager).preloadTextures(["/textures/water.jpg", "/textures/bg.jpg"]);
+        //preload de texturas que se usaran
+        await this.getService(AssetManager).preloadTextures(["/textures/water.jpg", "/textures/bg.jpg", "/textures/noise_grain.png", "/textures/noise_small.png"]);
         const holeTexture = this.getService(AssetManager).getTexture('/textures/water.jpg');
         const bgTexture = this.getService(AssetManager).getTexture('/textures/bg.jpg');
         if (holeTexture && bgTexture) {
@@ -98,6 +100,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
+        this.registry.registerService(NebulaManager, new NebulaManager(this));
 
 
 
@@ -261,6 +264,11 @@ export class EngineCore extends EventEmitter {
         const nodeManager = this.getService(NodeManager);
         if (nodeManager && nodeManager.update) {
             nodeManager.update(dt);
+        }
+
+        const nebulaManager = this.getService(NebulaManager);
+        if (nebulaManager && nebulaManager.update) {
+            nebulaManager.update(dt);
         }
     }
 

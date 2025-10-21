@@ -167,11 +167,58 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
         if (this.currentPortal && this.currentPortal.isAnimating()) {
             this.currentPortal.updateAnimation(delta);
         }
+
+        // Sincronizar uniforms del portal con el store
+        this.syncPortalUniforms();
+
         if (this.portalholeRenderer) {
             this.portalholeRenderer.update();
         }
         if (this.nebulaRenderer) {
             this.nebulaRenderer.update();
+        }
+    }
+
+    /**
+     * Sincroniza los uniforms del shader del portal con los valores del store
+     * Esto permite que los cambios del debug panel se reflejen en tiempo real
+     */
+    private syncPortalUniforms(): void {
+        if (!this.currentPortal) return;
+
+        const material = this.currentPortal.getMaterial();
+        if (!material || !material.uniforms) return;
+
+        // Obtener valores actuales del store
+        const storeUniforms = useEngineStore.getState().portalUniforms;
+
+        // Sincronizar cada uniform con el store
+        if (material.uniforms.uPortalAlpha) {
+            material.uniforms.uPortalAlpha.value = storeUniforms.uPortalAlpha;
+        }
+        if (material.uniforms.uDensity) {
+            material.uniforms.uDensity.value = storeUniforms.uDensity;
+        }
+        if (material.uniforms.uRadius) {
+            material.uniforms.uRadius.value = storeUniforms.uRadius;
+        }
+        if (material.uniforms.uAngle) {
+            material.uniforms.uAngle.value = storeUniforms.uAngle;
+        }
+        if (material.uniforms.uHue) {
+            material.uniforms.uHue.value = storeUniforms.uHue;
+        }
+        if (material.uniforms.uSaturation) {
+            material.uniforms.uSaturation.value = storeUniforms.uSaturation;
+        }
+        if (material.uniforms.uRadiusFactor) {
+            material.uniforms.uRadiusFactor.value = storeUniforms.uRadiusFactor;
+        }
+        if (material.uniforms.uGainOffset) {
+            material.uniforms.uGainOffset.value = storeUniforms.uGainOffset;
+        }
+        if (material.uniforms.uGainScale) {
+            material.uniforms.uGainScale.value = storeUniforms.uGainScale;
         }
     }
 

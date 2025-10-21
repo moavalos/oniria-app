@@ -5,6 +5,7 @@ import { PortalManager } from "../services/managers/PortalManager";
 import { EngineState } from "@engine/core";
 import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
+import NebulaScene from "./NebulaScene";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -15,6 +16,7 @@ export default function RoomScene() {
   const [room, setRoom] = useState<Room | null>(null);
 
   const [renderNode, setRenderNode] = useState<boolean>(false);
+  const [renderNebula, setRenderNebula] = useState<boolean>(false);
 
   useEffect(() => {
     if (!core) return;
@@ -142,6 +144,7 @@ export default function RoomScene() {
         portalManager.startTravel();
         setTimeout(() => {
           portalManager.stopTravel();
+          setRenderNebula(true);
         }, 3000);
       } else {
         setRenderNode(true);
@@ -151,6 +154,7 @@ export default function RoomScene() {
     const handleOutsidePortal = () => {
       console.log("salio del portal");
       setRenderNode(false);
+      setRenderNebula(false);
     };
 
     core.on("camera:inside-portal", handleInsidePortal);
@@ -172,6 +176,13 @@ export default function RoomScene() {
           position={[-1.1, 2.85, -6.4]}
           rotation={[0, 0, 0]}
           scale={2}
+        />
+      )}
+      {renderNebula && (
+        <NebulaScene
+          position={[-1.2, 3, -6.2]}
+          rotation={[0, 0, 0]}
+          scale={1.3}
         />
       )}
 

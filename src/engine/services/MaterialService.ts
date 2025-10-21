@@ -6,6 +6,8 @@ import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
 import blobFragmentShader from "@engine/shaders/nodes/blob/fragmentShader.glsl";
 import maskFragmentShader from "@engine/shaders/nodes/blob/fragmentShaderMask.glsl";
 import blobVertexShader from "@engine/shaders/nodes/blob/vertexShader.glsl";
+import nebulaFragmentShader from "@engine/shaders/nebula/fragmenShader.glsl";
+import nebulaVertexShader from "@engine/shaders/nebula/vertexShader.glsl";
 
 /**
  * Servicio para gestión de materiales y texturas en el motor 3D
@@ -164,6 +166,31 @@ export class MaterialService {
 
         // Devolver el material principal para que NodeRenderer pueda mantener referencia
         return mat;
+    }
+
+    /**
+     * Aplica el material con shader de nebula a un mesh
+     * 
+     * @param mesh - El mesh al que aplicar el shader de nebula
+     * @param uniforms - Uniformes para el shader (por defecto: objeto vacío)
+     * @returns El material creado o null si no se puede aplicar
+     */
+    applyNebulaMaterial(mesh: THREE.Mesh | undefined, uniforms: Record<string, any> = {}): THREE.ShaderMaterial | null {
+        if (!mesh) return null;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms,
+            fragmentShader: nebulaFragmentShader,
+            vertexShader: nebulaVertexShader,
+            transparent: false,
+            depthTest: true,
+            depthWrite: true,
+            side: THREE.DoubleSide,
+        });
+
+        mesh.material = material;
+
+        return material;
     }
 
     /**

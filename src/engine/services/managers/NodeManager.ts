@@ -215,6 +215,8 @@ export class NodeManager {
         return nodeGroup;
     }
 
+
+
     /**
      * Actualiza el nodo en cada frame
      * 

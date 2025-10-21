@@ -262,5 +262,6 @@ void main()
     gl_FragColor = vec4(ToneMapFilmicALU(sum.xyz*2.2),1.0);
 	#else
     gl_FragColor = vec4(sum.xyz,1.0);
-	#endif
+	//gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+    #endif
 }

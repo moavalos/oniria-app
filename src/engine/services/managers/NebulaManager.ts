@@ -1,0 +1,169 @@
+import * as THREE from "three";
+import { EngineCore } from "@engine/core";
+import { MaterialService } from "../MaterialService";
+import { AssetManager } from '../assets/AssetManager';
+
+
+/**
+ * Gestor simple para crear un plano con shader de nebula como fondo
+ * 
+ * A diferencia de NodeManager, este gestor es mucho más simple ya que
+ * la nebula no es una entidad interactiva, solo un plano de fondo
+ * con un shader procedural.
+ */
+export class NebulaManager {
+
+    private materialService: MaterialService | null = null;
+
+    private assetManager: AssetManager | null = null;
+
+    private nebulaPlane: THREE.Mesh | null = null;
+
+    private core: EngineCore;
+
+    /**
+     * Crea una nueva instancia del gestor de nebula
+     * 
+     * @param core - Instancia del núcleo del motor para acceso a servicios
+     */
+    constructor(core: EngineCore) {
+        this.core = core;
+        this.init();
+    }
+
+    /**
+     * Inicializa los servicios necesarios del motor
+     */
+    init(): void {
+        this.materialService = this.core.getService(MaterialService);
+        this.assetManager = this.core.getService(AssetManager);
+
+        console.log("[NebulaManager]: Servicios inicializados");
+    }
+
+    /**
+     * Crea un nuevo plano con el shader de nebula
+     * 
+     * @returns El mesh del plano de nebula
+     */
+    createNebula(): THREE.Mesh {
+        // Crear geometría de plano grande para cubrir el fondo
+        const geometry = new THREE.PlaneGeometry(20, 20);
+
+        // Crear mesh con material básico temporal
+        const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
+        mesh.name = "nebulaPlane";
+        mesh.rotation.y = -Math.PI / 2; // Rotar para que quede horizontal
+
+        this.nebulaPlane = mesh;
+
+        // Aplicar el shader de nebula al mesh
+        this.applyNebulaMaterial(mesh);
+
+        console.log("[NebulaManager]: Nebula creada");
+
+        return mesh;
+    }
+
+    /**
+     * Obtiene el plano de nebula actual
+     * 
+     * @returns El mesh del plano o null si no existe
+     */
+    getNebula(): THREE.Mesh | null {
+        return this.nebulaPlane;
+    }
+
+    /**
+     * Aplica el material con shader de nebula al mesh
+     * 
+     * @param mesh - Mesh al que aplicar el material
+     */
+    applyNebulaMaterial(mesh: THREE.Mesh): void {
+        if (!this.materialService) {
+            console.warn("[NebulaManager]: MaterialService no disponible");
+            return;
+        }
+
+        this.materialService.applyNebulaMaterial(mesh, this.getUniformsForNebula());
+    }
+
+    /**
+     * Actualiza el plano de nebula en cada frame
+     * 
+     * @param deltaTime - Tiempo transcurrido desde el último frame
+     */
+    update(deltaTime: number): void {
+        if (!this.nebulaPlane || !this.nebulaPlane.material) return;
+        console.log("test")
+        const material = this.nebulaPlane.material as THREE.ShaderMaterial;
+
+        // Actualizar uniforms animados
+        if (material.uniforms.uTime) {
+            material.uniforms.uTime.value += deltaTime;
+        }
+    }
+
+    /**
+     * Destruye el plano de nebula y limpia recursos
+     */
+    destroyNebula(): void {
+        if (this.nebulaPlane) {
+            // Limpiar geometría
+            this.nebulaPlane.geometry.dispose();
+
+            // Limpiar material
+            if (this.nebulaPlane.material) {
+                const material = this.nebulaPlane.material as THREE.ShaderMaterial;
+                material.dispose();
+            }
+
+            this.nebulaPlane = null;
+            console.log("[NebulaManager]: Nebula destruida");
+        }
+    }
+
+    /**
+     * Obtiene los uniforms configurados para el shader de nebula
+     * 
+     * @returns Objeto con todos los uniforms necesarios para el shader
+     */
+    getUniformsForNebula(): Record<string, any> {
+        if (!this.assetManager) {
+            console.warn("[NebulaManager]: AssetManager no disponible");
+            return {};
+        }
+        const noiseGrainTexture = this.assetManager.getTexture('/textures/noise_grain.png');
+        const noiseSmallTexture = this.assetManager.getTexture('/textures/noise_small.png');
+
+        if (noiseGrainTexture) {
+            noiseGrainTexture.wrapS = THREE.RepeatWrapping;
+            noiseGrainTexture.wrapT = THREE.RepeatWrapping;
+        }
+
+        if (noiseSmallTexture) {
+            noiseSmallTexture.wrapS = THREE.RepeatWrapping;
+            noiseSmallTexture.wrapT = THREE.RepeatWrapping;
+        }
+        return {
+            uTime: { value: 0 },
+            uResolution: {
+                value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+            },
+            uMouse: {
+                value: new THREE.Vector2(0, 0),
+            },
+            uTexture0: { value: noiseSmallTexture }, // Textura 0 - la asignaremos después si es necesaria
+            uTexture1: { value: null }, // Textura 1 - keyboard (puede ser null)
+            uTexture2: { value: noiseGrainTexture }, // Textura 2 - la asignaremos después si es necesaria
+        };
+    }
+
+    /**
+     * Limpia recursos
+     */
+    dispose(): void {
+        this.destroyNebula();
+        this.materialService = null;
+    }
+}
