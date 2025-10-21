@@ -7,7 +7,7 @@
 #define pi 3.14159265
 #define R(p, a) p=cos(a)*p+sin(a)*vec2(p.y, -p.x)
 
-// Three.js uniforms
+// Uniforms de Three.js
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
@@ -15,7 +15,7 @@ uniform sampler2D uTexture0;  // iChannel0 - textura
 uniform sampler2D uTexture1;  // iChannel1 - keyboard (puedes usar otra textura o remover)
 uniform sampler2D uTexture2;  // iChannel2 - textura
 
-// iq's noise
+// Ruido de iq
 float noise( in vec3 x )
 {
     vec3 p = floor(x);
@@ -50,28 +50,28 @@ float Disk( vec3 p, vec3 t )
 }
 
 //==============================================================
-// otaviogood's noise from https://www.shadertoy.com/view/ld2SzK
+// Ruido espiral de otaviogood - https://www.shadertoy.com/view/ld2SzK
 //--------------------------------------------------------------
-// This spiral noise works by successively adding and rotating sin waves while increasing frequency.
-// It should work the same on all computers since it's not based on a hash function like some other noises.
-// It can be much faster than other noise functions if you're ok with some repetition.
-const float nudge = 0.8;	// size of perpendicular vector
-float normalizer = 1.0 / sqrt(1.0 + nudge*nudge);	// pythagorean theorem on that perpendicular to maintain scale
+// Este ruido espiral funciona agregando y rotando ondas senoidales sucesivamente mientras aumenta la frecuencia.
+// Debería funcionar igual en todas las computadoras ya que no se basa en una función hash como otros ruidos.
+// Puede ser mucho más rápido que otras funciones de ruido si está bien con algo de repetición.
+const float nudge = 0.8;	// tamaño del vector perpendicular
+float normalizer = 1.0 / sqrt(1.0 + nudge*nudge);	// teorema de pitágoras en ese perpendicular para mantener la escala
 float SpiralNoiseC(vec3 p)
 {
-    float n = 0.0;	// noise amount
+    float n = 0.0;	// cantidad de ruido
     float iter = 2.0;
     for (int i = 0; i < 8; i++)
     {
-        // add sin and cos scaled inverse with the frequency
-        n += -abs(sin(p.y*iter) + cos(p.x*iter)) / iter;	// abs for a ridged look
-        // rotate by adding perpendicular and scaling down
+        // agregar sin y cos escalados inversamente con la frecuencia
+        n += -abs(sin(p.y*iter) + cos(p.x*iter)) / iter;	// abs para un aspecto estriado
+        // rotar agregando perpendicular y escalando hacia abajo
         p.xy += vec2(p.y, -p.x) * nudge;
         p.xy *= normalizer;
-        // rotate on other axis
+        // rotar en otro eje
         p.xz += vec2(p.z, -p.x) * nudge;
         p.xz *= normalizer;
-        // increase the frequency
+        // aumentar la frecuencia
         iter *= 1.733733;
     }
     return n;
@@ -96,14 +96,14 @@ float map(vec3 p)
 }
 //--------------------------------------------------------------
 
-// assign color to the media
+// asignar color al medio
 vec3 computeColor( float density, float radius )
 {
-	// color based on density alone, gives impression of occlusion within
-	// the media
+	// color basado solo en la densidad, da impresión de oclusión dentro
+	// del medio
 	vec3 result = mix( vec3(0.0,.0,.1), vec3(0.0,0.1,0.26), density );
 	
-	// color added to the media
+	// color agregado al medio
 	vec3 colCenter = 0.*vec3(0.8,1.0,1.0);
 	vec3 colEdge = 1.*vec3(0.,0.9,0.7);
 	result *= mix( colCenter, colEdge, radius+1./1.2);
@@ -125,8 +125,8 @@ bool RaySphereIntersect(vec3 org, vec3 dir, out float near, out float far)
 	return far > 0.0;
 }
 
-// Applies the filmic curve from John Hable's presentation
-// More details at : http://filmicgames.com/archives/75
+// Aplica la curva fílmica de la presentación de John Hable
+// Más detalles en: http://filmicgames.com/archives/75
 vec3 ToneMapFilmicALU(vec3 _color)
 {
 	_color = max(vec3(0), _color - vec3(0.004));
@@ -147,17 +147,17 @@ void main()
     key += 0.7*texture(uTexture1, vec2(KEY_2,0.25)).x;
     key += 0.7*texture(uTexture1, vec2(KEY_3,0.25)).x;
 
-	// ro: ray origin
-	// rd: direction of the ray
+	// ro: origen del rayo
+	// rd: dirección del rayo
 	vec3 rd = normalize(vec3((fragCoord.xy-0.5*uResolution.xy)/uResolution.y, 1.));
 	vec3 ro = vec3(0., 0., -6.+key*1.6);
     
-	// ld, td: local, total density 
-	// w: weighting factor
+	// ld, td: densidad local, total
+	// w: factor de ponderación
 	float ld=0., td=0., w=0.;
 
-	// t: length of the ray
-	// d: distance function
+	// t: longitud del rayo
+	// d: función de distancia
 	float d=1., t=0.;
     
     const float h = 0.1;
@@ -171,65 +171,65 @@ void main()
        
 	t = min_dist*step(t,min_dist);
    
-	// raymarch loop
+	// bucle de raymarching
 	for (int i=0; i<64; i++) 
 	{
 	 
 		vec3 pos = ro + t*rd;
   
-		// Loop break conditions.
+		// Condiciones de ruptura del bucle.
 	    if(td>0.9 || d<0.1*t || t>10. || sum.a > 0.99 || t>max_dist) break;
         
-        // evaluate distance function
+        // evaluar función de distancia
         float d = map(pos);
 		       
-		// change this string to control density 
+		// cambiar esta cadena para controlar la densidad
 		d = max(d,0.0);
         
         
-        float timeScale = 1.; // Adjust the scale of time to control speed
+        float timeScale = 1.; // Ajustar la escala de tiempo para controlar la velocidad
         vec3 randomOffset = vec3(
-            sin(uTime * 1.) * 0.2, // x offset
-            cos(uTime +0.2) * 0.2, // y offset
-            sin(uTime +1.5) * uTime*0.01 + 0.2  // z offset
+            sin(uTime * 1.) * 0.2, // desplazamiento en x
+            cos(uTime +0.2) * 0.2, // desplazamiento en y
+            sin(uTime +1.5) * uTime*0.01 + 0.2  // desplazamiento en z
         );
 
-        // Apply the offset to the star's position
-        vec3 starPos = vec3(0.0) + randomOffset; // Original position plus the random offset
+        // Aplicar el desplazamiento a la posición de la estrella
+        vec3 starPos = vec3(0.0) + randomOffset; // Posición original más el desplazamiento aleatorio
 
-        // Point light calculations using the moving star position
+        // Cálculos de luz puntual usando la posición de la estrella en movimiento
         vec3 ldst = starPos - pos;
-        // point light calculations
+        // cálculos de luz puntual
         //vec3 ldst = vec3(0.0)-pos;
         float lDist = max(length(ldst), 0.001);
 
-        // the color of light 
+        // el color de la luz
         vec3 lightColor=vec3(0.9,0.5,0.5);
         
-         sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // star itself !!!!!!!!!!!!
+         sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
         sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!
         
 		if (d<h) 
 		{
-			// compute local density 
+			// calcular densidad local
 			ld = h - d;
             
-            // compute weighting factor 
+            // calcular factor de ponderación
 			w = (1. - td) * ld;
      
-			// accumulate density
+			// acumular densidad
 			td += w + 1./200.;
 		
 			vec4 col = vec4( computeColor(td,lDist), td );
             
-            // emission
+            // emisión
             sum += sum.a * vec4(sum.rgb, 0.0) * 0.1;	
             
-			// uniform scale density
+			// escala uniforme de densidad
 			col.a *= 0.2;
-			// colour by alpha
+			// colorear por alfa
 			col.rgb *= col.a;
-			// alpha blend in contribution
+			// mezcla alfa en contribución
 			sum = sum + col*(1.0 - sum.a);  
        
 		}
@@ -238,12 +238,12 @@ void main()
 
       
 		
-        // trying to optimize step size near the camera and near the light source
+        // intentando optimizar el tamaño del paso cerca de la cámara y cerca de la fuente de luz
         t += max(d * 0.1 * max(min(length(ldst),length(ro)),1.0), 0.01);
         
 	}
     
-    // simple scattering
+    // dispersión simple
 	//sum *= 1. / exp( ld * 0.2 ) * 0.6;
     
      if (uTime <= 20.) {

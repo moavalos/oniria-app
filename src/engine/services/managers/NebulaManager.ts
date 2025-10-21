@@ -43,7 +43,7 @@ export class NebulaManager {
     init(): void {
         this.materialService = this.core.getService(MaterialService);
         this.assetManager = this.core.getService(AssetManager);
-        
+
         // Inicializar el listener del mouse
         this.setupMouseListener();
 
@@ -68,7 +68,7 @@ export class NebulaManager {
         };
 
         this.domElement.addEventListener('mousemove', onMouseMove);
-        
+
         console.log("[NebulaManager]: Listener de mouse configurado");
     }
 
