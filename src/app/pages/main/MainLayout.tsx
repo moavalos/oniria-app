@@ -73,7 +73,25 @@ export default function MainLayout() {
         >
           <Engine.Core>
             <DebugSystem enabled={true} />
-            <Systems.Interaction />
+            <Systems.Interaction
+              config={{
+                enableOutline: true,
+                outlineParams: {
+                  // defaults del efecto (opcionales)
+                  defaultColor: "#00ffa8",
+                  defaultThickness: 0.007,
+                  defaultAlpha: 1,
+                  defaultKeepAlive: true,
+                  // overrides por objeto al hacer hover (opcionales)
+                  perObject: {
+                    color: "#00ffa8",
+                    thickness: 0.003,
+                    alpha: 1,
+                  },
+                  recursive: false,
+                },
+              }}
+            />
             <Systems.Animation
               config={{
                 autoPlay: true,

@@ -8,6 +8,7 @@ import { NodeManager } from "@/engine/services/managers/NodeManager";
 import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } from "@engine/config/room.type";
 import type { Injectable } from "@engine/core/src/Injectable";
 import type { EngineCore } from "@engine/core/src/EngineCore";
+import { HighlightService } from "@engine/services";
 import type { Node, Room } from "../entities";
 
 /**
@@ -99,6 +100,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
     private _userCallbacks: InteractionCallbacks = {};
 
+    // Highlight overlay service
+    private highlightService!: HighlightService;
+
     // Estado anterior para detectar cambios
     private _previousRoomState: {
         hoveredObjects: Set<string>;
@@ -136,6 +140,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         }
 
         this.interactionService = this.core.getService(InteractionService);
+        this.highlightService = this.core.getService(HighlightService);
 
         // Suscribirse a eventos del core para cambios de room y node
         this.subscribeToEvents();
@@ -175,6 +180,11 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         // Resetear flags one-shot al final del frame
         this.interactionService.resetFrame();
+
+        // Actualizar efecto highlight (animación de tiempo del shader)
+        if (this.highlightService) {
+            this.highlightService.update(deltaTime);
+        }
     }
 
     /**
@@ -217,7 +227,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      * Procesa cambios en el estado de Room y emite eventos
      */
     private processRoomStateChanges(result: RoomInteractionResult): void {
-        const currentHovered = new Set(result.interceptedObjects);
+        // Sólo considerar el primer interceptable (más cercano)
+        const first = result.interceptedObjects[0];
+        const currentHovered = new Set<string>(first ? [first] : []);
         const previousHovered = this._previousRoomState.hoveredObjects;
 
         // Detectar objetos que salieron del hover
@@ -228,18 +240,13 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         }
 
         // Detectar objetos que entraron al hover
-        for (const objectName of currentHovered) {
-            if (!previousHovered.has(objectName)) {
-                this.emitObjectEnter(objectName, this._interceptableObjects[objectName]);
-            }
+        if (first && !previousHovered.has(first)) {
+            this.emitObjectEnter(first, this._interceptableObjects[first]);
         }
 
         // Detectar clicks en objetos
-        if (result.clicked && result.interceptedObjects.length > 0) {
-            // Emitir click para cada objeto interceptado
-            result.interceptedObjects.forEach(objectName => {
-                this.emitObjectClick(objectName, this._interceptableObjects[objectName]);
-            });
+        if (result.clicked && first) {
+            this.emitObjectClick(first, this._interceptableObjects[first]);
         }
 
         // Actualizar estado anterior
@@ -298,6 +305,24 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         // Ejecutar lógica interna (animaciones directas por compatibilidad)
         this.handleObjectEnterInternal(eventArgs);
 
+        // Activar highlight shader overlay en el objeto hovered
+        if (this._currentRoom) {
+            const obj = this._currentRoom.getObjectByName(objectName);
+            if (obj) {
+                // Sólo aplicable a Mesh
+                if ((obj as any).isMesh) {
+                    this.highlightService?.add(obj as unknown as THREE.Mesh);
+                } else {
+                    // Si el interceptable apunta a un Group, buscar primer Mesh hijo
+                    let meshChild: THREE.Mesh | null = null;
+                    obj.traverse((child) => {
+                        if (!meshChild && (child as any).isMesh) meshChild = child as THREE.Mesh;
+                    });
+                    if (meshChild) this.highlightService?.add(meshChild);
+                }
+            }
+        }
+
         // Ejecutar callback del usuario si existe
         this._userCallbacks.objects?.onHover?.(eventArgs);
     }
@@ -314,6 +339,22 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         this.core.emit('objectLeave', eventArgs);
         document.body.style.cursor = "default";
         this.handleObjectLeaveInternal(eventArgs);
+
+        // Desactivar highlight shader overlay del objeto
+        if (this._currentRoom) {
+            const obj = this._currentRoom.getObjectByName(objectName);
+            if (obj) {
+                if ((obj as any).isMesh) {
+                    this.highlightService?.remove(obj as unknown as THREE.Mesh);
+                } else {
+                    let meshChild: THREE.Mesh | null = null;
+                    obj.traverse((child) => {
+                        if (!meshChild && (child as any).isMesh) meshChild = child as THREE.Mesh;
+                    });
+                    if (meshChild) this.highlightService?.remove(meshChild);
+                }
+            }
+        }
         this._userCallbacks.objects?.onHoverLeave?.(eventArgs);
     }
 

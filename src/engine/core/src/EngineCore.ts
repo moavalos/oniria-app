@@ -13,6 +13,7 @@ import { EngineState } from "../types/engine.types";
 import { useEngineStore } from "../store/engineStore";
 import { PortalholeRenderer } from "@/engine/services/renderers/PortalholeRenderer";
 import { NebulaRenderer } from "@/engine/services/renderers/NebulaRenderer";
+import { HighlightService } from "@/engine/services/effects/HighlightService";
 
 /**
  * Núcleo del motor 3D que coordina servicios, sistemas y el ciclo de vida del motor.
@@ -90,6 +91,7 @@ export class EngineCore extends EventEmitter {
         // Rendererers especializados
         this.registry.registerService(PortalholeRenderer, new PortalholeRenderer(this._scene!, this._camera!));
         this.registry.registerService(NebulaRenderer, new NebulaRenderer(this._scene!));
+        this.registry.registerService(HighlightService, new HighlightService());
 
         // Crear managers especializados
 
