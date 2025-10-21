@@ -267,6 +267,24 @@ export class EngineAPI {
         },
 
         /**
+         * Transiciona la cámara para ver los nodos de la sala activa
+         */
+        viewTravel: () => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para camera.viewTravel");
+                return;
+            }
+
+            const cameraSystem = this._core.getSystem(CameraSystem);
+            if (!cameraSystem) {
+                console.warn("[EngineAPI] CameraSystem no disponible");
+                return;
+            }
+
+            (cameraSystem as CameraSystem).startTravel();
+        },
+
+        /**
          * Resetea la cámara a su posición inicial
          */
         viewReset: () => {

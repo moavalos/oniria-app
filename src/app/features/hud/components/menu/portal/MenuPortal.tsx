@@ -21,12 +21,13 @@ export default function MenuPortal({
   const handleItemClick = (itemIndex: number) => {
     switch (itemIndex) {
       case 0:
-        engine.camera.viewNodes();
+        engine.camera.viewTravel();
         closeMenu();
-        // Lógica de teletransporte al Lobby
+
         break;
       case 1:
-        // Lógica de teletransporte a la Sala de Juegos
+        engine.camera.viewNodes();
+        closeMenu();
         break;
       default:
         console.warn(

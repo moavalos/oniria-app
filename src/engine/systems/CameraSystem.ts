@@ -17,6 +17,8 @@ export class CameraSystem extends BaseSystem implements Injectable {
 
     private config: CameraConfig | null = null;
 
+    private travel: boolean = false;
+
     /**
      * Constructor del sistema de cámara.
      * 
@@ -78,13 +80,39 @@ export class CameraSystem extends BaseSystem implements Injectable {
         const target = activeRoom.getPortal()?.position;
         if (!target) return;
 
+        this.travel = false;
+
         this.cameraService.setRestThreshold(0.8);
         this.cameraService.setLookAt(
             new THREE.Vector3(target.x, target.y, target.z),
             new THREE.Vector3(target.x, target.y, target.z - 0.5),
             true
         );
-        this.core.emit("camera:view:nodes", {});
+
+    }
+
+    /**
+    * Transiciona la cámara para ver los nodos de la sala activa.
+    */
+    startTravel(): void {
+        if (!this.cameraService) return;
+
+        const activeRoom = this.core.getCurrentRoom();
+        if (!activeRoom) return;
+
+        const target = activeRoom.getPortal()?.position;
+        if (!target) return;
+
+
+        this.travel = true;
+
+        this.cameraService.setRestThreshold(0.8);
+        this.cameraService.setLookAt(
+            new THREE.Vector3(target.x, target.y, target.z),
+            new THREE.Vector3(target.x, target.y, target.z - 0.5),
+            true
+        );
+
     }
 
     /**
@@ -92,6 +120,8 @@ export class CameraSystem extends BaseSystem implements Injectable {
      */
     viewReset(): void {
         if (!this.cameraService) return;
+        this.travel = false;
+        this.core.emit("camera:view:reset", {});
         this.cameraService.resetInitialPosition();
     }
 
@@ -222,7 +252,7 @@ export class CameraSystem extends BaseSystem implements Injectable {
             this.cameraService.setAzimuthMinAngle(-0.1);
             this.cameraService.setEnableZoom(false);
             this.cameraService.setEnablePan(false);
-            this.core.emit("camera:inside-portal", { distance });
+            this.core.emit("camera:inside-portal", { distance, travel: this.travel });
         } else {
             this.cameraService.setDraggingSmoothTime(0.1);
             const defaultConfig = this.cameraService.getDefaultConfig();
