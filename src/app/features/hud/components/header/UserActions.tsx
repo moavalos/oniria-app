@@ -1,7 +1,8 @@
 import NotificationButton from "@/assets/icons/store/NotificationButton";
-import MobileMenuButton from "@/app/shared/components/users/MobileMenuButton";
-import UserProfile from "@/app/shared/components/users/UserProfile";
-import { useAuth } from "../../auth/hooks/useAuth";
+import MobileMenuButton from "@/app/features/hud/components/header/MobileMenuButton";
+import UserProfile from "@/app/features/hud/components/header/UserProfile";
+import { useAuth } from "../../../auth/hooks/useAuth";
+import UserLike from "./UserLike";
 
 type UserActionsProps = {
   onNotificationClick?: () => void;
@@ -25,12 +26,13 @@ export default function UserActions({
   };
 
   return (
-    <div className="header-actions">
+    <div className="header-actions items-centeru gap-4">
+      <UserLike />
       <NotificationButton onClick={onNotificationClick} />
       <UserProfile
         name={user?.user_metadata.full_name ?? "Invitado"}
         email={user?.email ?? ""}
-        onClick={onProfileClick}
+        onClick={onClick}
       />
       <MobileMenuButton onClick={onMenuClick} />
     </div>

@@ -31,6 +31,7 @@ export default function DreamSystem() {
 
   return (
     <DreamForm
+      onInterpret={() => {}}
       onClose={handleCloseMenu}
       type={dreamForm.type}
       data={dreamForm.data}

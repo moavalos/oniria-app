@@ -51,7 +51,7 @@
   "node": {
     "title": "¿Qué soñaste?",
     "descriptionLabel": "Descubri el significado de tus sueños con nuestra IA.",
-    "placeholderNode": "Escribí tu sueño acá…",
+    "placeholderNode": "Hoy soñe …",
     "character1": "Te pasaste del máximo de ",
     "character2": "caracteres",
     "interpretar": "Interpretar",

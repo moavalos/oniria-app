@@ -102,7 +102,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(RoomManager, new RoomManager(this, new ConfigManager()));
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
-        this.registry.registerService(NebulaManager, new NebulaManager(this));
+        this.registry.registerService(NebulaManager, new NebulaManager(this, this._gl!.domElement));
 
 
 

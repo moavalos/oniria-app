@@ -21,13 +21,19 @@ export class NebulaManager {
 
     private core: EngineCore;
 
+    private mouse: THREE.Vector2 = new THREE.Vector2(0, 0);
+
+    private domElement: HTMLElement | null = null;
+
     /**
      * Crea una nueva instancia del gestor de nebula
      * 
      * @param core - Instancia del núcleo del motor para acceso a servicios
+     * @param domElement - Elemento del canvas para el listener del mouse
      */
-    constructor(core: EngineCore) {
+    constructor(core: EngineCore, domElement: HTMLElement) {
         this.core = core;
+        this.domElement = domElement;
         this.init();
     }
 
@@ -37,8 +43,33 @@ export class NebulaManager {
     init(): void {
         this.materialService = this.core.getService(MaterialService);
         this.assetManager = this.core.getService(AssetManager);
+        
+        // Inicializar el listener del mouse
+        this.setupMouseListener();
 
         console.log("[NebulaManager]: Servicios inicializados");
+    }
+
+    /**
+     * Configura el listener para capturar el movimiento del mouse
+     * En ShaderToy, el mouse es simplemente la posición actual normalizada
+     */
+    private setupMouseListener(): void {
+        if (!this.domElement) {
+            console.warn("[NebulaManager]: No se puede configurar el listener del mouse sin domElement");
+            return;
+        }
+
+        const onMouseMove = (event: MouseEvent) => {
+            // Normalizar coordenadas del mouse a rango [0, 1] como en ShaderToy
+            const rect = this.domElement!.getBoundingClientRect();
+            this.mouse.x = (event.clientX - rect.left) / rect.width;
+            this.mouse.y = 1.0 - (event.clientY - rect.top) / rect.height; // Invertir Y para coincidir con ShaderToy
+        };
+
+        this.domElement.addEventListener('mousemove', onMouseMove);
+        
+        console.log("[NebulaManager]: Listener de mouse configurado");
     }
 
     /**
@@ -111,6 +142,11 @@ export class NebulaManager {
         // Actualizar uniforms animados
         if (material.uniforms.uTime) {
             material.uniforms.uTime.value += deltaTime;
+        }
+
+        // Actualizar coordenadas del mouse
+        if (material.uniforms.uMouse) {
+            material.uniforms.uMouse.value.copy(this.mouse);
         }
     }
 

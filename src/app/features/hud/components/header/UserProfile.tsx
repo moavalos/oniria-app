@@ -15,9 +15,8 @@ export default function UserProfile({
   return (
     <div
       onClick={onClick}
-      className="hidden md:flex items-center gap-2 rounded-full px-3 py-1.5 border transition-all duration-200 ease-out cursor-pointer backdrop-blur-2xl"
+      className="hidden md:flex bg-gray-700/45 items-center gap-2 rounded-full px-3 py-1.5 border transition-all duration-200 ease-out cursor-pointer backdrop-blur-2xl"
       style={{
-        backgroundColor: "var(--user-bg)",
         borderColor: "var(--user-border)",
       }}
       onMouseEnter={(e) => {

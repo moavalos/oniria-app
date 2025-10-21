@@ -4,6 +4,7 @@ import { useDreamInput } from "../../../home/hooks/useDreamInput";
 import type { Dream, DreamFormType } from "@/engine";
 import { useTranslation } from "react-i18next";
 import Icon from "@/assets/icons/Icon";
+import { useAuth } from "@/app/features/auth/hooks/useAuth";
 
 interface DreamFormProps {
   maxChars?: number;
@@ -19,6 +20,7 @@ export default function DreamForm({
   onInterpret,
 }: DreamFormProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { dream, dreamRef, handleTextChange, charsLeft, isTooLong, isEmpty } =
     useDreamInput({
       maxChars,
@@ -42,7 +44,8 @@ export default function DreamForm({
 
         <HudMenu.Body>
           <h2 className="text-sm">
-            Hola Eliana, ¿Qué imágenes quedaron de tu sueño?
+            Hola {user?.user_metadata.full_name ?? "Invitado"}, ¿Qué imágenes
+            quedaron de tu sueño?
           </h2>
           <p className="text-xs text-text-muted">
             Escribí libremente, sin preocuparte por el orden. Oniria se
