@@ -299,7 +299,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         };
 
         // Emitir al core para que otros sistemas escuchen
-        this.core.emit('objectEnter', eventArgs);
+        this.core.emit('object:Enter', eventArgs);
         document.body.style.cursor = "pointer";
 
         // Ejecutar lógica interna (animaciones directas por compatibilidad)
@@ -336,7 +336,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
             data: events
         };
 
-        this.core.emit('objectLeave', eventArgs);
+        this.core.emit('object:Leave', eventArgs);
         document.body.style.cursor = "default";
         this.handleObjectLeaveInternal(eventArgs);
 
@@ -367,7 +367,7 @@ export class InteractionSystem extends BaseSystem implements Injectable {
             data: events
         };
 
-        this.core.emit('objectClick', eventArgs);
+        this.core.emit('object:Click', eventArgs);
         this.handleObjectClickInternal(eventArgs);
         this._userCallbacks.objects?.onClick?.(eventArgs);
     }

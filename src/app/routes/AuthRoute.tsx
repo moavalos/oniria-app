@@ -5,10 +5,10 @@ import PrivateRoute from "../features/auth/components/PrivateRoute";
 export default function AuthRoute() {
   return (
     <Routes>
-      <Route index element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route
-        path="/home"
+        path="/"
         element={
           <PrivateRoute>
             <MainLayout />

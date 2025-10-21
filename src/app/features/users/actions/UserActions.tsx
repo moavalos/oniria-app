@@ -1,4 +1,4 @@
-import NotificationButton from "@/assets/icons/NotificationButton";
+import NotificationButton from "@/assets/icons/store/NotificationButton";
 import MobileMenuButton from "@/app/shared/components/users/MobileMenuButton";
 import UserProfile from "@/app/shared/components/users/UserProfile";
 import { useAuth } from "../../auth/hooks/useAuth";

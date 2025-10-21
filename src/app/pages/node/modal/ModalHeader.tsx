@@ -1,4 +1,4 @@
-import CloseIcon from "@/assets/icons/CloseIcon";
+import CloseIcon from "@/assets/icons/store/CloseIcon";
 import { useTranslation } from "react-i18next";
 
 type ModalHeaderProps = {

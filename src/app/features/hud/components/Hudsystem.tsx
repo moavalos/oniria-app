@@ -38,9 +38,27 @@ export function HudTopBar({ className, children, ...props }: HudTopBarProps) {
   );
 }
 
+export interface HudBodyProps
+  extends PropsWithChildren,
+    React.HTMLProps<HTMLDivElement> {
+  className?: string;
+}
+
+export function HudBody({ className, children, ...props }: HudBodyProps) {
+  return (
+    <div
+      className={`flex relative  w-full h-full  pointer-events-none ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
 const HudSystem = Object.assign(HudContainer, {
   Container: HudContainer,
   TopBar: HudTopBar,
+  Body: HudBody,
 });
 
 export default HudSystem;

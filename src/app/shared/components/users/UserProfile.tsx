@@ -1,5 +1,5 @@
-import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
-import UserIcon from "@/assets/icons/UserIcon";
+import ChevronDownIcon from "@/assets/icons/store/ChevronDownIcon";
+import UserIcon from "@/assets/icons/store/UserIcon";
 
 type UserProfileProps = {
   name: string;

@@ -135,6 +135,12 @@ type EngineStore = {
     dreamModalVisible: boolean;
     setDreamModalVisible: (_visible: boolean) => void;
 
+    // Menu state
+    activeMenu: string | null;
+    menuData?: Record<string, any>;
+    setActiveMenu: (_menu: string | null, _data?: Record<string, any>) => void;
+    closeMenu: () => void;
+
     // Loading state - nuestro sistema propio
     active: boolean;
     progress: number;
@@ -225,6 +231,12 @@ export const useEngineStore = create<EngineStore>((set, get) => ({
     // HUD state
     dreamModalVisible: false,
     setDreamModalVisible: (visible) => set({ dreamModalVisible: visible }),
+
+    // Menu state
+    activeMenu: null,
+    menuData: undefined,
+    setActiveMenu: (menu, data) => set({ activeMenu: menu, menuData: data }),
+    closeMenu: () => set({ activeMenu: null, menuData: undefined }),
 
     // Loading state inicial
     active: false,

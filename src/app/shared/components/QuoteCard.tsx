@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import "@pages/main/styles/LeftPanel.css";
-import QuoteIcon from "@/assets/icons/QuoteIcon";
-import RefreshIcon from "@/assets/icons/RefreshIcon";
+import QuoteIcon from "@/assets/icons/store/QuoteIcon";
+import RefreshIcon from "@/assets/icons/store/RefreshIcon";
 import Card from "./Card";
 
 type QuoteCardProps = {

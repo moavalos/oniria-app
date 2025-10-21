@@ -8,18 +8,14 @@ import {
 } from "../systems/InteractionSystem";
 
 export interface InteractionProps {
-  config?: Omit<InteractionConfig, "callbacks">;
+  config?: InteractionConfig;
 }
 
 /**
  * Componente de sistema de interacciones del motor 3D.
  * Registra la clase InteractionSystem en el core con una API limpia para callbacks.
  *
- * @param config Configuración inicial de interacciones
- * @param objects Callbacks para interacciones con objetos
- * @param nodes Callbacks para interacciones con nodos
- * @param navigation Callbacks para navegación
- * @param enableInteractions Habilita o deshabilita las interacciones
+ * @param config Configuración inicial de interacciones (incluye callbacks)
  * @returns Componente React que no renderiza nada pero gestiona las interacciones
  *
  */

@@ -10,9 +10,9 @@ import { useHomePanel } from "@/app/features/home/hooks/useHomePanel";
 import DreamTextarea from "@/app/shared/components/DreamTextarea";
 import QuoteCard from "@/app/shared/components/QuoteCard";
 import MenuButton from "@/app/shared/components/MenuButton";
-import SettingsIcon from "@/assets/icons/SettingsIcon";
-import BadgeIcon from "@/assets/icons/BadgeIcon";
-import ClockIcon from "@/assets/icons/ClockIcon";
+import SettingsIcon from "@/assets/icons/store/SettingsIcon";
+import BadgeIcon from "@/assets/icons/store/BadgeIcon";
+import ClockIcon from "@/assets/icons/store/ClockIcon";
 import { useState } from "react";
 
 type HistoryVariantProps = {

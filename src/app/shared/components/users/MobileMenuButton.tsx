@@ -1,17 +1,17 @@
-import MenuIcon from "@/assets/icons/MenuIcon";
+import MenuIcon from "@/assets/icons/store/MenuIcon";
 
 type MobileMenuButtonProps = {
-    onClick?: () => void;
+  onClick?: () => void;
 };
 
 export default function MobileMenuButton({ onClick }: MobileMenuButtonProps) {
-    return (
-        <button
-            onClick={onClick}
-            className="header-button md:hidden"
-            aria-label="Menú"
-        >
-            <MenuIcon className="header-button-icon" />
-        </button>
-    );
+  return (
+    <button
+      onClick={onClick}
+      className="header-button md:hidden"
+      aria-label="Menú"
+    >
+      <MenuIcon className="header-button-icon" />
+    </button>
+  );
 }

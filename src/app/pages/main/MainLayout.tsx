@@ -13,11 +13,15 @@ import type { Dream } from "@/engine/core/store/engineStore";
 import HudSystem from "@/app/features/hud/components/Hudsystem";
 import UserActions from "@/app/features/users/actions/UserActions";
 import HeaderLogo from "@/app/shared/components/users/HeaderLogo";
+import BadgeCard from "@/app/features/hud/components/badges/BadgeCard";
+import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
+import MenuSystem from "@/app/features/hud/components/MenuSystem";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
   const { fetchDreams } = useDreams();
   const { setDream } = useEngineStore();
+  const handler = useHudHandler();
 
   const engine = useEngineAPI();
 
@@ -28,12 +32,6 @@ export default function MainLayout() {
     console.log("[Home] Calling engine.setRoom:", roomId, skinId);
     engine.setRoom(roomId, skinId);
   }, []);
-
-  const handleBackHome = () => {
-    setDream(null);
-    engine.camera.viewReset();
-    console.log("Back to home - TODO: implementar navegación");
-  };
 
   const handleInterpretar = async (dream: string) => {
     await engine.camera.viewNodes();
@@ -47,12 +45,6 @@ export default function MainLayout() {
     //navegar a otra pagina con el resultado
     //navigate("/interpretacion");
   };
-  const canvasBg =
-    typeof window !== "undefined"
-      ? getComputedStyle(document.documentElement)
-          .getPropertyValue("--canvas-bg")
-          .trim() || "#000000"
-      : "#000000";
 
   return (
     <main className="relative w-full h-dvh ">
@@ -61,13 +53,16 @@ export default function MainLayout() {
           <HeaderLogo text={"oniria"} />
           <UserActions />
         </HudSystem.TopBar>
+        <HudSystem.Body>
+          <MenuSystem />
+        </HudSystem.Body>
       </HudSystem.Container>
       <LoaderSystem />
 
       {roomId && skinId && (
         <Engine.Canvas
           engineSettings={{
-            backgroundColor: canvasBg,
+            backgroundColor: "#000000",
             cameraPosition: [-5, 4, 4],
           }}
         >
@@ -75,23 +70,16 @@ export default function MainLayout() {
             <DebugSystem enabled={true} />
             <Systems.Interaction
               config={{
-                enableOutline: true,
-                outlineParams: {
-                  // defaults del efecto (opcionales)
-                  defaultColor: "#00ffa8",
-                  defaultThickness: 0.007,
-                  defaultAlpha: 1,
-                  defaultKeepAlive: true,
-                  // overrides por objeto al hacer hover (opcionales)
-                  perObject: {
-                    color: "#00ffa8",
-                    thickness: 0.003,
-                    alpha: 1,
+                callbacks: {
+                  objects: {
+                    onClick: handler.objectClickHandler,
+                    onHover: handler.objectEnterHandler,
+                    onHoverLeave: handler.objectLeaveHandler,
                   },
-                  recursive: false,
                 },
               }}
             />
+            <Systems.Badges badgeComponent={BadgeCard} />
             <Systems.Animation
               config={{
                 autoPlay: true,
