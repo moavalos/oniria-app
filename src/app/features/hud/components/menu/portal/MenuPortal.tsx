@@ -1,5 +1,7 @@
 import HudMenu from "@/app/shared/components/menu/CardMenu";
 import menuFactory from "../menuFactory";
+import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
+import { useEngineStore } from "@/engine";
 
 export interface MenuPortalProps {
   data?: Record<string, any>;
@@ -12,6 +14,27 @@ export default function MenuPortal({
   isClosing = false,
 }: MenuPortalProps) {
   const menu = menuFactory.portal;
+  const engine = useEngineAPI();
+  const { closeMenu } = useEngineStore();
+
+  // Handler único que procesa el click de cada item
+  const handleItemClick = (itemIndex: number) => {
+    switch (itemIndex) {
+      case 0:
+        engine.camera.viewNodes();
+        closeMenu();
+        // Lógica de teletransporte al Lobby
+        break;
+      case 1:
+        // Lógica de teletransporte a la Sala de Juegos
+        break;
+      default:
+        console.warn(
+          `[MenuPortal] Opción desconocida seleccionada: ${itemIndex}`
+        );
+    }
+  };
+
   return (
     <HudMenu.Root
       className="flex items-start h-fit gap-3"
@@ -33,10 +56,7 @@ export default function MenuPortal({
               label={item.label}
               description={item.description}
               icon={item.icon}
-              onClick={() => {
-                item.action();
-                onClose();
-              }}
+              onClick={() => handleItemClick(index)}
             />
           ))}
         </HudMenu.Body>
