@@ -173,11 +173,16 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         // Usar deltaTime para evitar warning de lint
         void deltaTime;
 
-        // Actualizar interacciones con Room
-        this.updateRoomInteractions();
+        // Solo actualizar interacciones con Room si NO hay nodo activo
+        // Esto evita que clicks en el nodo disparen eventos de objetos de la room
+        if (!this._currentNode) {
+            this.updateRoomInteractions();
+        }
 
-        // Actualizar interacciones con Nodo
-        this.updateNodeInteractions();
+        // Actualizar interacciones con Nodo solo si hay nodo activo
+        if (this._currentNode) {
+            this.updateNodeInteractions();
+        }
 
         // Resetear flags one-shot al final del frame
         this.interactionService.resetFrame();
