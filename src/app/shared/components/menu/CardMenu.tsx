@@ -1,19 +1,71 @@
 import Icon from "@/assets/icons/Icon";
 import type { IconName } from "@/assets/icons/iconsStore";
 import type { PropsWithChildren } from "react";
+import { createContext, useContext } from "react";
+
+// Contexto para compartir el estado de cierre entre componentes
+interface MenuContextValue {
+  isClosing: boolean;
+}
+
+const MenuContext = createContext<MenuContextValue>({ isClosing: false });
+
+// Hook para consumir el contexto
+const useMenuContext = () => useContext(MenuContext);
 
 export function MenuRoot({
   children,
   className,
-}: PropsWithChildren<{ className?: string }>) {
-  return <div className={className}>{children}</div>;
+  isClosing = false,
+}: PropsWithChildren<{ className?: string; isClosing?: boolean }>) {
+  return (
+    <MenuContext.Provider value={{ isClosing }}>
+      <div className={className}>{children}</div>
+    </MenuContext.Provider>
+  );
 }
 
 export function MenuDescription({
   className,
   children,
 }: PropsWithChildren<{ className?: string }>) {
-  return <div className={className}>{children}</div>;
+  const { isClosing } = useMenuContext();
+
+  return (
+    <div
+      className={`border p-2 relative border-gray-500/20 backdrop-blur-md text-light/70 bg-gray-800/50 pointer-events-none ${className}`}
+      style={{
+        animation: isClosing
+          ? "fadeOutSlide 0.3s ease-in forwards"
+          : "fadeInSlide 0.3s ease-out 0.35s both",
+      }}
+    >
+      <div className="absolute top-0 left-0 h-full w-[5px] bg-orange-300  text-xs text-gray-400" />
+      <p className="ml-3">{children}</p>
+      <style>{`
+        @keyframes fadeInSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeOutSlide {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+        }
+      `}</style>
+    </div>
+  );
 }
 
 export function MenuItem({
@@ -59,11 +111,40 @@ export function MenuContainer({
   className,
   children,
 }: PropsWithChildren<{ className?: string }>) {
+  const { isClosing } = useMenuContext();
+
   return (
     <div
       className={`flex flex-col gap-2 rounded-[8px] px-4 py-1.5 h-fit border border-gray-500/20 cursor-pointer backdrop-blur-md bg-gray-600/30 pointer-events-none ${className}`}
+      style={{
+        animation: isClosing
+          ? "fadeOutSlide 0.3s ease-in forwards"
+          : "fadeInSlide 0.5s ease-out",
+      }}
     >
       {children}
+      <style>{`
+        @keyframes fadeInSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeOutSlide {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+        }
+      `}</style>
     </div>
   );
 }

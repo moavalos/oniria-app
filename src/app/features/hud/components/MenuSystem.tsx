@@ -1,6 +1,7 @@
 import { useEngineStore } from "@/engine/core/store/engineStore";
 import MenuPortal from "./menu/portal/MenuPortal";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
+import { useState, useEffect } from "react";
 
 /**
  * Registro de menús disponibles
@@ -41,11 +42,25 @@ export interface MenuSystemProps {
 export default function MenuSystem({ onClose }: MenuSystemProps) {
   const { activeMenu, menuData, closeMenu } = useEngineStore();
   const engine = useEngineAPI();
+  const [isClosing, setIsClosing] = useState(false);
+  const [displayMenu, setDisplayMenu] = useState<string | null>(null);
 
-  // Si no hay menú activo, no renderizar nada
-  if (!activeMenu) {
-    return null;
-  }
+  // Manejar cambios en activeMenu
+  useEffect(() => {
+    if (activeMenu) {
+      setDisplayMenu(activeMenu);
+      setIsClosing(false);
+    } else if (displayMenu) {
+      // Iniciar animación de cierre
+      setIsClosing(true);
+      // Esperar a que termine la animación antes de desmontar
+      const timer = setTimeout(() => {
+        setDisplayMenu(null);
+        setIsClosing(false);
+      }, 300); // Duración de la animación de fade-out
+      return () => clearTimeout(timer);
+    }
+  }, [activeMenu, displayMenu]);
 
   const handleCloseMenu = () => {
     engine.camera.viewReset();
@@ -53,8 +68,13 @@ export default function MenuSystem({ onClose }: MenuSystemProps) {
     closeMenu();
   };
 
+  // Si no hay menú para mostrar, no renderizar nada
+  if (!displayMenu) {
+    return null;
+  }
+
   // Obtener el componente del menú desde el registro
-  const MenuComponent = menuRegistry[activeMenu as MenuName];
+  const MenuComponent = menuRegistry[displayMenu as MenuName];
 
   // Si el menú no existe en el registro, mostrar advertencia
   if (!MenuComponent) {
@@ -62,6 +82,12 @@ export default function MenuSystem({ onClose }: MenuSystemProps) {
     return null;
   }
 
-  // Renderizar el menú con los datos opcionales
-  return <MenuComponent data={menuData} onClose={handleCloseMenu} />;
+  // Renderizar el menú con los datos opcionales y el estado de cierre
+  return (
+    <MenuComponent
+      data={menuData}
+      onClose={handleCloseMenu}
+      isClosing={isClosing}
+    />
+  );
 }

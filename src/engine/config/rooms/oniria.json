@@ -10,7 +10,7 @@
       "color": "#FFFFFF",
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
-      "lookAtOffset": [-1, 0, 3]
+      "lookAtOffset": [-1, 0.0, 4]
     },
     "neon_text": { "color": "#FFFFFF", "lookAtOffset": [-1.2, -1.0, 3] },
     "dog_handler": {
