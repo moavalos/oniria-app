@@ -54,10 +54,14 @@ export default function MainLayout() {
           <HeaderLogo text={"oniria"} />
           <UserActions />
         </HudSystem.TopBar>
-        <HudSystem.Body>
+        <HudSystem.Body footerHeight="h-24">
           <MenuSystem />
           {isDreamSystemActive && <DreamSystem />}
         </HudSystem.Body>
+        {/* Footer reservado para futuras cards o controles */}
+        <HudSystem.Footer height="h-24" className="pointer-events-none">
+          {/* Aquí puedes agregar cards adicionales en el futuro */}
+        </HudSystem.Footer>
       </HudSystem.Container>
       <LoaderSystem />
 

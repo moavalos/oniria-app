@@ -42,8 +42,8 @@ export default function DreamForm({
   };
 
   return (
-    <HudMenu.Root className="flex items-start h-fit gap-3 shrink-0">
-      <HudMenu.Container className="w-96 max-w-full flex pb-5 flex-col gap-4 ">
+    <HudMenu.Root className="flex items-start h-full gap-3 shrink-0">
+      <HudMenu.Container className="w-96 max-w-full h-full flex pb-5 flex-col gap-4 ">
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary ">

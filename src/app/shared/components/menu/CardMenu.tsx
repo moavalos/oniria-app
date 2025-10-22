@@ -113,9 +113,12 @@ export function MenuContainer({
 }: PropsWithChildren<{ className?: string }>) {
   const { isClosing } = useMenuContext();
 
+  // Si className incluye h-full, no añadir h-fit
+  const heightClass = className?.includes('h-full') ? '' : 'h-fit';
+
   return (
     <div
-      className={`flex flex-col gap-2 rounded-[8px] px-4 py-1.5 h-fit border border-gray-500/20 cursor-pointer backdrop-blur-md bg-gray-600/30 pointer-events-none ${className}`}
+      className={`flex flex-col gap-2 rounded-[8px] px-4 py-1.5 ${heightClass} border border-gray-500/20 cursor-pointer backdrop-blur-md bg-gray-600/30 pointer-events-none ${className}`}
       style={{
         animation: isClosing
           ? "fadeOutSlide 0.3s ease-in forwards"
@@ -183,7 +186,7 @@ export function MenuBody({
   children,
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={`pointer-events-auto flex flex-col gap-2 ${className}`}>
+    <div className={`pointer-events-auto flex flex-col gap-2 flex-1 overflow-hidden ${className}`}>
       {children}
     </div>
   );

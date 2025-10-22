@@ -130,8 +130,8 @@ export default function DreamManager({
   }, [dream, currentText, startTypingAnimation, typingSpeed]);
 
   return (
-    <HudMenu.Root className="w-full flex justify-end h-fit">
-      <HudMenu.Container className="max-w-lg h-full  pb-5 w-full">
+    <HudMenu.Root className="w-full flex justify-end h-full">
+      <HudMenu.Container className="max-w-lg h-full pb-5 w-full">
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary ">
@@ -144,7 +144,7 @@ export default function DreamManager({
           <div className="modal-content overflow-y-scroll scrollbar flex-1">
             <div
               ref={textRef}
-              className="text-light/75"
+              className="text-light/75 font-normal leading-relaxed"
               style={{ minHeight: "300px" }}
             >
               {displayedText}

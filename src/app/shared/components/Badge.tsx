@@ -24,13 +24,13 @@ export default function Badge({
   showButtons = true,
 }: BadgeProps) {
   const variantStyles = {
-    info: "border-violet-400/40 bg-violet-500/10 shadow-[0_0_15px_rgba(217,70,239,0.25)]",
+    info: "border-violet-400/30 bg-violet-500/5 shadow-[0_0_15px_rgba(217,70,239,0.25)]",
     warning:
-      "border-amber-400/40 bg-amber-500/10 shadow-[0_0_15px_rgba(251,191,36,0.25)]",
+      "border-amber-400/30 bg-amber-500/5 shadow-[0_0_15px_rgba(251,191,36,0.25)]",
     success:
-      "border-emerald-400/40 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.25)]",
+      "border-emerald-400/30 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.25)]",
     feature:
-      "border-fuchsia-400/40 bg-fuchsia-500/10 shadow-[0_0_15px_rgba(232,121,249,0.35)]",
+      "border-fuchsia-400/30 bg-fuchsia-500/5 shadow-[0_0_15px_rgba(232,121,249,0.35)]",
   };
 
   return (
