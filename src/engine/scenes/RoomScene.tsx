@@ -191,18 +191,18 @@ export default function RoomScene() {
       setRenderImage(true);
     };
 
-    const handleHideImage = () => {
-      console.log("[RoomScene] Ocultar imagen");
+    const handleImageDestroyed = () => {
+      console.log("[RoomScene] Imagen destruida, desmontando escena");
       setImageUrl(null);
       setRenderImage(false);
     };
 
     core.on("image:show", handleShowImage);
-    core.on("image:hide", handleHideImage);
+    core.on("image:destroyed", handleImageDestroyed);
 
     return () => {
       core.off("image:show");
-      core.off("image:hide");
+      core.off("image:destroyed");
     };
   }, [core]);
 
