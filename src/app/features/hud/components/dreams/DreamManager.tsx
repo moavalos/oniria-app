@@ -19,7 +19,6 @@ interface DreamManagerProps {
 }
 
 export default function DreamManager({
-  visibility = true,
   actionsVisible = true,
   typingSpeed = 40,
   onClose,
