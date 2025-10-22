@@ -1,5 +1,6 @@
 import ModalActions, {
   type SaveState,
+  type ImageGenerationState,
 } from "@/app/pages/node/modal/ModalActions";
 import HudMenu from "@/app/shared/components/menu/CardMenu";
 import Badge from "@/app/shared/components/Badge";
@@ -34,6 +35,7 @@ export default function DreamManager({
   const [isTyping, setIsTyping] = useState(false);
   const [currentText, setCurrentText] = useState(""); // Para trackear cambios de texto
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [imageState, setImageState] = useState<ImageGenerationState>("idle");
   const [showCloseBadge, setShowCloseBadge] = useState(false);
   const hasInitialized = useRef(false); // Para controlar la primera animación
   const engine = useEngineAPI();
@@ -103,19 +105,70 @@ export default function DreamManager({
     if (saveState !== "saved") {
       setShowCloseBadge(true);
     } else {
-      onClose?.();
+      // Si hay imagen visible, iniciar cierre y esperar a que termine la animación
+      if (imageState === "generated") {
+        engine.image.hide();
+        // Esperar al evento image:destroyed antes de cerrar
+        engine.image.onDestroyed(() => {
+          onClose?.();
+        });
+      } else {
+        onClose?.();
+      }
     }
-  }, [saveState, onClose]);
+  }, [saveState, imageState, engine, onClose]);
 
   // Handler para confirmar cierre sin guardar
   const handleConfirmClose = useCallback(() => {
-    onClose?.();
-  }, [onClose]);
+    // Si hay imagen visible, iniciar cierre y esperar a que termine la animación
+    if (imageState === "generated") {
+      engine.image.hide();
+      // Esperar al evento image:destroyed antes de cerrar
+      engine.image.onDestroyed(() => {
+        onClose?.();
+      });
+    } else {
+      onClose?.();
+    }
+  }, [imageState, engine, onClose]);
 
   // Handler para cancelar cierre
   const handleCancelClose = useCallback(() => {
     setShowCloseBadge(false);
   }, []);
+
+  // Handler para generar imagen
+  const handleGenerateImage = useCallback(() => {
+    if (!dream?.imageUrl) return;
+
+    setImageState("generating");
+    // Llamar al engine para mostrar la imagen
+    engine.image.show(dream.imageUrl);
+  }, [dream, engine]);
+
+  // Handler para descargar imagen
+  const handleDownloadImage = useCallback(() => {
+    if (!dream?.imageUrl) return;
+
+    // Crear un enlace temporal y hacer click automático para descargar
+    const link = document.createElement("a");
+    link.href = dream.imageUrl;
+    link.download = `dream-${dream.title || "interpretation"}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [dream]);
+
+  // Escuchar evento de imagen lista
+  useEffect(() => {
+    if (!engine) return;
+
+    // Suscribirse al evento usando la API pública
+    engine.image.onReady(() => {
+      console.log("[DreamManager] Imagen lista");
+      setImageState("generated");
+    });
+  }, [engine]);
 
   // Efecto para iniciar la animación al montar o cuando cambia el dream
   useEffect(() => {
@@ -178,13 +231,21 @@ export default function DreamManager({
           {/* Badge de nueva funcionalidad - Generación de imagen */}
           <Badge
             title={
-              saveState === "saved"
+              saveState === "saved" && imageState === "generated"
                 ? "¡Tu imagen ya está lista!"
+                : saveState === "saved" && imageState === "generating"
+                ? "Generando tu imagen..."
+                : saveState === "saved"
+                ? "¡Interpretación guardada!"
                 : "Nueva funcionalidad"
             }
             message={
-              saveState === "saved"
+              saveState === "saved" && imageState === "generated"
                 ? "Tu interpretación ha sido transformada en una imagen única."
+                : saveState === "saved" && imageState === "generating"
+                ? "Estamos creando una imagen visual de tu sueño. Esto puede tomar unos momentos..."
+                : saveState === "saved"
+                ? "Tu interpretación ha sido transformada en una experiencia visual única."
                 : "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?"
             }
             variant="feature"
@@ -199,14 +260,23 @@ export default function DreamManager({
                   }
                 : undefined
             }
-            confirmText={saveState === "saved" ? "Ver imagen" : undefined}
-            onConfirm={
-              saveState === "saved"
-                ? () => {
-                    engine.showImage(dream?.imageUrl || "");
-                  }
+            confirmText={
+              saveState === "saved" && imageState === "idle"
+                ? "Generar imagen"
+                : saveState === "saved" && imageState === "generating"
+                ? "Generando..."
+                : saveState === "saved" && imageState === "generated"
+                ? "Descargar imagen"
                 : undefined
             }
+            onConfirm={
+              saveState === "saved" && imageState === "idle"
+                ? handleGenerateImage
+                : saveState === "saved" && imageState === "generated"
+                ? handleDownloadImage
+                : undefined
+            }
+            isLoading={saveState === "saved" && imageState === "generating"}
             showButtons={saveState === "saved"}
           />
         </HudMenu.Body>

@@ -19,6 +19,8 @@ import MagicIcon from './store/MagicIcon';
 import UnLike from "./store/UnLike";
 import CheckIcon from "./store/CheckIcon";
 import SpinnerIcon from "./store/SpinnerIcon";
+import ImageIcon from "./store/ImageIcon";
+import DownloadIcon from "./store/DownloadIcon";
 
 
 export type IconName =
@@ -41,7 +43,9 @@ export type IconName =
     | "magic"
     | "unLike"
     | "check"
-    | "spinner";
+    | "spinner"
+    | "image"
+    | "download";
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -66,4 +70,6 @@ export const iconsStore: Record<IconName, IconComponent> = {
     unLike: UnLike,
     check: CheckIcon,
     spinner: SpinnerIcon,
+    image: ImageIcon,
+    download: DownloadIcon,
 };

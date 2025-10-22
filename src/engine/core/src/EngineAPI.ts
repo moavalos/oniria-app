@@ -453,53 +453,151 @@ export class EngineAPI {
     };
 
     /**
-     * Muestra una imagen con efecto de reveal usando el shader imageReveal
-     * 
-     * @param imageUrl - URL de la imagen a mostrar (puede ser externa)
+     * API de control de imágenes
+     */
+    image = {
+        /**
+         * Muestra una imagen con efecto de reveal usando el shader imageReveal
+         * 
+         * @param imageUrl - URL de la imagen a mostrar (puede ser externa)
+         */
+        show: (imageUrl: string): void => {
+            console.log("[EngineAPI] image.show llamado:", imageUrl, "core:", !!this._core);
+
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para image.show");
+                return;
+            }
+
+            // Emitir evento con la URL para que la escena cree el plano
+            this._core.emit('image:show', { imageUrl });
+        },
+
+        /**
+         * Oculta y destruye la imagen actual
+         */
+        hide: (): void => {
+            console.log("[EngineAPI] image.hide llamado");
+
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para image.hide");
+                return;
+            }
+
+            const imageManager = this._core.getService(ImageManager);
+            if (!imageManager) {
+                console.warn("[EngineAPI] ImageManager no disponible");
+                return;
+            }
+
+            // Destruir la imagen
+            imageManager.destroyImage();
+
+            // Emitir evento para que se oculte la escena
+            this._core.emit('image:hide', {});
+        },
+
+        /**
+         * Suscribe un callback para cuando la imagen esté lista
+         * 
+         * @param callback - Función a ejecutar cuando la imagen esté lista
+         */
+        onReady: (callback: () => void) => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para image.onReady");
+                return;
+            }
+
+            const imageManager = this._core.getService(ImageManager);
+            if (!imageManager) {
+                console.warn("[EngineAPI] ImageManager no disponible");
+                return;
+            }
+
+            // Verificar si ya hay una imagen disponible
+            if (imageManager.isImageReady()) {
+                console.log("[EngineAPI] Imagen ya disponible, ejecutando callback inmediatamente");
+                callback();
+                return;
+            }
+
+            // Si no hay imagen, suscribirse al evento image:ready
+            console.log("[EngineAPI] Imagen no disponible, suscribiéndose a evento image:ready");
+            let callbackExecuted = false;
+
+            const onImageReady = () => {
+                // Evitar múltiples ejecuciones del callback
+                if (callbackExecuted) return;
+                callbackExecuted = true;
+
+                console.log("[EngineAPI] Evento image:ready recibido, ejecutando callback");
+                callback();
+            };
+
+            this._core.on("image:ready", onImageReady);
+        },
+
+        /**
+         * Verifica si la imagen está lista
+         * 
+         * @returns true si la imagen está creada, false si no
+         */
+        isReady: (): boolean => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para image.isReady");
+                return false;
+            }
+
+            const imageManager = this._core.getService(ImageManager);
+            if (!imageManager) {
+                console.warn("[EngineAPI] ImageManager no disponible");
+                return false;
+            }
+
+            return imageManager.isImageReady();
+        },
+
+        /**
+         * Suscribe un callback para cuando la imagen se destruya
+         * 
+         * @param callback - Función a ejecutar cuando la imagen se destruya
+         */
+        onDestroyed: (callback: () => void) => {
+            if (!this._core) {
+                console.warn("[EngineAPI] Core no disponible para image.onDestroyed");
+                return;
+            }
+
+            console.log("[EngineAPI] Suscribiéndose a evento image:destroyed");
+
+            const onImageDestroyed = () => {
+                console.log("[EngineAPI] Evento image:destroyed recibido, ejecutando callback");
+                callback();
+            };
+
+            this._core.on("image:destroyed", onImageDestroyed);
+        }
+    };
+
+    /**
+     * @deprecated Usa image.show() en su lugar
      */
     showImage(imageUrl: string): void {
-        console.log("[EngineAPI] showImage llamado:", imageUrl, "core:", !!this._core);
-
-        if (!this._core) {
-            console.warn("[EngineAPI] Core no disponible para showImage");
-            return;
-        }
-
-        // Emitir evento con la URL para que la escena cree el plano
-        this._core.emit('image:show', { imageUrl });
+        this.image.show(imageUrl);
     }
 
     /**
-     * Oculta y destruye la imagen actual
+     * @deprecated Usa image.hide() en su lugar
      */
     hideImage(): void {
-        console.log("[EngineAPI] hideImage llamado");
-
-        if (!this._core) {
-            console.warn("[EngineAPI] Core no disponible para hideImage");
-            return;
-        }
-
-        const imageManager = this._core.getService(ImageManager);
-        if (!imageManager) {
-            console.warn("[EngineAPI] ImageManager no disponible");
-            return;
-        }
-
-        // Destruir la imagen
-        imageManager.destroyImage();
-
-        // Emitir evento para que se oculte la escena
-        this._core.emit('image:hide', {});
+        this.image.hide();
     }
 
     /**
-     * Obtiene el ImageManager actual del core
-     * 
-     * @returns ImageManager o null si no existe
+     * @deprecated Usa ImageManager directamente desde el core
      */
     getImageManager(): ImageManager | null {
         if (!this._core) return null;
         return this._core.getService(ImageManager);
     }
-} 
+}

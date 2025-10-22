@@ -21,6 +21,8 @@ export class ImageManager {
 
     private isAnimating: boolean = false;
 
+    private isClosing: boolean = false;
+
     /**
      * Crea una nueva instancia del gestor de imagen
      * 
@@ -173,8 +175,8 @@ export class ImageManager {
             material.uniforms.uTime.value += deltaTime;
         }
 
-        // Animar el progreso del reveal
-        if (this.isAnimating && material.uniforms.uProgress) {
+        // Animar el progreso del reveal (apertura)
+        if (this.isAnimating && !this.isClosing && material.uniforms.uProgress) {
             // Incrementar progreso suavemente (tarda ~3 segundos)
             const progressSpeed = 0.35; // Velocidad del reveal
             material.uniforms.uProgress.value += deltaTime * progressSpeed;
@@ -186,12 +188,37 @@ export class ImageManager {
                 this.core.emit('image:reveal-complete', {});
             }
         }
+
+        // Animar el cierre (reversa)
+        if (this.isClosing && material.uniforms.uProgress) {
+            // Decrementar progreso suavemente
+            const progressSpeed = 0.5; // Velocidad del cierre (más rápido)
+            material.uniforms.uProgress.value -= deltaTime * progressSpeed;
+
+            // Cuando llegue a 0, destruir la imagen
+            if (material.uniforms.uProgress.value <= 0.0) {
+                material.uniforms.uProgress.value = 0.0;
+                this.isClosing = false;
+                this.destroyImageImmediate();
+            }
+        }
     }
 
     /**
-     * Destruye el plano de imagen y limpia recursos
+     * Inicia la animación de cierre de la imagen
      */
     destroyImage(): void {
+        if (!this.imagePlane) return;
+
+        console.log("[ImageManager]: Iniciando cierre de imagen");
+        this.isClosing = true;
+        this.isAnimating = false;
+    }
+
+    /**
+     * Destruye el plano de imagen inmediatamente sin animación
+     */
+    private destroyImageImmediate(): void {
         if (this.imagePlane) {
             // Limpiar geometría
             this.imagePlane.geometry.dispose();
@@ -249,7 +276,7 @@ export class ImageManager {
      * Limpia recursos
      */
     dispose(): void {
-        this.destroyImage();
+        this.destroyImageImmediate();
         this.materialService = null;
     }
 }
