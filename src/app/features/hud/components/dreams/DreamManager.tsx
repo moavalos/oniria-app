@@ -150,12 +150,12 @@ export default function DreamManager({
     if (!dream?.imageUrl) return;
 
     // Crear un enlace temporal y hacer click automático para descargar
-    const link = document.createElement("a");
-    link.href = dream.imageUrl;
-    link.download = `dream-${dream.title || "interpretation"}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // const link = document.createElement("a");
+    // link.href = dream.imageUrl;
+    // link.download = `dream-${dream.title || "interpretation"}.jpg`;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
   }, [dream]);
 
   // Escuchar evento de imagen lista
