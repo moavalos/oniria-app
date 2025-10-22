@@ -5,7 +5,7 @@ import ModalActions, {
 import HudMenu from "@/app/shared/components/menu/CardMenu";
 import Badge from "@/app/shared/components/Badge";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useEngineStore, type Dream } from "@/engine";
+import { useEngineStore } from "@/engine";
 import useDreamService from "./hooks/useDreamService";
 import { useEngineAPI } from "../../../../../engine/core/context/EngineApiProvider";
 
