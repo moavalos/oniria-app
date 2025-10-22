@@ -33,7 +33,6 @@ export default function DreamManager({
   const [isTyping, setIsTyping] = useState(false);
   const [currentText, setCurrentText] = useState(""); // Para trackear cambios de texto
   const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [showImageBadge, setShowImageBadge] = useState(false);
   const [showCloseBadge, setShowCloseBadge] = useState(false);
   const hasInitialized = useRef(false); // Para controlar la primera animación
 
@@ -75,7 +74,7 @@ export default function DreamManager({
   );
 
   // Handler para guardar
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     setSaveState("saving");
 
     if (!dream) {
@@ -87,13 +86,11 @@ export default function DreamManager({
 
     onSave?.();
     setSaveState("saved");
-    setShowImageBadge(true);
-  }, [onSave]);
+  };
 
   // Handler para reinterpretar
   const handleReinterpret = useCallback(() => {
     onReinterpret?.();
-    setShowImageBadge(false);
     setShowCloseBadge(false);
     setSaveState("idle");
   }, [onReinterpret]);
@@ -134,7 +131,7 @@ export default function DreamManager({
 
   return (
     <HudMenu.Root className="w-full flex justify-end h-fit">
-      <HudMenu.Container className="max-w-lg  pb-5 w-full">
+      <HudMenu.Container className="max-w-lg h-full  pb-5 w-full">
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary ">
@@ -176,18 +173,41 @@ export default function DreamManager({
             />
           )}
 
-          {/* Badge para generar imagen después de guardar */}
-          {showImageBadge && saveState === "saved" && (
-            <Badge
-              message="¿Querés generar una imagen de tu interpretación?"
-              variant="info"
-              confirmText="Generar imagen"
-              onConfirm={() => {
-                console.log("[DreamManager] Generate image clicked");
-                // TODO: Implementar generación de imagen
-              }}
-            />
-          )}
+          {/* Badge de nueva funcionalidad - Generación de imagen */}
+          <Badge
+            title={
+              saveState === "saved"
+                ? "¡Tu imagen ya está lista!"
+                : "Nueva funcionalidad"
+            }
+            message={
+              saveState === "saved"
+                ? "Tu interpretación ha sido transformada en una imagen única."
+                : "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?"
+            }
+            variant="feature"
+            linkText={saveState !== "saved" ? "Saber más" : undefined}
+            onLinkClick={
+              saveState !== "saved"
+                ? () => {
+                    console.log(
+                      "[DreamManager] Learn more about image generation"
+                    );
+                    // TODO: Abrir modal o navegación con info de la feature
+                  }
+                : undefined
+            }
+            confirmText={saveState === "saved" ? "Ver imagen" : undefined}
+            onConfirm={
+              saveState === "saved"
+                ? () => {
+                    console.log("[DreamManager] Show generated image");
+                    // TODO: Implementar visualización de imagen generada
+                  }
+                : undefined
+            }
+            showButtons={saveState === "saved"}
+          />
         </HudMenu.Body>
         <HudMenu.Footer className="flex justify-end">
           <ModalActions

@@ -75,7 +75,7 @@ export default function ModalActions({
         className="modal-button modal-button-reinterpret"
       >
         <Icon name="sparkles" />
-        {t("node.reinterpret")}
+        {t("node.reinterpretar")}
       </button>
     </div>
   );

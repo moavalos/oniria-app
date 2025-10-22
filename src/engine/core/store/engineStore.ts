@@ -8,6 +8,7 @@ export interface Dream {
     description: string;
     interpretation: string;
     emotion: string;
+    imageUrl: string | null;
 }
 
 // Tipo para los formularios de dreams

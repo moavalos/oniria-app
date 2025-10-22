@@ -6,6 +6,7 @@ export type DreamAPIResponse = {
     description: string;
     interpretation: string;
     emotion: string;
+    imageUrl?: string;
 };
 
 export class DreamsService {
@@ -23,7 +24,9 @@ export class DreamsService {
             throw new Error(`Error fetching dream interpretation: ${response.statusText}`);
         }
 
+
         const data: DreamAPIResponse = await response.json();
+        console.log("[InterpretacionCompleta]", data)
         return data;
     }
 
@@ -45,6 +48,8 @@ export class DreamsService {
         if (!response.ok) {
             throw new Error(`Error saving dream: ${response.statusText}`);
         }
+
+        console.log(response.json())
 
         return response.json();
     }

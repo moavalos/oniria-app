@@ -1,6 +1,6 @@
 import { DreamsService, type DreamAPIResponse } from "@/app/features/dreams/services/dreams.service";
 import { useState } from "react";
-import { useEngineStore, type Dream } from "@/engine";
+import { useEngineStore, type Dream } from "@/engine/core/store/engineStore";
 import { useAuth } from "@/app/features/auth/hooks/useAuth";
 
 // Adaptador: convierte DreamAPIResponse a Dream
@@ -10,6 +10,7 @@ function adaptDreamResponse(response: DreamAPIResponse): Dream {
         description: response.description,
         interpretation: response.interpretation,
         emotion: response.emotion,
+        imageUrl: response.imageUrl || null,
     };
 }
 

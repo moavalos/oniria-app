@@ -13,7 +13,7 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
 
   if (loading) return <p>{t("private_route.loading")}</p>;
 
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/login" replace />;
 
   return <>{children}</>;
 }
