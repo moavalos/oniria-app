@@ -315,6 +315,15 @@ export class CameraService {
     }
 
     /**
+     * Habilita o deshabilita la rotación con el botón izquierdo del ratón
+     * 
+     * @param value - Si la rotación debe estar habilitada
+     */
+    setEnableRotate(value: boolean): void {
+        this.controls.mouseButtons.left = value ? CameraControls.ACTION.ROTATE : CameraControls.ACTION.NONE;
+    }
+
+    /**
      * Agrega un listener para eventos de los controles de cámara
      * 
      * @param type - Tipo de evento a escuchar

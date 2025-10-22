@@ -43,7 +43,7 @@ export default function MenuPortal({
       className="flex items-start h-fit gap-3"
       isClosing={isClosing}
     >
-      <HudMenu.Container className="w-96 max-w-full flex flex-col gap-4 mt-20 ml-20">
+      <HudMenu.Container className="w-96 max-w-full flex flex-col gap-4  ml-20">
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary drop-shadow-[0_0_10px_rgba(168,85,247,0.8)]">
@@ -65,7 +65,7 @@ export default function MenuPortal({
         </HudMenu.Body>
         <HudMenu.Footer></HudMenu.Footer>
       </HudMenu.Container>
-      <HudMenu.Description className="text-sm max-w-sm mt-20">
+      <HudMenu.Description className="text-sm max-w-sm ">
         {menu?.description}
       </HudMenu.Description>
     </HudMenu.Root>

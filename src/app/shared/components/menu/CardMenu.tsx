@@ -114,7 +114,7 @@ export function MenuContainer({
   const { isClosing } = useMenuContext();
 
   // Si className incluye h-full, no añadir h-fit
-  const heightClass = className?.includes('h-full') ? '' : 'h-fit';
+  const heightClass = className?.includes("h-full") ? "" : "h-fit";
 
   return (
     <div
@@ -186,7 +186,9 @@ export function MenuBody({
   children,
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={`pointer-events-auto flex flex-col gap-2 flex-1 overflow-hidden ${className}`}>
+    <div
+      className={`pointer-events-auto flex flex-col gap-2 flex-1 overflow-hidden ${className}`}
+    >
       {children}
     </div>
   );

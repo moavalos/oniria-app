@@ -4,6 +4,7 @@ import { CameraSystem } from "@engine/systems/CameraSystem";
 import { InteractionSystem } from "@engine/systems/InteractionSystem";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
 import { NebulaManager } from "@/engine/services/managers/NebulaManager";
+import { ImageManager } from "@/engine/services/managers/ImageManager";
 import { AnimationService } from "@engine/services/AnimationService";
 
 interface PendingRoomRequest {
@@ -414,6 +415,9 @@ export class EngineAPI {
          * @param enabled - Whether interactions should be enabled
          */
         setEnabled: (enabled: boolean): void => {
+            // Log para rastrear quién llama
+            console.log(`[EngineAPI] 🔍 interactions.setEnabled(${enabled})`);
+
             if (!this._core) {
                 console.warn("[EngineAPI] Core no disponible para interactions.setEnabled");
                 return;
@@ -447,4 +451,55 @@ export class EngineAPI {
             return (interactionSystem as InteractionSystem).isInteractionsEnabled();
         },
     };
+
+    /**
+     * Muestra una imagen con efecto de reveal usando el shader imageReveal
+     * 
+     * @param imageUrl - URL de la imagen a mostrar (puede ser externa)
+     */
+    showImage(imageUrl: string): void {
+        console.log("[EngineAPI] showImage llamado:", imageUrl, "core:", !!this._core);
+
+        if (!this._core) {
+            console.warn("[EngineAPI] Core no disponible para showImage");
+            return;
+        }
+
+        // Emitir evento con la URL para que la escena cree el plano
+        this._core.emit('image:show', { imageUrl });
+    }
+
+    /**
+     * Oculta y destruye la imagen actual
+     */
+    hideImage(): void {
+        console.log("[EngineAPI] hideImage llamado");
+
+        if (!this._core) {
+            console.warn("[EngineAPI] Core no disponible para hideImage");
+            return;
+        }
+
+        const imageManager = this._core.getService(ImageManager);
+        if (!imageManager) {
+            console.warn("[EngineAPI] ImageManager no disponible");
+            return;
+        }
+
+        // Destruir la imagen
+        imageManager.destroyImage();
+
+        // Emitir evento para que se oculte la escena
+        this._core.emit('image:hide', {});
+    }
+
+    /**
+     * Obtiene el ImageManager actual del core
+     * 
+     * @returns ImageManager o null si no existe
+     */
+    getImageManager(): ImageManager | null {
+        if (!this._core) return null;
+        return this._core.getService(ImageManager);
+    }
 } 

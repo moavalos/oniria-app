@@ -8,6 +8,8 @@ import maskFragmentShader from "@engine/shaders/nodes/blob/fragmentShaderMask.gl
 import blobVertexShader from "@engine/shaders/nodes/blob/vertexShader.glsl";
 import nebulaFragmentShader from "@engine/shaders/nebula/fragmenShader.glsl";
 import nebulaVertexShader from "@engine/shaders/nebula/vertexShader.glsl";
+import imageRevealFragmentShader from "@engine/shaders/imageReveral/fragmentShader.glsl";
+import imageRevealVertexShader from "@engine/shaders/imageReveral/vertexShader.glsl";
 
 /**
  * Servicio para gestión de materiales y texturas en el motor 3D
@@ -185,6 +187,31 @@ export class MaterialService {
             transparent: false,
             depthTest: true,
             depthWrite: true,
+            side: THREE.DoubleSide,
+        });
+
+        mesh.material = material;
+
+        return material;
+    }
+
+    /**
+     * Aplica el material con shader de image reveal a un mesh
+     * 
+     * @param mesh - El mesh al que aplicar el shader de reveal
+     * @param uniforms - Uniformes para el shader (por defecto: objeto vacío)
+     * @returns El material creado o null si no se puede aplicar
+     */
+    applyImageRevealMaterial(mesh: THREE.Mesh | undefined, uniforms: Record<string, any> = {}): THREE.ShaderMaterial | null {
+        if (!mesh) return null;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms,
+            fragmentShader: imageRevealFragmentShader,
+            vertexShader: imageRevealVertexShader,
+            transparent: true,
+            depthTest: true,
+            depthWrite: false,
             side: THREE.DoubleSide,
         });
 

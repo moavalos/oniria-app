@@ -8,6 +8,7 @@ import { RoomManager } from "@/engine/services/managers/RoomManager";
 import { PortalManager } from "@/engine/services/managers/PortalManager";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
 import { NebulaManager } from "@/engine/services/managers/NebulaManager";
+import { ImageManager } from "@/engine/services/managers/ImageManager";
 import { Node, Room } from "@/engine/entities";
 import type { ISystem } from "./ISystem";
 import { EngineState } from "../types/engine.types";
@@ -103,6 +104,7 @@ export class EngineCore extends EventEmitter {
         this.registry.registerService(PortalManager, new PortalManager(this));
         this.registry.registerService(NodeManager, new NodeManager(this));
         this.registry.registerService(NebulaManager, new NebulaManager(this, this._gl!.domElement));
+        this.registry.registerService(ImageManager, new ImageManager(this));
 
 
 
@@ -275,6 +277,11 @@ export class EngineCore extends EventEmitter {
         const nebulaManager = this.getService(NebulaManager);
         if (nebulaManager && nebulaManager.update) {
             nebulaManager.update(dt);
+        }
+
+        const imageManager = this.getService(ImageManager);
+        if (imageManager && imageManager.update) {
+            imageManager.update(dt);
         }
     }
 

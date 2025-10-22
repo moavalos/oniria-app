@@ -6,6 +6,7 @@ import Badge from "@/app/shared/components/Badge";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEngineStore, type Dream } from "@/engine";
 import useDreamService from "./hooks/useDreamService";
+import { useEngineAPI } from "../../../../../engine/core/context/EngineApiProvider";
 
 interface DreamManagerProps {
   visibility?: boolean;
@@ -35,6 +36,7 @@ export default function DreamManager({
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [showCloseBadge, setShowCloseBadge] = useState(false);
   const hasInitialized = useRef(false); // Para controlar la primera animación
+  const engine = useEngineAPI();
 
   const startTypingAnimation = useCallback(
     (fullText: string, speed: number) => {
@@ -201,8 +203,7 @@ export default function DreamManager({
             onConfirm={
               saveState === "saved"
                 ? () => {
-                    console.log("[DreamManager] Show generated image");
-                    // TODO: Implementar visualización de imagen generada
+                    engine.showImage(dream?.imageUrl || "");
                   }
                 : undefined
             }

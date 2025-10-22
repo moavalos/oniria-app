@@ -4,6 +4,7 @@ import { BaseSystem } from "@engine/core/src/BaseSystem";
 import { InteractionService, type RoomInteractionResult, type NodeInteractionResult } from "@engine/services/InteractionService";
 import { AnimationService } from "@engine/services/AnimationService";
 import { NodeManager } from "@/engine/services/managers/NodeManager";
+import { CameraSystem } from "@engine/systems/CameraSystem";
 
 import type { ObjectEventArray, AnimationAction, FunctionAction, ObjectEvent } from "@engine/config/room.type";
 import type { Injectable } from "@engine/core/src/Injectable";
@@ -595,7 +596,17 @@ export class InteractionSystem extends BaseSystem implements Injectable {
      * Habilita o deshabilita las interacciones
      */
     setInteractionsEnabled(enabled: boolean): void {
+        console.log(`[InteractionSystem] 🎯 setInteractionsEnabled(${enabled}), antes: ${this._enableInteractions}`);
         this._enableInteractions = enabled;
+
+        // También controlar los controles de cámara
+        const cameraSystem = this.core.getSystem(CameraSystem) as CameraSystem;
+        if (cameraSystem) {
+            cameraSystem.setControlsEnabled(enabled);
+            console.log(`[InteractionSystem] 🎯 Controles de cámara: ${enabled}`);
+        }
+
+        console.log(`[InteractionSystem] 🎯 Interacciones ahora: ${this._enableInteractions}`);
     }
 
     /**

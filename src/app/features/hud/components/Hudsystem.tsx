@@ -2,12 +2,12 @@ import type { PropsWithChildren } from "react";
 
 /**
  * HudSystem - Sistema de layout para el HUD de la aplicación
- * 
+ *
  * Este sistema proporciona un layout flexible con:
  * - TopBar: Barra superior fija (altura: ~3.5rem)
  * - Body: Área principal flexible con espacio reservado abajo
  * - Footer: Área inferior reservada para futuras cards o controles
- * 
+ *
  * Notas importantes:
  * - El footerHeight en Body debe coincidir con height en Footer
  * - Las cards dentro de Body tendrán altura: calc(100vh - TopBar - Footer)
@@ -59,23 +59,23 @@ export interface HudBodyProps
   footerHeight?: string; // Altura del footer reservado (e.g., "h-20", "h-24")
 }
 
-export function HudBody({ 
-  className, 
-  children, 
+export function HudBody({
+  className,
+  children,
   footerHeight = "h-24",
-  ...props 
+  ...props
 }: HudBodyProps) {
   // Convertir clase de Tailwind a valor en rem
   // h-20 = 5rem, h-24 = 6rem, h-32 = 8rem, etc.
   const heightMap: Record<string, string> = {
-    'h-16': '4rem',
-    'h-20': '5rem',
-    'h-24': '6rem',
-    'h-32': '8rem',
-    'h-40': '10rem',
+    "h-16": "4rem",
+    "h-20": "5rem",
+    "h-24": "6rem",
+    "h-32": "8rem",
+    "h-40": "10rem",
   };
 
-  const footerHeightValue = heightMap[footerHeight] || '6rem';
+  const footerHeightValue = heightMap[footerHeight] || "6rem";
 
   return (
     <div
@@ -98,11 +98,11 @@ export interface HudFooterProps
   height?: string; // Altura del footer (debe coincidir con footerHeight de HudBody)
 }
 
-export function HudFooter({ 
-  className, 
-  children, 
+export function HudFooter({
+  className,
+  children,
   height = "h-24",
-  ...props 
+  ...props
 }: HudFooterProps) {
   return (
     <div

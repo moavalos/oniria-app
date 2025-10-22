@@ -6,6 +6,7 @@ import { EngineState } from "@engine/core";
 import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
+import ImageScene from "./ImageScene";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -17,6 +18,8 @@ export default function RoomScene() {
 
   const [renderNode, setRenderNode] = useState<boolean>(false);
   const [renderNebula, setRenderNebula] = useState<boolean>(false);
+  const [renderImage, setRenderImage] = useState<boolean>(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!core) return;
@@ -178,6 +181,31 @@ export default function RoomScene() {
     };
   }, [core]);
 
+  // Listener para mostrar/ocultar imagen
+  useEffect(() => {
+    if (!core) return;
+
+    const handleShowImage = ({ imageUrl }: { imageUrl: string }) => {
+      console.log("[RoomScene] Mostrar imagen con URL:", imageUrl);
+      setImageUrl(imageUrl);
+      setRenderImage(true);
+    };
+
+    const handleHideImage = () => {
+      console.log("[RoomScene] Ocultar imagen");
+      setImageUrl(null);
+      setRenderImage(false);
+    };
+
+    core.on("image:show", handleShowImage);
+    core.on("image:hide", handleHideImage);
+
+    return () => {
+      core.off("image:show");
+      core.off("image:hide");
+    };
+  }, [core]);
+
   if (!room) return null;
 
   // Renderizar room y portal por separado
@@ -196,6 +224,14 @@ export default function RoomScene() {
           position={[-1.2, 3, -6.2]}
           rotation={[0, 0, 0]}
           scale={1.6}
+        />
+      )}
+      {renderImage && imageUrl && (
+        <ImageScene
+          position={[-1.24, 2.8, -5.2]}
+          rotation={[0, 0, 0]}
+          scale={0.8}
+          imageUrl={imageUrl}
         />
       )}
 

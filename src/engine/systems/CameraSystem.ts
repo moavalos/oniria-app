@@ -157,9 +157,11 @@ export class CameraSystem extends BaseSystem implements Injectable {
         if (!this.cameraService) return;
 
         if (enabled) {
+            this.cameraService.setEnableRotate(true);
             this.cameraService.setEnablePan(false);
             this.cameraService.setEnableZoom(true);
         } else {
+            this.cameraService.setEnableRotate(false);
             this.cameraService.setEnablePan(false);
             this.cameraService.setEnableZoom(false);
         }
