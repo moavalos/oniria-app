@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { EngineState } from "../types/engine.types";
 
-// Tipo para los datos del sueño
+// Tipo para los datos del sueño (adaptador de DreamAPIResponse)
 export interface Dream {
     title: string;
     description: string;

@@ -1,23 +1,22 @@
 import DreamTextarea from "@/app/shared/components/DreamTextarea";
 import HudMenu from "@/app/shared/components/menu/CardMenu";
-import { useDreamInput } from "../../../home/hooks/useDreamInput";
+import { useDreamInput } from "./hooks/useDreamInput";
 import type { Dream, DreamFormType } from "@/engine";
 import { useTranslation } from "react-i18next";
 import Icon from "@/assets/icons/Icon";
 import { useAuth } from "@/app/features/auth/hooks/useAuth";
+import useDreamService from "./hooks/useDreamService";
 
 interface DreamFormProps {
   maxChars?: number;
   onClose?: () => void;
   type: DreamFormType;
   data?: Dream | null;
-  onInterpret: () => void;
 }
 
 export default function DreamForm({
   maxChars = 1200,
   onClose,
-  onInterpret,
 }: DreamFormProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -26,13 +25,25 @@ export default function DreamForm({
       maxChars,
     });
 
+  const { handleInterpret: interpretDream, loading } = useDreamService();
+
   const handleClose = () => {
     onClose?.();
   };
 
+  const handleInterpret = async () => {
+    try {
+      // Llamar al servicio que adaptará y guardará en el store
+      await interpretDream(dream);
+      // El DreamManager se abrirá automáticamente al detectar que hay un Dream en el store
+    } catch (error) {
+      console.error("[DreamForm] Error al interpretar el sueño:", error);
+    }
+  };
+
   return (
-    <HudMenu.Root className="flex items-start h-fit gap-3">
-      <HudMenu.Container className="w-96 max-w-full flex pb-5 flex-col gap-4 mt-20 ml-20">
+    <HudMenu.Root className="flex items-start h-fit gap-3 shrink-0">
+      <HudMenu.Container className="w-96 max-w-full flex pb-5 flex-col gap-4 ">
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary ">
@@ -62,24 +73,26 @@ export default function DreamForm({
         </HudMenu.Body>
         <HudMenu.Footer className="flex justify-end">
           <button
-            onClick={onInterpret}
-            disabled={isEmpty || isTooLong}
-            className="tap-button rounded-xl px-8 py-3 text-[14px] font-bold
-                       disabled:opacity-60 disabled:cursor-not-allowed
-                       transition-transform duration-200 disabled:bg-gray-500 bg-primary"
+            onClick={handleInterpret}
+            disabled={isEmpty || isTooLong || loading}
+            className="modal-button"
           >
             <span
               className={`flex items-center gap-2 text-light ${
-                isEmpty || isTooLong ? "opacity-80" : "opacity-100"
+                isEmpty || isTooLong || loading ? "opacity-80" : "opacity-100"
               }`}
             >
-              <Icon name="magic" />
-              {t("node.interpretar")}
+              {loading ? (
+                <Icon name="spinner" className="text-xs w-5 h-5 animate-spin" />
+              ) : (
+                <Icon name="magic" className="text-xs w-5 h-5" />
+              )}
+              {loading ? "Interpretando..." : t("node.interpretar")}
             </span>
           </button>
         </HudMenu.Footer>
       </HudMenu.Container>
-      <HudMenu.Description className="text-sm max-w-sm mt-20">
+      <HudMenu.Description className="text-sm max-w-sm">
         Estás en la Vitácora Onírica, el lugar donde los sueños toman forma.
         Cada palabra que escribas deja una huella en tu mapa interior,
         conectando recuerdos, símbolos y emociones. Este es tu espacio para

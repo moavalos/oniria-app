@@ -6,7 +6,6 @@ import { EngineState } from "@engine/core";
 import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
-import { useEngineStore } from "@/engine/core/store/engineStore";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -148,12 +147,6 @@ export default function RoomScene() {
         timer = setTimeout(() => {
           portalManager.stopTravel();
           setRenderNebula(true);
-          
-          // Abrir el formulario de dreams cuando la nebula está lista
-          // Usar getState() para acceder al store sin importar el hook
-          const state = useEngineStore.getState();
-          console.log("[RoomScene] Nebula renderizada, abriendo formulario de dreams");
-          state.openDreamForm("create");
         }, 3000);
       } else {
         setRenderNode(true);
@@ -202,7 +195,7 @@ export default function RoomScene() {
         <NebulaScene
           position={[-1.2, 3, -6.2]}
           rotation={[0, 0, 0]}
-          scale={1.3}
+          scale={1.6}
         />
       )}
 

@@ -79,12 +79,12 @@ export class NebulaManager {
      */
     createNebula(): THREE.Mesh {
         // Crear geometría de plano grande para cubrir el fondo
-        const geometry = new THREE.PlaneGeometry(20, 20);
+        const geometry = new THREE.PlaneGeometry(2, 2);
 
         // Crear mesh con material básico temporal
         const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
         mesh.name = "nebulaPlane";
-        mesh.rotation.y = -Math.PI / 2; // Rotar para que quede horizontal
+        //mesh.rotation.y = -Math.PI / 2; // Rotar para que quede horizontal
 
         this.nebulaPlane = mesh;
 

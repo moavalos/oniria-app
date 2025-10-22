@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useDreamInput } from "./useDreamInput";
+import { useDreamInput } from "../../hud/components/dreams/hooks/useDreamInput";
 import useQuote from "./useQuote";
 
 interface UseHomePanelProps {
@@ -8,7 +8,7 @@ interface UseHomePanelProps {
     onNuevaFrase?: () => void;
     quote?: string;
     loadingQuote?: boolean;
-    onInterpretar?: (dream: string) => void;
+    onInterpretar?: (_dream: string) => void;
     onPersonalizar?: () => void;
     onInsignias?: () => void;
 }

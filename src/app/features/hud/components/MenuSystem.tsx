@@ -2,7 +2,6 @@ import { useEngineStore } from "@/engine/core/store/engineStore";
 import MenuPortal from "./menu/portal/MenuPortal";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useState, useEffect } from "react";
-import HistoryMenu from "./history/HistoryMenu";
 
 /**
  * Registro de menús disponibles
@@ -11,7 +10,7 @@ import HistoryMenu from "./history/HistoryMenu";
 const menuRegistry = {
   portal: MenuPortal,
   // settings: MenuSettings,
-  history: HistoryMenu,
+
   // Agrega más menús aquí...
 } as const;
 

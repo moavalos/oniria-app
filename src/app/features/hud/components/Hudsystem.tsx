@@ -47,7 +47,7 @@ export interface HudBodyProps
 export function HudBody({ className, children, ...props }: HudBodyProps) {
   return (
     <div
-      className={`flex relative  w-full h-full  pointer-events-none ${className}`}
+      className={`flex relative gap-5 px-5 w-full h-full mt-20  pointer-events-none ${className}`}
       {...props}
     >
       {children}

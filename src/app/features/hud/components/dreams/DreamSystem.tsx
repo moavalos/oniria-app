@@ -2,10 +2,17 @@ import { useEngineStore } from "@/engine";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEffect } from "react";
 import DreamForm from "./DreamForm";
+import DreamManager from "./DreamManager";
 
 export default function DreamSystem() {
-  const { dreamForm, openDreamForm, closeDreamForm, setDreamSystemActive } =
-    useEngineStore();
+  const {
+    dreamForm,
+    dream,
+    openDreamForm,
+    closeDreamForm,
+    setDream,
+    setDreamSystemActive,
+  } = useEngineStore();
   const engine = useEngineAPI();
 
   useEffect(() => {
@@ -16,25 +23,55 @@ export default function DreamSystem() {
     });
   }, [engine, openDreamForm]);
 
-  const handleCloseMenu = () => {
+  const handleCloseDreamForm = () => {
     closeDreamForm();
-    // Habilitar interacciones cuando se cierra el formulario
-    engine.interactions.setEnabled(true);
     setDreamSystemActive(false);
     engine.camera.viewReset();
+    // Habilitar interacciones cuando se cierra el formulario
+    engine.interactions.setEnabled(true);
   };
 
-  // Solo renderizar si el formulario está abierto
-  if (!dreamForm.isOpen) {
-    return null;
-  }
+  const handleCloseDreamManager = () => {
+    // Limpiar el dream del store
+    setDream(null);
+    // Habilitar interacciones
+    //engine.interactions.setEnabled(true);
+    //setDreamSystemActive(false);
+    //engine.camera.viewReset();
+  };
+
+  const handleSaveDream = () => {
+    console.log("[DreamSystem] Saving dream:", dream);
+    // TODO: Implementar lógica de guardado en Supabase
+    // Por ahora solo logeamos
+  };
+
+  const handleReinterpretDream = () => {
+    console.log("[DreamSystem] Reinterpreting dream");
+    // Limpiar el dream actual y abrir el formulario de nuevo
+    setDream(null);
+    openDreamForm("create");
+  };
 
   return (
-    <DreamForm
-      onInterpret={() => {}}
-      onClose={handleCloseMenu}
-      type={dreamForm.type}
-      data={dreamForm.data}
-    />
+    <>
+      {/* Mostrar DreamForm si el formulario está abierto */}
+      {dreamForm.isOpen && (
+        <DreamForm
+          onClose={handleCloseDreamForm}
+          type={dreamForm.type}
+          data={dreamForm.data}
+        />
+      )}
+
+      {/* Mostrar DreamManager si hay un dream guardado */}
+      {dream && (
+        <DreamManager
+          onClose={handleCloseDreamManager}
+          onSave={handleSaveDream}
+          onReinterpret={handleReinterpretDream}
+        />
+      )}
+    </>
   );
 }

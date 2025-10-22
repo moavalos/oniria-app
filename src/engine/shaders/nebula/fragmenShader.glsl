@@ -7,6 +7,9 @@
 #define pi 3.14159265
 #define R(p, a) p=cos(a)*p+sin(a)*vec2(p.y, -p.x)
 
+// Varying del vertex shader
+varying vec2 vUv;
+
 // Uniforms de Three.js
 uniform float uTime;
 uniform vec2 uResolution;
@@ -136,7 +139,8 @@ vec3 ToneMapFilmicALU(vec3 _color)
 
 void main()
 {  
-    vec2 fragCoord = gl_FragCoord.xy;
+    // Usar el mismo enfoque que el nodo: coordenadas UV centradas
+    vec2 uv = (vUv - 0.5) * 2.0; // Rango [-1, 1]
     
     const float KEY_1 = 49.5/256.0;
 	const float KEY_2 = 50.5/256.0;
@@ -149,7 +153,8 @@ void main()
 
 	// ro: origen del rayo
 	// rd: dirección del rayo
-	vec3 rd = normalize(vec3((fragCoord.xy-0.5*uResolution.xy)/uResolution.y, 1.));
+	// Usar coordenadas UV normalizadas como el nodo
+	vec3 rd = normalize(vec3(uv, 1.));
 	vec3 ro = vec3(0., 0., -6.+key*1.6);
     
 	// ld, td: densidad local, total
