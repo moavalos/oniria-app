@@ -65,9 +65,41 @@
     "cerrar": "Cerrar",
     "guardar": "Guardar",
     "reinterpretar": "Reinterpretar",
-    "acaAparecera": "Acá aparecerá el contenido del sueño..."
+    "acaAparecera": "Acá aparecerá el contenido del sueño...",
+    "interpretando": "Interpretando...",
+    "menu": {
+      "portal": "El Portal",
+      "descriptionPortal": "Acá podés registrar tus sueños, explorar tu historial y descubrir los patrones que habitan en tu mente.",
+      "descriptPortalPanel": "El Portal de los Sueños es el punto de acceso a tu universo interior. Desde aquí podés registrar un sueño, interpretarlo o explorar tu historia onírica. Cada elección abre un nuevo camino dentro de tu mente.",
+      "oniriaAiFunction": "Oniria AI te dará una interpretación simbólica de tu sueño.",
+      "historialLabel": "Mi historia onírica",
+      "historialDescription": "Accede a tu diario de sueños y explora las interpretaciones pasadas."
+    },
+    "portal": {
+      "saludo": "Hola ",
+      "saludoDos": " ¿Qué imágenes quedaron en tu sueño?",
+      "description": "Escribí libremente, sin preocuparte por el orden. Oniria se encargará de interpretarlo.",
+      "placeholder": "Hoy soñé...",
+      "descriptionPanel": "Estás en la Vitácora Onírica, el lugar donde tus sueños toman forma. Cada palabra que escribas deja una huella en tu mapa interior, conectando recuerdos, símbolos y emociones. Este es tu espacio para registrar lo que el subconsciente te mostró mientras dormías.",
+      "tassSeguro": "¿Estás seguro de cerrar sin guardar la interpretación?",
+      "cerrarG": "Cerrar sin guardar",
+      "cancelar": "Cancelar"
+    },
+    "panelImage": {
+      "title": "Nueva funcionalidad",
+      "description": "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?",
+      "saberMas": "Saber más",
+      "imagenLista": "¡Tu imagen ya está lista!",
+      "generandoImagen": "Generando imagen...",
+      "interpretacionGuardada": "¡Interpretación guardada!",
+      "imagenTransform": "Tu interpretación ha sido transformada en una imagen única.",
+      "imagenVisual": "Estamos creando una imagen visual de tu sueño. Esto puede tomar unos momentos...",
+      "tranformacionUnica": "Tu interpretación ha sido transformada en una experiencia visual única.",
+      "generarImagen": "Generar imagen",
+      "generando": "Generando...",
+      "download": "Descargar imagen"
+    }
   },
-
   "header": {
     "loading": "Cargando...",
     "guest": "Invitado"

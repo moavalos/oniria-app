@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useEngineStore } from "@/engine";
 import useDreamService from "./hooks/useDreamService";
 import { useEngineAPI } from "../../../../../engine/core/context/EngineApiProvider";
+import { downloadUrlAsFile, suggestFilename } from "./DownloadHanlde";
 
 interface DreamManagerProps {
   visibility?: boolean;
@@ -146,16 +147,15 @@ export default function DreamManager({
   }, [dream, engine]);
 
   // Handler para descargar imagen
-  const handleDownloadImage = useCallback(() => {
+  const handleDownloadImage = useCallback(async () => {
     if (!dream?.imageUrl) return;
 
-    // Crear un enlace temporal y hacer click automático para descargar
-    // const link = document.createElement("a");
-    // link.href = dream.imageUrl;
-    // link.download = `dream-${dream.title || "interpretation"}.jpg`;
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+    const fileName = suggestFilename(
+      dream.imageUrl,
+      `dream-${dream.title || "interpretation"}`
+    );
+
+    await downloadUrlAsFile(dream.imageUrl, fileName);
   }, [dream]);
 
   // Escuchar evento de imagen lista
@@ -233,47 +233,47 @@ export default function DreamManager({
               saveState === "saved" && imageState === "generated"
                 ? "¡Tu imagen ya está lista!"
                 : saveState === "saved" && imageState === "generating"
-                ? "Generando tu imagen..."
-                : saveState === "saved"
-                ? "¡Interpretación guardada!"
-                : "Nueva funcionalidad"
+                  ? "Generando tu imagen..."
+                  : saveState === "saved"
+                    ? "¡Interpretación guardada!"
+                    : "Nueva funcionalidad"
             }
             message={
               saveState === "saved" && imageState === "generated"
                 ? "Tu interpretación ha sido transformada en una imagen única."
                 : saveState === "saved" && imageState === "generating"
-                ? "Estamos creando una imagen visual de tu sueño. Esto puede tomar unos momentos..."
-                : saveState === "saved"
-                ? "Tu interpretación ha sido transformada en una experiencia visual única."
-                : "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?"
+                  ? "Estamos creando una imagen visual de tu sueño. Esto puede tomar unos momentos..."
+                  : saveState === "saved"
+                    ? "Tu interpretación ha sido transformada en una experiencia visual única."
+                    : "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?"
             }
             variant="feature"
             linkText={saveState !== "saved" ? "Saber más" : undefined}
             onLinkClick={
               saveState !== "saved"
                 ? () => {
-                    console.log(
-                      "[DreamManager] Learn more about image generation"
-                    );
-                    // TODO: Abrir modal o navegación con info de la feature
-                  }
+                  console.log(
+                    "[DreamManager] Learn more about image generation"
+                  );
+                  // TODO: Abrir modal o navegación con info de la feature
+                }
                 : undefined
             }
             confirmText={
               saveState === "saved" && imageState === "idle"
                 ? "Generar imagen"
                 : saveState === "saved" && imageState === "generating"
-                ? "Generando..."
-                : saveState === "saved" && imageState === "generated"
-                ? "Descargar imagen"
-                : undefined
+                  ? "Generando..."
+                  : saveState === "saved" && imageState === "generated"
+                    ? "Descargar imagen"
+                    : undefined
             }
             onConfirm={
               saveState === "saved" && imageState === "idle"
                 ? handleGenerateImage
                 : saveState === "saved" && imageState === "generated"
-                ? handleDownloadImage
-                : undefined
+                  ? handleDownloadImage
+                  : undefined
             }
             isLoading={saveState === "saved" && imageState === "generating"}
             showButtons={saveState === "saved"}
