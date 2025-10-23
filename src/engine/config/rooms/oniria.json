@@ -12,12 +12,17 @@
       "event": { "type": "none", "name": "none" },
       "lookAtOffset": [-1, 0.5, 4]
     },
+    "portal.ring": {
+      "interceptable": true,
+      "event": { "type": "none", "name": "none" },
+      "lookAtOffset": [-1, 0.5, 4]
+    },
     "monitor": {
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
       "lookAtOffset": [-1.2, 0.1, 1]
     },
-    "monitor_screen": {
+    "monitor.screen": {
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
       "lookAtOffset": [-1.2, 0.1, 1]

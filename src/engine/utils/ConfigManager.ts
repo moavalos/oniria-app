@@ -217,7 +217,7 @@ export class ConfigManager {
         const mapped: Record<string, ObjectEventArray> = {};
 
         Object.entries(handlers).forEach(([name, event]) => {
-            if (this.isHandlerObject(name)) {
+            if (this.isHandlerObject(name) || this.isMonitorObject(name)) {
                 const childName = this.getChildObjectName(scene, name);
                 if (childName) {
                     mapped[childName] = event;
@@ -232,6 +232,14 @@ export class ConfigManager {
 
     private isHandlerObject(name: string): boolean {
         return name.includes("_handler");
+    }
+
+    private isMonitorObject(name: string): boolean {
+        return name.includes("monitor.");
+    }
+
+    private isPortalObject(name: string): boolean {
+        return name.includes("portal.");
     }
 
     private getChildObjectName(scene: THREE.Group<THREE.Object3DEventMap>, handlerName: string): string | null {

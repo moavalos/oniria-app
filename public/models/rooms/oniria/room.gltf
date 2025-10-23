@@ -18,17 +18,15 @@
 				1,
 				2,
 				3,
-				4,
-				6,
+				5,
+				7,
 				8,
 				9,
 				10,
 				11,
 				12,
-				13,
 				14,
 				15,
-				16,
 				17,
 				18
 			]
@@ -63,20 +61,11 @@
 		},
 		{
 			"mesh":4,
-			"name":"portal",
-			"translation":[
-				-1.095639944076538,
-				2.861321449279785,
-				-2.983375072479248
-			]
-		},
-		{
-			"mesh":5,
 			"name":"top_chair"
 		},
 		{
 			"children":[
-				5
+				4
 			],
 			"name":"chair_handler",
 			"rotation":[
@@ -92,7 +81,7 @@
 			]
 		},
 		{
-			"mesh":6,
+			"mesh":5,
 			"name":"dog_head",
 			"rotation":[
 				-0.06246986985206604,
@@ -108,7 +97,7 @@
 		},
 		{
 			"children":[
-				7
+				6
 			],
 			"name":"dog_handler",
 			"rotation":[
@@ -124,7 +113,7 @@
 			]
 		},
 		{
-			"mesh":7,
+			"mesh":6,
 			"name":"cooler",
 			"translation":[
 				2.627375602722168,
@@ -133,7 +122,7 @@
 			]
 		},
 		{
-			"mesh":8,
+			"mesh":7,
 			"name":"floor_led",
 			"translation":[
 				0.009387016296386719,
@@ -142,7 +131,7 @@
 			]
 		},
 		{
-			"mesh":9,
+			"mesh":8,
 			"name":"led_ball",
 			"translation":[
 				0.9593559503555298,
@@ -151,7 +140,7 @@
 			]
 		},
 		{
-			"mesh":10,
+			"mesh":9,
 			"name":"light_bed",
 			"translation":[
 				-1.1580536365509033,
@@ -160,7 +149,7 @@
 			]
 		},
 		{
-			"mesh":11,
+			"mesh":10,
 			"name":"neon_text",
 			"translation":[
 				1.2117170095443726,
@@ -169,6 +158,18 @@
 			]
 		},
 		{
+			"mesh":11,
+			"name":"monitor.screen",
+			"translation":[
+				-0.013865232467651367,
+				0.002596616744995117,
+				0.004177689552307129
+			]
+		},
+		{
+			"children":[
+				13
+			],
 			"mesh":12,
 			"name":"monitor",
 			"translation":[
@@ -188,16 +189,19 @@
 		},
 		{
 			"mesh":14,
-			"name":"monitor_screen",
+			"name":"portal",
 			"translation":[
-				2.7034859657287598,
-				2.089569330215454,
-				-1.2410458326339722
+				-1.095639944076538,
+				2.861321449279785,
+				-2.983375072479248
 			]
 		},
 		{
+			"children":[
+				16
+			],
 			"mesh":15,
-			"name":"portal_ring"
+			"name":"portal.ring"
 		},
 		{
 			"mesh":16,
@@ -313,7 +317,7 @@
 			]
 		},
 		{
-			"name":"portal",
+			"name":"top_chair",
 			"primitives":[
 				{
 					"attributes":{
@@ -337,7 +341,7 @@
 			]
 		},
 		{
-			"name":"top_chair",
+			"name":"dog_head",
 			"primitives":[
 				{
 					"attributes":{
@@ -361,42 +365,18 @@
 			]
 		},
 		{
-			"name":"dog_head",
+			"name":"cooler",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":27,
 						"NORMAL":28,
-						"TEXCOORD_0":29
+						"TEXCOORD_0":29,
+						"COLOR_0":30
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
 							"bufferView":6,
-							"attributes":{
-								"POSITION":0,
-								"NORMAL":1,
-								"TEXCOORD_0":2
-							}
-						}
-					},
-					"indices":30,
-					"mode":4
-				}
-			]
-		},
-		{
-			"name":"cooler",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":31,
-						"NORMAL":32,
-						"TEXCOORD_0":33,
-						"COLOR_0":34
-					},
-					"extensions":{
-						"KHR_draco_mesh_compression":{
-							"bufferView":7,
 							"attributes":{
 								"POSITION":0,
 								"NORMAL":1,
@@ -405,7 +385,7 @@
 							}
 						}
 					},
-					"indices":35,
+					"indices":31,
 					"mode":4
 				}
 			]
@@ -415,16 +395,16 @@
 			"primitives":[
 				{
 					"attributes":{
-						"POSITION":36,
-						"NORMAL":37,
-						"TEXCOORD_0":38,
-						"TEXCOORD_1":39,
-						"TEXCOORD_2":40,
-						"TEXCOORD_3":41
+						"POSITION":32,
+						"NORMAL":33,
+						"TEXCOORD_0":34,
+						"TEXCOORD_1":35,
+						"TEXCOORD_2":36,
+						"TEXCOORD_3":37
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
-							"bufferView":8,
+							"bufferView":7,
 							"attributes":{
 								"POSITION":0,
 								"NORMAL":1,
@@ -435,13 +415,37 @@
 							}
 						}
 					},
-					"indices":42,
+					"indices":38,
 					"mode":4
 				}
 			]
 		},
 		{
 			"name":"led_ball",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":39,
+						"NORMAL":40,
+						"TEXCOORD_0":41
+					},
+					"extensions":{
+						"KHR_draco_mesh_compression":{
+							"bufferView":8,
+							"attributes":{
+								"POSITION":0,
+								"NORMAL":1,
+								"TEXCOORD_0":2
+							}
+						}
+					},
+					"indices":42,
+					"mode":4
+				}
+			]
+		},
+		{
+			"name":"light_bed",
 			"primitives":[
 				{
 					"attributes":{
@@ -465,7 +469,7 @@
 			]
 		},
 		{
-			"name":"light_bed",
+			"name":"neon_text",
 			"primitives":[
 				{
 					"attributes":{
@@ -489,13 +493,14 @@
 			]
 		},
 		{
-			"name":"neon_text",
+			"name":"monitor.screen",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":51,
 						"NORMAL":52,
-						"TEXCOORD_0":53
+						"TEXCOORD_0":53,
+						"COLOR_0":54
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
@@ -503,24 +508,25 @@
 							"attributes":{
 								"POSITION":0,
 								"NORMAL":1,
-								"TEXCOORD_0":2
+								"TEXCOORD_0":2,
+								"COLOR_0":3
 							}
 						}
 					},
-					"indices":54,
+					"indices":55,
 					"mode":4
 				}
 			]
 		},
 		{
-			"name":"objects.001",
+			"name":"monitor",
 			"primitives":[
 				{
 					"attributes":{
-						"POSITION":55,
-						"NORMAL":56,
-						"TEXCOORD_0":57,
-						"COLOR_0":58
+						"POSITION":56,
+						"NORMAL":57,
+						"TEXCOORD_0":58,
+						"COLOR_0":59
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
@@ -533,7 +539,7 @@
 							}
 						}
 					},
-					"indices":59,
+					"indices":60,
 					"mode":4
 				}
 			]
@@ -543,9 +549,9 @@
 			"primitives":[
 				{
 					"attributes":{
-						"POSITION":60,
-						"NORMAL":61,
-						"TEXCOORD_0":62
+						"POSITION":61,
+						"NORMAL":62,
+						"TEXCOORD_0":63
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
@@ -557,20 +563,19 @@
 							}
 						}
 					},
-					"indices":63,
+					"indices":64,
 					"mode":4
 				}
 			]
 		},
 		{
-			"name":"objects.002",
+			"name":"portal",
 			"primitives":[
 				{
 					"attributes":{
-						"POSITION":64,
-						"NORMAL":65,
-						"TEXCOORD_0":66,
-						"COLOR_0":67
+						"POSITION":65,
+						"NORMAL":66,
+						"TEXCOORD_0":67
 					},
 					"extensions":{
 						"KHR_draco_mesh_compression":{
@@ -578,8 +583,7 @@
 							"attributes":{
 								"POSITION":0,
 								"NORMAL":1,
-								"TEXCOORD_0":2,
-								"COLOR_0":3
+								"TEXCOORD_0":2
 							}
 						}
 					},
@@ -589,7 +593,7 @@
 			]
 		},
 		{
-			"name":"objects.003",
+			"name":"portal.ring",
 			"primitives":[
 				{
 					"attributes":{
@@ -642,7 +646,7 @@
 	"accessors":[
 		{
 			"componentType":5126,
-			"count":14062,
+			"count":13994,
 			"max":[
 				2.9961013793945312,
 				3.0391218662261963,
@@ -657,23 +661,23 @@
 		},
 		{
 			"componentType":5126,
-			"count":14062,
+			"count":13994,
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":14062,
+			"count":13994,
 			"type":"VEC2"
 		},
 		{
 			"componentType":5123,
-			"count":14062,
+			"count":13994,
 			"normalized":true,
 			"type":"VEC4"
 		},
 		{
 			"componentType":5123,
-			"count":43515,
+			"count":43413,
 			"type":"SCALAR"
 		},
 		{
@@ -774,36 +778,6 @@
 		{
 			"componentType":5123,
 			"count":510,
-			"type":"SCALAR"
-		},
-		{
-			"componentType":5126,
-			"count":24,
-			"max":[
-				0.8901582956314087,
-				0.8901581764221191,
-				2.384185791015625e-07
-			],
-			"min":[
-				-0.8901582956314087,
-				-0.8901582956314087,
-				0
-			],
-			"type":"VEC3"
-		},
-		{
-			"componentType":5126,
-			"count":24,
-			"type":"VEC3"
-		},
-		{
-			"componentType":5126,
-			"count":24,
-			"type":"VEC2"
-		},
-		{
-			"componentType":5123,
-			"count":66,
 			"type":"SCALAR"
 		},
 		{
@@ -1039,38 +1013,74 @@
 		},
 		{
 			"componentType":5126,
-			"count":28,
+			"count":4,
 			"max":[
-				0.05632251128554344,
+				0.02877640724182129,
+				0.3635120391845703,
+				0.8030539751052856
+			],
+			"min":[
+				-0.02877664566040039,
+				-0.36351191997528076,
+				-0.8030539751052856
+			],
+			"type":"VEC3"
+		},
+		{
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
+		},
+		{
+			"componentType":5123,
+			"count":4,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"componentType":5123,
+			"count":6,
+			"type":"SCALAR"
+		},
+		{
+			"componentType":5126,
+			"count":96,
+			"max":[
+				0.2035205364227295,
 				0.3836783766746521,
 				0.8248562812805176
 			],
 			"min":[
-				-0.054338518530130386,
-				-0.5196290612220764,
+				-0.1370244026184082,
+				-0.549336314201355,
 				-1.454298973083496
 			],
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":28,
+			"count":96,
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":28,
+			"count":96,
 			"type":"VEC2"
 		},
 		{
 			"componentType":5123,
-			"count":28,
+			"count":96,
 			"normalized":true,
 			"type":"VEC4"
 		},
 		{
 			"componentType":5123,
-			"count":54,
+			"count":156,
 			"type":"SCALAR"
 		},
 		{
@@ -1105,38 +1115,32 @@
 		},
 		{
 			"componentType":5126,
-			"count":4,
+			"count":24,
 			"max":[
-				0.02877640724182129,
-				0.3635120391845703,
-				0.8030539751052856
+				0.8901582956314087,
+				0.8901581764221191,
+				2.384185791015625e-07
 			],
 			"min":[
-				-0.02877664566040039,
-				-0.36351191997528076,
-				-0.8030539751052856
+				-0.8901582956314087,
+				-0.8901582956314087,
+				0
 			],
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":4,
+			"count":24,
 			"type":"VEC3"
 		},
 		{
 			"componentType":5126,
-			"count":4,
+			"count":24,
 			"type":"VEC2"
 		},
 		{
 			"componentType":5123,
-			"count":4,
-			"normalized":true,
-			"type":"VEC4"
-		},
-		{
-			"componentType":5123,
-			"count":6,
+			"count":66,
 			"type":"SCALAR"
 		},
 		{
@@ -1209,93 +1213,93 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":86113,
+			"byteLength":85651,
 			"byteOffset":0
 		},
 		{
 			"buffer":0,
 			"byteLength":2259,
-			"byteOffset":86116
+			"byteOffset":85652
 		},
 		{
 			"buffer":0,
 			"byteLength":1946,
-			"byteOffset":88376
+			"byteOffset":87912
 		},
 		{
 			"buffer":0,
 			"byteLength":1537,
-			"byteOffset":90324
-		},
-		{
-			"buffer":0,
-			"byteLength":377,
-			"byteOffset":91864
+			"byteOffset":89860
 		},
 		{
 			"buffer":0,
 			"byteLength":27602,
-			"byteOffset":92244
+			"byteOffset":91400
 		},
 		{
 			"buffer":0,
 			"byteLength":1768,
-			"byteOffset":119848
+			"byteOffset":119004
 		},
 		{
 			"buffer":0,
 			"byteLength":814,
-			"byteOffset":121616
+			"byteOffset":120772
 		},
 		{
 			"buffer":0,
 			"byteLength":358,
-			"byteOffset":122432
+			"byteOffset":121588
 		},
 		{
 			"buffer":0,
 			"byteLength":2504,
-			"byteOffset":122792
+			"byteOffset":121948
 		},
 		{
 			"buffer":0,
 			"byteLength":767,
-			"byteOffset":125296
+			"byteOffset":124452
 		},
 		{
 			"buffer":0,
 			"byteLength":44002,
-			"byteOffset":126064
-		},
-		{
-			"buffer":0,
-			"byteLength":437,
-			"byteOffset":170068
-		},
-		{
-			"buffer":0,
-			"byteLength":248,
-			"byteOffset":170508
+			"byteOffset":125220
 		},
 		{
 			"buffer":0,
 			"byteLength":209,
-			"byteOffset":170756
+			"byteOffset":169224
+		},
+		{
+			"buffer":0,
+			"byteLength":956,
+			"byteOffset":169436
+		},
+		{
+			"buffer":0,
+			"byteLength":248,
+			"byteOffset":170392
+		},
+		{
+			"buffer":0,
+			"byteLength":377,
+			"byteOffset":170640
 		},
 		{
 			"buffer":0,
 			"byteLength":1349,
-			"byteOffset":170968
+			"byteOffset":171020
 		},
 		{
 			"buffer":0,
 			"byteLength":1660,
-			"byteOffset":172320
+			"byteOffset":172372
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":173980,
+			"byteLength":174032,
 			"uri":"room.bin"
 		}
 	]
