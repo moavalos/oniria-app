@@ -267,10 +267,20 @@ export class MaterialService {
                 // Saltar portales ya que tienen material personalizado
                 if (mesh.name === "portal") return;
 
+                //DOOR
+                if (mesh.name === "door") {
+                    mesh.material = this.materialMap.walls;
+                    return;
+                }
+
                 if (this.materialMap[mesh.name]) {
                     mesh.material = this.materialMap[mesh.name];
-                } else if (this.materialMap.objects) {
+                }
+
+
+                else if (this.materialMap.objects) {
                     // Fallback a material por defecto
+
                     mesh.material = this.materialMap.objects;
                 }
                 return;

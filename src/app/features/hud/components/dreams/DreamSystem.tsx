@@ -16,11 +16,10 @@ export default function DreamSystem() {
   const engine = useEngineAPI();
 
   useEffect(() => {
-    // Deshabilitar interacciones inmediatamente al montar DreamSystem
-    engine.interactions.setEnabled(false);
-    
     engine.nebula.onReady((_nebula) => {
       openDreamForm("create");
+      // Deshabilitar interacciones cuando se abre el formulario
+      engine.interactions.setEnabled(false);
     });
   }, [engine, openDreamForm]);
 

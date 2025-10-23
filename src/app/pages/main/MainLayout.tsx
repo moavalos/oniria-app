@@ -73,7 +73,7 @@ export default function MainLayout() {
           }}
         >
           <Engine.Core>
-            <DebugSystem enabled={true} />
+            <DebugSystem enabled={false} />
             <Systems.Interaction
               config={{
                 callbacks: {

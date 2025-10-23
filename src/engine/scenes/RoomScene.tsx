@@ -7,6 +7,8 @@ import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
 import ImageScene from "./ImageScene";
+import ScreenMonitor from "../components/ScreenMonitor";
+import { MathUtils } from "three";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -212,6 +214,7 @@ export default function RoomScene() {
   return (
     <>
       <primitive object={room.get_Scene()!} />
+
       {renderNode && (
         <NodeScene
           position={[-1.1, 2.85, -6.4]}
