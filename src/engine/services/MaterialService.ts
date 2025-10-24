@@ -225,6 +225,142 @@ export class MaterialService {
     }
 
     /**
+     * Aplica una VideoTexture a un mesh
+     * 
+     * @param mesh - El mesh al que aplicar el video (por ejemplo, monitor.screen)
+     * @param videoUrl - URL del video a reproducir (soporta mp4, webm, ogg)
+     * @param options - Opciones de configuración del video
+     * @returns El elemento de video y el material creado
+     */
+    applyVideoTexture(
+        mesh: THREE.Mesh | undefined,
+        videoUrl: string,
+        options: {
+            muted?: boolean;
+            loop?: boolean;
+            controls?: boolean;
+            autoplay?: boolean;
+            playsInline?: boolean;
+            // Opciones de textura
+            repeat?: { x: number; y: number };
+            offset?: { x: number; y: number };
+            center?: { x: number; y: number };
+            rotation?: number;
+        } = {}
+    ): { videoElement: HTMLVideoElement; material: THREE.MeshBasicMaterial } | null {
+        if (!mesh) {
+            console.warn("[MaterialService] No se puede aplicar video: mesh no proporcionado");
+            return null;
+        }
+
+        if (!videoUrl) {
+            console.error("[MaterialService] No se puede aplicar video: URL no proporcionada");
+            return null;
+        }
+
+        // Crear elemento de video
+        const videoElement = document.createElement('video');
+        videoElement.muted = options.muted ?? true;
+        videoElement.loop = options.loop ?? true;
+        videoElement.controls = options.controls ?? false;
+        videoElement.playsInline = options.playsInline ?? true;
+        videoElement.autoplay = options.autoplay ?? true;
+        videoElement.crossOrigin = 'anonymous';
+        videoElement.src = videoUrl;
+
+        // Aplicar material negro por defecto (fallback)
+        const fallbackMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        mesh.material = fallbackMaterial;
+
+        // Agregar listeners
+        videoElement.addEventListener('loadeddata', () => {
+
+            // Solo crear la textura de video si se carga correctamente
+            const videoTexture = new THREE.VideoTexture(videoElement);
+            videoTexture.colorSpace = THREE.SRGBColorSpace;
+            videoTexture.minFilter = THREE.LinearFilter;
+            videoTexture.magFilter = THREE.LinearFilter;
+            videoTexture.format = THREE.RGBAFormat;
+
+            // Ajustar wrapping para que se repita o recorte según necesites
+            videoTexture.wrapS = THREE.ClampToEdgeWrapping;
+            videoTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+            // Aplicar transformaciones de textura si se proporcionaron
+            if (options.repeat) {
+                videoTexture.repeat.set(options.repeat.x, options.repeat.y);
+            }
+            if (options.offset) {
+                videoTexture.offset.set(options.offset.x, options.offset.y);
+            }
+            if (options.center) {
+                videoTexture.center.set(options.center.x, options.center.y);
+            }
+            if (options.rotation !== undefined) {
+                videoTexture.rotation = options.rotation;
+            }
+
+            const videoMaterial = new THREE.MeshBasicMaterial({
+                map: videoTexture,
+                side: THREE.DoubleSide
+            });
+
+            mesh.material = videoMaterial;
+            mesh.material.needsUpdate = true;
+
+            // Guardar referencias
+            (mesh as any).userData._videoElement = videoElement;
+            (mesh as any).userData._videoTexture = videoTexture;
+        });
+
+        videoElement.addEventListener('error', () => {
+            console.warn("[MaterialService] No se pudo cargar el video, usando material negro:", videoUrl);
+        });
+
+        // Cargar e iniciar reproducción del video
+        videoElement.load();
+        videoElement.play().catch(() => {
+            console.warn("[MaterialService] No se pudo reproducir el video automáticamente:", videoUrl);
+        });
+
+        return {
+            videoElement,
+            material: fallbackMaterial
+        };
+    }
+
+    /**
+     * Remueve la VideoTexture de un mesh y limpia recursos
+     * 
+     * @param mesh - El mesh del cual remover el video
+     */
+    removeVideoTexture(mesh: THREE.Mesh | undefined): void {
+        if (!mesh) return;
+
+        const videoElement = (mesh as any).userData?._videoElement as HTMLVideoElement;
+        const videoTexture = (mesh as any).userData?._videoTexture as THREE.VideoTexture;
+
+        // Pausar y limpiar video
+        if (videoElement) {
+            videoElement.pause();
+            videoElement.src = '';
+            videoElement.load();
+            delete (mesh as any).userData._videoElement;
+        }
+
+        // Disponer de la textura
+        if (videoTexture) {
+            videoTexture.dispose();
+            delete (mesh as any).userData._videoTexture;
+        }
+
+        // Disponer del material si es necesario
+        if (mesh.material && (mesh.material as THREE.Material).dispose) {
+            (mesh.material as THREE.Material).dispose();
+        }
+    }
+
+    /**
      * Limpia todos los materiales cuando se cambia de habitación
      * 
      * Libera la memoria ocupada por los materiales y resetea el mapa interno
@@ -268,8 +404,8 @@ export class MaterialService {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
 
-                // Saltar portales ya que tienen material personalizado
-                if (mesh.name === "portal") return;
+                // Saltar portales y screens ya que tienen material personalizado
+                if (mesh.name === "portal" || mesh.name === "screen") return;
 
                 //DOOR
                 if (mesh.name === "door") {
@@ -303,6 +439,8 @@ export class MaterialService {
                     }
                 });
             }
+
+
         });
     }
 }

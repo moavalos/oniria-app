@@ -580,7 +580,7 @@
 			]
 		},
 		{
-			"name":"monitor.screen",
+			"name":"screen",
 			"primitives":[
 				{
 					"attributes":{
@@ -1296,23 +1296,23 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":209,
+			"byteLength":201,
 			"byteOffset":172088
 		},
 		{
 			"buffer":0,
 			"byteLength":377,
-			"byteOffset":172300
+			"byteOffset":172292
 		},
 		{
 			"buffer":0,
 			"byteLength":1349,
-			"byteOffset":172680
+			"byteOffset":172672
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":174032,
+			"byteLength":174024,
 			"uri":"room.bin"
 		}
 	]
