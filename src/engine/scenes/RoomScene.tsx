@@ -7,8 +7,6 @@ import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
 import ImageScene from "./ImageScene";
-import ScreenMonitor from "../components/ScreenMonitor";
-import { MathUtils } from "three";
 
 /**
  * Escena principal para renderizar salas 3D.

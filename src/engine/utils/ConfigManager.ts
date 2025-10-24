@@ -11,6 +11,7 @@ export interface ProcessedRoomObjects {
     animatable: Record<string, AnimationAction>;
     interactable: Record<string, ObjectEventArray>;
     colorable: Record<string, string>;
+    resaltable: Record<string, string | undefined>; // objectName -> color hex (opcional)
 }
 
 /**
@@ -58,7 +59,8 @@ export class ConfigManager {
             lookAtable: scene ? this.extractLookAtableObjects(config, scene) : {},
             animatable: this.extractAnimatableObjects(config),
             interactable: scene ? this.extractInteractableObjects(config, scene) : {},
-            colorable: this.extractColorableObjects(config)
+            colorable: this.extractColorableObjects(config),
+            resaltable: this.extractResaltableObjects(config)
         };
     }
 
@@ -139,6 +141,25 @@ export class ConfigManager {
     }
 
     /**
+     * Obtiene objetos resaltables
+     */
+    async getResaltableObjects(roomId: string): Promise<Record<string, string | undefined>> {
+        const config = await this.getConfig(roomId);
+        return this.extractResaltableObjects(config);
+    }
+
+    /**
+     * Obtiene objetos resaltables (versión síncrona - asume que la config ya está cargada)
+     */
+    getResaltableObjectsSync(): Record<string, string | undefined> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty resaltables');
+            return {};
+        }
+        return this.extractResaltableObjects(this.currentConfig);
+    }
+
+    /**
      * Limpia la configuración actual (cuando se cambia de habitación)
      */
     clearCurrent(): void {
@@ -180,20 +201,26 @@ export class ConfigManager {
     private extractInteractableObjects(config: RoomConfig, scene: THREE.Group<THREE.Object3DEventMap>): Record<string, ObjectEventArray> {
         const interactables: Record<string, ObjectEventArray> = {};
 
-
         for (const [name, obj] of Object.entries(config.objects)) {
-
             if (obj.interceptable && obj.event) {
-
                 // Asegurar que event es siempre un array
                 const eventArray = Array.isArray(obj.event) ? obj.event : [obj.event];
                 interactables[name] = eventArray;
+
+                // Si el objeto tiene hijos, también marcarlos como interceptables
+                const object3D = scene.getObjectByName(name);
+                if (object3D && object3D.children.length > 0) {
+                    object3D.traverse((child) => {
+                        // Solo agregar hijos con nombre (skip objetos sin nombre)
+                        if (child !== object3D && child.name) {
+                            interactables[child.name] = eventArray;
+                        }
+                    });
+                }
             }
         }
 
-
         const mapped = this.mapHandlersToChildObjects(scene, interactables);
-
 
         return mapped;
     }
@@ -210,6 +237,18 @@ export class ConfigManager {
         return colorables;
     }
 
+    private extractResaltableObjects(config: RoomConfig): Record<string, string | undefined> {
+        const resaltables: Record<string, string | undefined> = {};
+
+        for (const [name, obj] of Object.entries(config.objects)) {
+            if (obj.resalted) {
+                resaltables[name] = obj.colorResalted;
+            }
+        }
+
+        return resaltables;
+    }
+
     private mapHandlersToChildObjects(
         scene: THREE.Group<THREE.Object3DEventMap>,
         handlers: Record<string, ObjectEventArray>
@@ -217,7 +256,7 @@ export class ConfigManager {
         const mapped: Record<string, ObjectEventArray> = {};
 
         Object.entries(handlers).forEach(([name, event]) => {
-            if (this.isHandlerObject(name) || this.isMonitorObject(name)) {
+            if (this.isHandlerObject(name)) {
                 const childName = this.getChildObjectName(scene, name);
                 if (childName) {
                     mapped[childName] = event;
@@ -234,13 +273,9 @@ export class ConfigManager {
         return name.includes("_handler");
     }
 
-    private isMonitorObject(name: string): boolean {
-        return name.includes("monitor.");
-    }
 
-    private isPortalObject(name: string): boolean {
-        return name.includes("portal.");
-    }
+
+
 
     private getChildObjectName(scene: THREE.Group<THREE.Object3DEventMap>, handlerName: string): string | null {
         const handler = scene.getObjectByName(handlerName);

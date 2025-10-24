@@ -113,7 +113,11 @@ export class MaterialService {
     applyMaterialsToPortal(portal: THREE.Object3D | undefined, uniforms = {}): void {
         if (!portal) return;
 
-        (portal as THREE.Mesh).material = new THREE.ShaderMaterial({
+        const mesh = (portal as THREE.Mesh).getObjectByName("inside") as THREE.Mesh;
+
+        if (!mesh) return;
+
+        mesh.material = new THREE.ShaderMaterial({
             uniforms,
             vertexShader: portalVertexShader,
             fragmentShader: portalFragmentShader,

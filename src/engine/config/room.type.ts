@@ -35,6 +35,8 @@ export interface RoomObjectConfig {
     interceptable?: boolean;
     event?: ObjectEvent;
     lookAtOffset?: [number, number, number]; // offset para la cámara al hacer lookAt
+    resalted?: boolean; // si el objeto debe tener highlight al hacer hover
+    colorResalted?: string; // color del highlight (hex string)
 }
 
 export type LookatableObject = {

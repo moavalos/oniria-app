@@ -10,22 +10,16 @@
       "color": "#FFFFFF",
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
-      "lookAtOffset": [-1, 0.5, 4]
-    },
-    "portal.ring": {
-      "interceptable": true,
-      "event": { "type": "none", "name": "none" },
-      "lookAtOffset": [-1, 0.5, 4]
+      "lookAtOffset": [-1, 0.5, 4],
+      "resalted": true,
+      "colorResalted": "#FF0000"
     },
     "monitor": {
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
-      "lookAtOffset": [-1.2, 0.1, 1]
-    },
-    "monitor.screen": {
-      "interceptable": true,
-      "event": { "type": "none", "name": "none" },
-      "lookAtOffset": [-1.2, 0.1, 1]
+      "lookAtOffset": [-1.2, 0.1, 1],
+      "resalted": true,
+      "colorResalted": "#FF0000"
     },
     "neon_text": { "color": "#FFFFFF", "lookAtOffset": [-1.2, -1.0, 3] },
     "dog_handler": {
