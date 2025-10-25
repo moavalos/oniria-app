@@ -7,7 +7,7 @@ export class TextureLoaderService implements IAssetLoader {
 
     private loader = new THREE.TextureLoader();
 
-    load(url: string, onProgress: (p: number) => void): Promise<THREE.Texture> {
+    load(url: string, onProgress: (_p: number) => void): Promise<THREE.Texture> {
         return new Promise((resolve, reject) => {
             this.loader.load(
                 url,

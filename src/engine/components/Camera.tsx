@@ -12,9 +12,9 @@ import {
 
 export interface CameraProps {
   config?: CameraConfig;
-  onCameraMove?: (position: THREE.Vector3, target: THREE.Vector3) => void;
+  onCameraMove?: (_position: THREE.Vector3, _target: THREE.Vector3) => void;
   onCameraStop?: () => void;
-  onZoomChange?: (distance: number) => void;
+  onZoomChange?: (_distance: number) => void;
   enableControls?: boolean;
   autoConfigureForRoom?: boolean;
 }

@@ -1,35 +1,58 @@
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@/engine/core/store/engineStore";
 import { useCallback } from "react";
+import { menuRegistry } from "../components/menuRegistry";
 
 export default function useHudHandler() {
   const engine = useEngineAPI();
   const { setActiveMenu } = useEngineStore();
+
+  /**
+   * Verifica si existe un menú para el objeto target y lo abre
+   * Solo hace lookAt si existe un menú asociado
+   */
+  const handleMenuForObject = useCallback(
+    (target: string) => {
+      // Verificar si existe un menú para este objeto en el menuRegistry
+      const menuName = target as keyof typeof menuRegistry;
+
+      if (menuRegistry[menuName]) {
+        // Solo hacer lookAt si existe un menú
+        engine.lookAt(target);
+
+        // Abrir el menú correspondiente
+        setActiveMenu(menuName, {
+          objectName: target,
+        });
+
+        return true;
+      }
+
+      return false;
+    },
+    [engine, setActiveMenu]
+  );
 
   const objectClickHandler = useCallback(
     (event: any) => {
       const { target } = event;
       console.log(`[HudHandler] Object clicked: ${target}`);
 
-      // Hacer zoom al objeto
-      engine.lookAt(target);
+      // Manejar el menú para este objeto
+      const hasMenu = handleMenuForObject(target);
 
-      // Abrir el menú correspondiente según el objeto
-      if (target === "portal") {
-        setActiveMenu("portal", {
-          objectName: target,
-        });
+      if (!hasMenu) {
+        console.log(`[HudHandler] No menu found for object: ${target}`);
       }
-      // Agrega más casos aquí para otros objetos
     },
-    [engine, setActiveMenu]
+    [handleMenuForObject]
   );
 
-  const objectEnterHandler = useCallback((_event: any) => {
+  const objectEnterHandler = useCallback(() => {
     document.body.style.cursor = "pointer";
   }, []);
 
-  const objectLeaveHandler = useCallback((_event: any) => {
+  const objectLeaveHandler = useCallback(() => {
     document.body.style.cursor = "default";
   }, []);
 

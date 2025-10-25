@@ -132,6 +132,32 @@ export class InteractionService {
     }
 
     /**
+     * Encuentra el objeto interceptable más cercano en la jerarquía
+     * Si el objeto tiene un padre que también es interceptable, devuelve el padre
+     * 
+     * @param object - Objeto 3D desde donde empezar la búsqueda
+     * @param interceptableObjects - Mapa de objetos interceptables
+     * @returns Nombre del objeto interceptable o null
+     */
+    private resolveInterceptableObject(
+        object: THREE.Object3D,
+        interceptableObjects: Record<string, ObjectEventArray>
+    ): string | null {
+        let current: THREE.Object3D | null = object;
+        let foundInterceptable: string | null = null;
+
+        // Recorrer hacia arriba en la jerarquía
+        while (current) {
+            if (current.name && interceptableObjects[current.name]) {
+                foundInterceptable = current.name;
+            }
+            current = current.parent;
+        }
+
+        return foundInterceptable;
+    }
+
+    /**
      * Análisis específico para interacciones con Room
      * 
      * @param room - Instancia de Room para analizar
@@ -162,10 +188,15 @@ export class InteractionService {
 
         // Identificar objetos interceptados
         frame.intersections.forEach(intersection => {
-            const objectName = intersection.object.name;
-            if (interceptableObjects[objectName]) {
-                interceptedObjects.push(objectName);
-                objectEvents[objectName] = interceptableObjects[objectName];
+            // Resolver el objeto interceptable real (puede ser el padre)
+            const resolvedName = this.resolveInterceptableObject(
+                intersection.object,
+                interceptableObjects
+            );
+
+            if (resolvedName && !interceptedObjects.includes(resolvedName)) {
+                interceptedObjects.push(resolvedName);
+                objectEvents[resolvedName] = interceptableObjects[resolvedName];
             }
         });
 

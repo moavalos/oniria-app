@@ -79,11 +79,8 @@ export class Portal extends EventEmitter<PortalEventMap> {
      * @param material - Material shader a aplicar
      */
     setMaterial(material: THREE.ShaderMaterial): void {
-        if (this.object3D instanceof THREE.Mesh) {
-            this.material = material;
-            this.object3D.material = material;
-            this.emit('portal:material:applied', { portal: this });
-        }
+        this.material = material;
+        this.emit('portal:material:applied', { portal: this });
     }
 
     /**

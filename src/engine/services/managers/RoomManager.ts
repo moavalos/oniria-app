@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { AssetManager } from "../assets/AssetManager";
 import { Room } from "@engine/entities/Room";
 import { Skin } from "@engine/entities/Skin";
@@ -232,6 +233,23 @@ export class RoomManager implements Injectable {
       // Aplicar materiales
       const materialService = this._core.getService(MaterialService);
       await materialService.applyMaterialsToRoom(newRoom);
+
+      // Aplicar video al screen del monitor
+      const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
+      if (monitor) {
+        const screen = monitor.getObjectByName("screen") as THREE.Mesh;
+        materialService.applyVideoTexture(
+          screen,
+          '/screen/screen_oniria.mp4',
+          {
+            muted: true,
+            loop: true,
+            autoplay: true,
+            repeat: { x: 1, y: -1 }, // Solo invertir en Y (vertical)
+            offset: { x: 0, y: 1 }   // Ajustar offset en Y
+          }
+        );
+      }
 
       // Actualizar estado
       this.updateRoomState(newRoom, skin?.id);

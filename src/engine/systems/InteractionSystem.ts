@@ -93,6 +93,8 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
     private _interceptableObjects: Record<string, ObjectEventArray> = {};
 
+    private _resaltableObjects: Record<string, string | undefined> = {};
+
     private _currentNode: Node | null = null;
 
     // Configuración del sistema
@@ -322,21 +324,14 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         // Ejecutar lógica interna (animaciones directas por compatibilidad)
         this.handleObjectEnterInternal(eventArgs);
 
-        // Activar highlight shader overlay en el objeto hovered
-        if (this._currentRoom) {
+        // Activar highlight shader overlay solo si el objeto es resaltable
+        if (this._currentRoom && this._resaltableObjects[objectName] !== undefined) {
             const obj = this._currentRoom.getObjectByName(objectName);
             if (obj) {
-                // Sólo aplicable a Mesh
-                if ((obj as any).isMesh) {
-                    this.highlightService?.add(obj as unknown as THREE.Mesh);
-                } else {
-                    // Si el interceptable apunta a un Group, buscar primer Mesh hijo
-                    let meshChild: THREE.Mesh | null = null;
-                    obj.traverse((child) => {
-                        if (!meshChild && (child as any).isMesh) meshChild = child as THREE.Mesh;
-                    });
-                    if (meshChild) this.highlightService?.add(meshChild);
-                }
+                const colorHex = this._resaltableObjects[objectName];
+                const colorValue = colorHex ? parseInt(colorHex.replace('#', ''), 16) : undefined;
+
+                this.highlightService?.addToObject(obj, { color: colorValue });
             }
         }
 
@@ -357,19 +352,11 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         this.handleObjectLeaveInternal(eventArgs);
 
-        // Desactivar highlight shader overlay del objeto
-        if (this._currentRoom) {
+        // Desactivar highlight shader overlay solo si el objeto era resaltable
+        if (this._currentRoom && this._resaltableObjects[objectName] !== undefined) {
             const obj = this._currentRoom.getObjectByName(objectName);
             if (obj) {
-                if ((obj as any).isMesh) {
-                    this.highlightService?.remove(obj as unknown as THREE.Mesh);
-                } else {
-                    let meshChild: THREE.Mesh | null = null;
-                    obj.traverse((child) => {
-                        if (!meshChild && (child as any).isMesh) meshChild = child as THREE.Mesh;
-                    });
-                    if (meshChild) this.highlightService?.remove(meshChild);
-                }
+                this.highlightService?.removeFromObject(obj);
             }
         }
         this._userCallbacks.objects?.onHoverLeave?.(eventArgs);
@@ -577,9 +564,13 @@ export class InteractionSystem extends BaseSystem implements Injectable {
         try {
             const interceptables = await room.getInteractableObjects();
             this._interceptableObjects = interceptables;
+
+            const resaltables = await room.getResaltableObjects();
+            this._resaltableObjects = resaltables;
         } catch (error) {
             console.error("[InteractionSystem] Error cargando interceptables:", error);
             this._interceptableObjects = {};
+            this._resaltableObjects = {};
         }
     }
 

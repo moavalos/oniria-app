@@ -7,8 +7,8 @@ import { useTimelineKeyboard } from "../timeLine/hooks/useTimelineKeyboard";
 interface UseHistoryPanelProps {
     timeline: TimelineItem[];
     initialSelectedId?: number;
-    onSelectItem?: (item: TimelineItem) => void;
-    onCta?: (item: TimelineItem) => void;
+    onSelectItem?: (_item: TimelineItem) => void;
+    onCta?: (_item: TimelineItem) => void;
     ctaDisabled?: boolean;
 }
 

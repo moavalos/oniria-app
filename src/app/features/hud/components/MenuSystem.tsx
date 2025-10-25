@@ -1,20 +1,7 @@
 import { useEngineStore } from "@/engine/core/store/engineStore";
-import MenuPortal from "./menu/portal/MenuPortal";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useState, useEffect } from "react";
-
-/**
- * Registro de menús disponibles
- * Mapea el nombre del menú al componente correspondiente
- */
-const menuRegistry = {
-  portal: MenuPortal,
-  // settings: MenuSettings,
-
-  // Agrega más menús aquí...
-} as const;
-
-export type MenuName = keyof typeof menuRegistry;
+import { menuRegistry, type MenuName } from "./menuRegistry";
 
 /**
  * Sistema de menús dinámicos

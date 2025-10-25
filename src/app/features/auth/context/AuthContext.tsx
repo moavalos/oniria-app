@@ -7,14 +7,14 @@ export type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signIn: (
-    email: string,
-    password: string
+    _email: string,
+    _password: string
   ) => Promise<{ data: any; error: any }>;
   signUp: (
-    email: string,
-    password: string,
-    username: string,
-    metadata?: UserMetadata
+    _email: string,
+    _password: string,
+    _username: string,
+    _metadata?: UserMetadata
   ) => Promise<{ data: any; error: any }>;
   signInWithGoogle: () => Promise<{ data: any; error: any }>;
   signOut: () => Promise<{ error: AuthError | null }>;

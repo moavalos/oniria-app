@@ -47,7 +47,7 @@ export default function DreamForm({
         <HudMenu.Header>
           <div className="flex items-center justify-between w-full">
             <h2 className="text-xl font-semibold font-orbitron text-primary ">
-              {"VITACORA"}
+              {"BITACORA"}
             </h2>
             <HudMenu.CloseButton onClick={handleClose} />
           </div>

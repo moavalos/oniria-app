@@ -261,6 +261,15 @@ export class Room {
     }
 
     /**
+     * Obtiene todos los objetos resaltables de la Room.
+     * 
+     * @returns Record con objetos resaltables y sus colores de highlight
+     */
+    async getResaltableObjects(): Promise<Record<string, string | undefined>> {
+        return this._configManager.getResaltableObjects(this._id);
+    }
+
+    /**
      * Obtiene todos los objetos procesados de la Room.
      * 
      * @returns Objetos procesados completos de la Room

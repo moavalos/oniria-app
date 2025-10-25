@@ -9,9 +9,11 @@ export async function getSession() {
   return supabase.auth.getSession();
 }
 
-export function onAuthStateChange(callback: (session: Session | null) => void) {
-  return supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session);
+export function onAuthStateChange(
+  callback: (_session: Session | null) => void
+) {
+  return supabase.auth.onAuthStateChange((_event, _session) => {
+    callback(_session);
   });
 }
 

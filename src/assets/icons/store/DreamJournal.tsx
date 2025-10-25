@@ -1,12 +1,12 @@
-interface DreamJournalProps extends React.SVGProps<SVGSVGElement> {}
+import React from "react";
 
-const DreamJournal = (props: DreamJournalProps) => (
+const DreamJournal = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={36}
-    height={36}
-    fill="none"
-    className={props.className}
+    width={128}
+    height={128}
+    fill="currentColor"
+    viewBox="0 0 36 36"
     {...props}
   >
     <path

@@ -212,6 +212,7 @@ export default function RoomScene() {
   return (
     <>
       <primitive object={room.get_Scene()!} />
+
       {renderNode && (
         <NodeScene
           position={[-1.1, 2.85, -6.4]}

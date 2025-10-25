@@ -20,6 +20,29 @@ const menuFactory: MenuFactory = {
             }
         ]
     },
+    monitor: {
+        title: "Centro de control",
+        description: "Ajusta las preferencias de la aplicación y personaliza tu experiencia.",
+        icon: undefined,
+        items: [
+            {
+                label: "Perfil",
+                icon: "user",
+                description: "Gestiona tu perfil y preferencias personales.",
+                action: () => { }
+            }, {
+                label: "Notificaciones",
+                icon: "bell",
+                description: "Configura tus preferencias de notificación.",
+                action: () => { }
+            }, {
+                label: "Personalización",
+                icon: "palette",
+                description: "Personaliza tu habitación.",
+                action: () => { }
+            }
+        ]
+    }
 }
 
 export default menuFactory;
