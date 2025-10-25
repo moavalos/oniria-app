@@ -4,8 +4,8 @@ import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@/engine";
 import type { MenuProps } from "../../../types/menu.types";
 
-export default function MenuPortal({ onClose, isClosing = false }: MenuProps) {
-  const menu = menuFactory.portal;
+export default function MenuSetting({ onClose, isClosing = false }: MenuProps) {
+  const menu = menuFactory.monitor;
   const engine = useEngineAPI();
   const { closeMenu } = useEngineStore();
 
@@ -14,13 +14,13 @@ export default function MenuPortal({ onClose, isClosing = false }: MenuProps) {
     switch (itemIndex) {
       case 0:
         engine.interactions.setEnabled(false);
-        engine.camera.viewTravel();
+        //action
         closeMenu();
 
         break;
       case 1:
         engine.interactions.setEnabled(false);
-        engine.camera.viewNodes();
+        //action
         closeMenu();
         break;
       default:

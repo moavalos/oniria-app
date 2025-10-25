@@ -35,4 +35,11 @@ export interface MenuObject {
     items: MenuItem[]
 }
 
+export interface MenuProps {
+    data?: Record<string, any>;
+    onClose: () => void;
+    isClosing?: boolean;
+}
+
+
 export type MenuFactory = Record<string, MenuObject>

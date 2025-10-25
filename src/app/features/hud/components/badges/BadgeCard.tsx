@@ -1,20 +1,13 @@
 import Icon from "@/assets/icons/Icon";
 import type { IconName } from "@/assets/icons/iconsStore";
 import type { BadgeComponentProps } from "@/engine/components/Badges";
+import type { BadgeData } from "./badgeStore";
 
-interface BadgeCardProps extends BadgeComponentProps {}
+interface BadgeCardProps extends BadgeComponentProps {
+  object: BadgeData | null;
+}
 
-const objectsDescriptions = [
-  {
-    name: "portal",
-    title: "El Portal",
-    description:
-      "Aquí podrás registrar tus sueños, explorar tu historia y descubrir los patrones que habitan en tu mente.”",
-  },
-];
-
-export default function BadgeCard({ objectName }: BadgeCardProps) {
-  const object = objectsDescriptions.find((obj) => obj.name === objectName);
+export default function BadgeCard({ object }: BadgeCardProps) {
   if (!object) return null;
 
   return (
@@ -26,7 +19,7 @@ export default function BadgeCard({ objectName }: BadgeCardProps) {
     >
       <div className="flex items-center justify-start gap-2">
         <Icon
-          name={object.name as IconName}
+          name={object.icon as IconName}
           className="w-6 h-6 text-white/80 "
         />
         <h3 className="text-light">{object.title}</h3>

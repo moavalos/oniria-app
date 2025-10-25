@@ -4,6 +4,10 @@ import * as THREE from "three";
 import { useEngineCore } from "@engine/core/context/EngineCoreProvider";
 import { useEngineStore } from "@engine/core/store/engineStore";
 import type { ObjectEventArray } from "@engine/config/room.type";
+import {
+  objectsDescriptions,
+  type BadgeData,
+} from "@/app/features/hud/components/badges/badgeStore";
 
 interface EventArgs<T = any, D = any> {
   target: T;
@@ -12,7 +16,7 @@ interface EventArgs<T = any, D = any> {
 
 // Props que el badge personalizado recibirá obligatoriamente
 export interface BadgeComponentProps {
-  objectName: string;
+  object: BadgeData | null;
   position?: [number, number, number];
 }
 
@@ -29,7 +33,7 @@ interface BadgesProps {
 export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
   const core = useEngineCore();
   const { activeMenu } = useEngineStore();
-  const [objectName, setObjectName] = useState<string | null>(null);
+  const [object, setObject] = useState<BadgeData | null>(null);
   const [position, setPosition] = useState<[number, number, number]>([0, 0, 0]);
   const [visible, setVisible] = useState(false);
 
@@ -42,22 +46,25 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
       const obj = currentRoom.getObjectByName(args.target);
       if (!obj) return;
 
+      const badgeData =
+        objectsDescriptions.find((desc) => desc.name === args.target) || null;
+
       const worldPos = new THREE.Vector3();
       obj.getWorldPosition(worldPos);
 
-      setObjectName(args.target);
+      setObject(badgeData);
       setPosition([worldPos.x, worldPos.y, worldPos.z]);
       setVisible(true);
     };
 
     const handleObjectLeave = (_args: EventArgs<string, ObjectEventArray>) => {
       setVisible(false);
-      setObjectName(null);
+      setObject(null);
     };
 
     const handleObjectClick = (_args: EventArgs<string, ObjectEventArray>) => {
       setVisible(false);
-      setObjectName(null);
+      setObject(null);
     };
 
     core.on("objectEnter", handleObjectEnter);
@@ -72,13 +79,13 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
   }, [core]);
 
   // No mostrar badges si hay un menú activo
-  if (!visible || !objectName || activeMenu) return null;
+  if (!visible || !object || activeMenu) return null;
 
   // Offset vertical para que el badge quede arriba del objeto
   const offsetPosition: [number, number, number] = [
-    position[0] + 1.5,
-    position[1] + 0.1, // 0.5 unidades arriba del objeto
-    position[2],
+    position[0] + object.xOffset,
+    position[1] + object.yOffset,
+    position[2] + object.zOffset,
   ];
 
   const Badge = badgeComponent || DefaultComponent;
@@ -95,12 +102,12 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
         userSelect: "none",
       }}
     >
-      <Badge objectName={objectName} {...badgeComponentProps} />
+      <Badge object={object} {...badgeComponentProps} />
     </Html>
   );
 }
 
-function DefaultComponent({ objectName }: BadgeComponentProps) {
+function DefaultComponent({ object }: BadgeComponentProps) {
   return (
     <div
       style={{
@@ -114,7 +121,7 @@ function DefaultComponent({ objectName }: BadgeComponentProps) {
         boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
       }}
     >
-      {objectName}
+      {object?.name}
     </div>
   );
 }

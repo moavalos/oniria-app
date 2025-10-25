@@ -117,10 +117,12 @@ export class PortalManager extends EventEmitter<PortalManagerEventMap> {
                 uniforms
             );
 
-            // Obtener el material aplicado y configurarlo en el portal
+            // Obtener el material del mesh "inside" (el que realmente tiene el material aplicado)
             const object3D = this.currentPortal.getObject3D();
-            if (object3D instanceof THREE.Mesh && object3D.material instanceof THREE.ShaderMaterial) {
-                this.currentPortal.setMaterial(object3D.material);
+            const insideMesh = object3D?.getObjectByName("inside") as THREE.Mesh;
+
+            if (insideMesh && insideMesh.material instanceof THREE.ShaderMaterial) {
+                this.currentPortal.setMaterial(insideMesh.material);
             }
 
             this.emit('portal:material:applied', { portal: this.currentPortal });

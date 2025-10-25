@@ -2,14 +2,15 @@ import { useEngineStore } from "@/engine/core/store/engineStore";
 import MenuPortal from "./menu/portal/MenuPortal";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useState, useEffect } from "react";
+import MenuSetting from "./menu/setting/MenuSetting";
 
 /**
  * Registro de menús disponibles
  * Mapea el nombre del menú al componente correspondiente
  */
-const menuRegistry = {
+export const menuRegistry = {
   portal: MenuPortal,
-  // settings: MenuSettings,
+  monitor: MenuSetting,
 
   // Agrega más menús aquí...
 } as const;
