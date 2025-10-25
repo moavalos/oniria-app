@@ -10,9 +10,9 @@ import {
 
 export interface AnimationProps {
   config?: AnimationConfig;
-  onAnimationStart?: (targetName: string, animationType: string) => void;
-  onAnimationComplete?: (targetName: string, animationType: string) => void;
-  onAnimationUpdate?: (targetName: string, progress: number) => void;
+  onAnimationStart?: (_targetName: string, _animationType: string) => void;
+  onAnimationComplete?: (_targetName: string, _animationType: string) => void;
+  onAnimationUpdate?: (_targetName: string, _progress: number) => void;
   enableAnimations?: boolean;
   autoConfigureForRoom?: boolean;
 }

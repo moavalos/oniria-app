@@ -13,7 +13,7 @@ export class Ktx2LoaderService implements IAssetLoader {
         this.loader.detectSupport(renderer);
     }
 
-    load(url: string, onProgress: (p: number) => void) {
+    load(url: string, onProgress: (_p: number) => void) {
         return new Promise((resolve, reject) => {
             this.loader.load(
                 url,

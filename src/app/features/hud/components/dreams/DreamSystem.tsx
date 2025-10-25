@@ -16,7 +16,7 @@ export default function DreamSystem() {
   const engine = useEngineAPI();
 
   useEffect(() => {
-    engine.nebula.onReady((_nebula) => {
+    engine.nebula.onReady(() => {
       openDreamForm("create");
       // Deshabilitar interacciones cuando se abre el formulario
       engine.interactions.setEnabled(false);

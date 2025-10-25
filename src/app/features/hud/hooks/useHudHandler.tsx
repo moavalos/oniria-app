@@ -1,7 +1,7 @@
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@/engine/core/store/engineStore";
 import { useCallback } from "react";
-import { menuRegistry } from "../components/MenuSystem";
+import { menuRegistry } from "../components/menuRegistry";
 
 export default function useHudHandler() {
   const engine = useEngineAPI();
@@ -48,11 +48,11 @@ export default function useHudHandler() {
     [handleMenuForObject]
   );
 
-  const objectEnterHandler = useCallback((_event: any) => {
+  const objectEnterHandler = useCallback(() => {
     document.body.style.cursor = "pointer";
   }, []);
 
-  const objectLeaveHandler = useCallback((_event: any) => {
+  const objectLeaveHandler = useCallback(() => {
     document.body.style.cursor = "default";
   }, []);
 

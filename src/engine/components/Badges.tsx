@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { useEngineCore } from "@engine/core/context/EngineCoreProvider";
+import { useEngineCore } from "@engine/core";
 import { useEngineStore } from "@engine/core/store/engineStore";
 import type { ObjectEventArray } from "@engine/config/room.type";
 import {
@@ -37,6 +37,10 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
   const [position, setPosition] = useState<[number, number, number]>([0, 0, 0]);
   const [visible, setVisible] = useState(false);
 
+  const handleBadgeClick = useCallback(() => {
+    console.log("[Badge] Clicked");
+  }, []);
+
   useEffect(() => {
     // Suscribirse a eventos del core
     const handleObjectEnter = (args: EventArgs<string, ObjectEventArray>) => {
@@ -57,14 +61,13 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
       setVisible(true);
     };
 
-    const handleObjectLeave = (_args: EventArgs<string, ObjectEventArray>) => {
+    const handleObjectLeave = () => {
       setVisible(false);
       setObject(null);
     };
 
-    const handleObjectClick = (_args: EventArgs<string, ObjectEventArray>) => {
-      setVisible(false);
-      setObject(null);
+    const handleObjectClick = () => {
+      handleBadgeClick();
     };
 
     core.on("objectEnter", handleObjectEnter);
@@ -76,7 +79,7 @@ export function Badges({ badgeComponent, badgeComponentProps }: BadgesProps) {
       core.off("objectLeave");
       core.off("objectClick");
     };
-  }, [core]);
+  }, [core, handleBadgeClick]);
 
   // No mostrar badges si hay un menú activo
   if (!visible || !object || activeMenu) return null;
