@@ -413,8 +413,15 @@ export class MaterialService {
             if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
 
-                // Saltar portales y screens ya que tienen material personalizado
+                // Saltar portales, screens y cualquier hijo del portal (como "inside")
                 if (mesh.name === "portal" || mesh.name === "screen") return;
+                
+                // Verificar si es hijo del portal
+                let parent = mesh.parent;
+                while (parent) {
+                    if (parent.name === "portal") return; // Es hijo del portal, saltar
+                    parent = parent.parent;
+                }
 
                 //DOOR
                 if (mesh.name === "door") {
