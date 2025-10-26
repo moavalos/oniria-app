@@ -232,12 +232,18 @@ export class RoomManager implements Injectable {
 
       // Aplicar materiales
       const materialService = this._core.getService(MaterialService);
+      console.log("[RoomManager]: Antes de applyMaterialsToRoom");
       await materialService.applyMaterialsToRoom(newRoom);
+      console.log("[RoomManager]: Después de applyMaterialsToRoom");
 
       // Aplicar video al screen del monitor
+      console.log("[RoomManager]: Buscando monitor");
       const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
+      console.log("[RoomManager]: Monitor encontrado:", !!monitor);
       if (monitor) {
         const screen = monitor.getObjectByName("screen") as THREE.Mesh;
+        console.log("[RoomManager]: Screen encontrado:", !!screen);
+        console.log("[RoomManager]: Aplicando video texture");
         materialService.applyVideoTexture(
           screen,
           '/screen/screen_oniria.mp4',
@@ -249,13 +255,17 @@ export class RoomManager implements Injectable {
             offset: { x: 0, y: 1 }   // Ajustar offset en Y
           }
         );
+        console.log("[RoomManager]: Video texture aplicado");
       }
 
       // Actualizar estado
+      console.log("[RoomManager]: Actualizando estado de room");
       this.updateRoomState(newRoom, skin?.id);
 
       // Emitir evento de sala lista
+      console.log("[RoomManager]: Emitiendo room:ready");
       this._core.emit("room:ready", { room: newRoom });
+      console.log("[RoomManager]: room:ready emitido");
       return newRoom;
 
     } catch (error) {

@@ -510,12 +510,12 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     private subscribeToEvents(): void {
         if (!this.core) return;
 
-        // Eventos de room
-        this.core.on('room:change', this.onRoomChange.bind(this));
-        this.core.on('room:ready', this.onRoomReady.bind(this));
+        // Eventos de room con namespace 'interaction'
+        this.core.on('room:change.interaction', this.onRoomChange.bind(this));
+        this.core.on('room:ready.interaction', this.onRoomReady.bind(this));
 
-        // Eventos de node
-        this.core.on('node:change', this.onNodeChange.bind(this));
+        // Eventos de node con namespace 'interaction'
+        this.core.on('node:change.interaction', this.onNodeChange.bind(this));
     }
 
     /**
@@ -524,9 +524,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     private unsubscribeFromEvents(): void {
         if (!this.core) return;
 
-        this.core.off('room:change');
-        this.core.off('room:ready');
-        this.core.off('node:change');
+        this.core.off('room:change.interaction');
+        this.core.off('room:ready.interaction');
+        this.core.off('node:change.interaction');
     }
 
     /**

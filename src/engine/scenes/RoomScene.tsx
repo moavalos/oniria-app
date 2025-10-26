@@ -96,7 +96,8 @@ export default function RoomScene() {
       };
 
       // 3. Escuchar cuando RoomManager tiene room lista
-      const handleReady = ({ room }: { room: Room; skin?: any }) => {
+      const handleReady = ({ room }: { room: Room }) => {
+        console.log("[RoomScene] *** handleReady EJECUTADO ***");
         console.log("[RoomScene] Room ready:", room.get_Id());
         console.log("[RoomScene] Room scene exists:", !!room.get_Scene());
         console.log(
@@ -120,18 +121,21 @@ export default function RoomScene() {
         setRoom(null);
       };
 
-      // Configurar listeners del Core
-      core.on("room:change:requested", handleRoomChangeRequested);
+      // Configurar listeners del Core con namespace 'roomscene'
+      core.on("room:change:requested.roomscene", handleRoomChangeRequested);
 
-      // Configurar listeners del RoomManager
-      core.on("room:ready", handleReady);
-      core.on("room:unloading", handleUnload);
+      // Configurar listeners del RoomManager con namespace 'roomscene'
+      core.on("room:ready.roomscene", handleReady);
+      core.on("room:unloading.roomscene", handleUnload);
+
+      console.log("[RoomScene] ✅ Listeners registrados");
 
       // Cleanup function para todos los listeners
       return () => {
-        core.off("room:change:requested");
-        core.off("room:ready");
-        core.off("room:unloading");
+        console.log("[RoomScene] 🧹 Limpiando listeners");
+        core.off("room:change:requested.roomscene");
+        core.off("room:ready.roomscene");
+        core.off("room:unloading.roomscene");
       };
     }
   }, [core]);

@@ -1,21 +1,10 @@
-import {
-  useMemo,
-  type PropsWithChildren,
-  Children,
-  createContext,
-  useContext,
-  useEffect,
-} from "react";
+import { useMemo, type PropsWithChildren, Children, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 
 import { DefaultEngineIndicator } from "@engine/core/components/DefaultEngineIndicator";
 import { EngineCore } from "@engine/core";
 import { useEngineAPI } from "../context/EngineApiProvider";
-
-/**
- * Contexto principal del núcleo del motor 3D
- */
-export const EngineCoreContext = createContext<EngineCore | null>(null);
+import { EngineCoreContext } from "./EngineCoreContext";
 
 type EngineCoreProps = PropsWithChildren;
 
@@ -61,21 +50,6 @@ export function EngineCoreProvider({ children }: EngineCoreProps) {
       {hasChildren ? children : <DefaultEngineIndicator />}
     </EngineCoreContext.Provider>
   );
-}
-
-/**
- * Hook para acceder al núcleo del motor 3D desde componentes hijos.
- * Proporciona acceso completo a servicios, sistemas y estado del motor.
- *
- * @returns Instancia del núcleo del motor
- * @throws Error si se usa fuera del EngineCoreProvider
- */
-export function useEngineCore() {
-  const context = useContext(EngineCoreContext);
-  if (!context) {
-    throw new Error("useEngineCore debe usarse dentro de EngineCoreProvider");
-  }
-  return context;
 }
 
 EngineCoreProvider.displayName = "Engine.Core";

@@ -32,8 +32,10 @@ export class MaterialService {
      * @param room - La sala a la que aplicar los materiales
      */
     async applyMaterialsToRoom(room: Room): Promise<void> {
+        console.log("[MaterialService] Iniciando applyMaterialsToRoom");
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.get_Scene()!;
+        console.log("[MaterialService] Scene obtenida:", this.scene ? "OK" : "NULL");
 
         // Función para obtener o crear materiales de color
         // y almacenarlos en un mapa para reutilización
@@ -47,25 +49,32 @@ export class MaterialService {
             return colorMaterials.get(hex)!;
         };
 
+        console.log("[MaterialService] Creando materialMap con texturas");
         this.materialMap = {
             objects: new THREE.MeshBasicMaterial({ map: room.getObjectTexture() }),
             walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
         };
+        console.log("[MaterialService] MaterialMap creado");
 
         // Cargar objetos coloreables bajo demanda
         try {
+            console.log("[MaterialService] Obteniendo colorableObjects");
             const colorableObjects = await room.getColorableObjects();
+            console.log("[MaterialService] ColorableObjects obtenidos:", Object.keys(colorableObjects).length);
 
             for (const [name, color] of Object.entries(colorableObjects)) {
                 if (color) {
                     this.materialMap[name] = getColorMaterial(color);
                 }
             }
+            console.log("[MaterialService] Materiales de colores aplicados");
         } catch (error) {
             console.warn("[MaterialService]: Error al cargar objetos coloreables para materiales:", error);
         }
 
+        console.log("[MaterialService] Llamando applyToScene");
         this.applyToScene();
+        console.log("[MaterialService] applyMaterialsToRoom completado");
     }
 
     /**
