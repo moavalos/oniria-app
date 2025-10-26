@@ -3,9 +3,27 @@
  * Guarda y recupera la preferencia del tema en localStorage
  */
 
+import type { EngineAPI } from '@engine/core/src/EngineAPI';
+
 const THEME_STORAGE_KEY = 'theme';
 
 export type Theme = 'light' | 'dark';
+
+let engineAPI: EngineAPI | null = null;
+
+/**
+ * Inicializa el servicio de tema con la referencia al engine
+ */
+export function initThemeService(engine: EngineAPI): void {
+    engineAPI = engine;
+
+    // Leer el tema del localStorage y setearlo en el engine
+    const currentTheme = getTheme();
+    engineAPI.setTheme(currentTheme);
+    applyTheme(currentTheme);
+
+    console.log('[ThemeService]: Inicializado con tema', currentTheme);
+}
 
 /**
  * Obtiene el tema guardado en localStorage o el tema del sistema
@@ -28,6 +46,11 @@ export function getTheme(): Theme {
 export function setTheme(theme: Theme): void {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
     applyTheme(theme);
+
+    // Actualizar el engine si está disponible
+    if (engineAPI) {
+        engineAPI.setTheme(theme);
+    }
 }
 
 /**

@@ -7,6 +7,7 @@ import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
 import ImageScene from "./ImageScene";
+import { useEngineStore } from "@engine/core/store/engineStore";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -84,11 +85,33 @@ export default function RoomScene() {
           skinId
         );
 
+        // Aplicar tema al skinId si está presente
+        let finalSkinId = skinId;
+        if (skinId) {
+          // Obtener el tema actual del store
+          const currentTheme = useEngineStore.getState().theme;
+
+          // Si el tema es dark y el skinId no termina en _dark, agregar sufijo
+          if (currentTheme === "dark" && !skinId.endsWith("_dark")) {
+            finalSkinId = `${skinId}_dark`;
+            console.log(
+              `[RoomScene] Aplicando tema dark: ${skinId} -> ${finalSkinId}`
+            );
+          }
+          // Si el tema es light y el skinId termina en _dark, quitar sufijo
+          else if (currentTheme === "light" && skinId.endsWith("_dark")) {
+            finalSkinId = skinId.replace("_dark", "");
+            console.log(
+              `[RoomScene] Aplicando tema light: ${skinId} -> ${finalSkinId}`
+            );
+          }
+        }
+
         try {
           // RoomScene es responsable de cargar la room
           await roomManager.loadRoom({
             room: { id: roomId },
-            skin: skinId ? { id: skinId } : undefined,
+            skin: finalSkinId ? { id: finalSkinId } : undefined,
           });
         } catch (error) {
           console.error("[RoomScene] Error cargando room:", error);
@@ -128,6 +151,29 @@ export default function RoomScene() {
       };
     }
   }, [core]);
+
+  // Escuchar cambios de tema y actualizar la skin
+  useEffect(() => {
+    if (!core || !room) return;
+
+    const theme = useEngineStore.getState().theme;
+    const currentSkinId = room.get_Skin()?.id;
+
+    if (!currentSkinId) return;
+
+    // Calcular el skinId que debería tener según el tema actual
+    const baseSkinId = currentSkinId.replace("_dark", "");
+    const expectedSkinId = theme === "dark" ? `${baseSkinId}_dark` : baseSkinId;
+
+    // Si el skin actual no coincide con el esperado, cambiarlo
+    if (currentSkinId !== expectedSkinId) {
+      console.log(
+        `[RoomScene] Tema cambió a ${theme}, aplicando skin:`,
+        expectedSkinId
+      );
+      core.emit("engine:setSkin", { skin: { id: expectedSkinId } });
+    }
+  }, [useEngineStore((state) => state.theme), core, room]);
 
   //listener para nodos
   useEffect(() => {

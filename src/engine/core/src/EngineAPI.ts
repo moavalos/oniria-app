@@ -60,6 +60,23 @@ export class EngineAPI {
     }
 
     /**
+     * Establece el tema del motor (light/dark).
+     * Esta información se usa para determinar qué skin aplicar.
+     * 
+     * @param theme - Tema a aplicar ('light' | 'dark')
+     */
+    setTheme(theme: 'light' | 'dark') {
+        console.log("[EngineAPI] setTheme llamado:", theme, "core:", !!this._core);
+
+        if (!this._core) {
+            console.warn("[EngineAPI]: Core no disponible para setTheme");
+            return;
+        }
+
+        this._core.setTheme(theme);
+    }
+
+    /**
      * Mueve la cámara para mirar a un objeto específico por nombre
      * 
      * @param target - Nombre del objeto a mirar

@@ -300,6 +300,16 @@ export class EngineCore extends EventEmitter {
     }
 
     /**
+     * Establece el tema del motor y actualiza el store.
+     * 
+     * @param theme - Tema a aplicar ('light' | 'dark')
+     */
+    setTheme(theme: 'light' | 'dark') {
+        console.log("[EngineCore]: Estableciendo tema:", theme);
+        this.store.setTheme(theme);
+    }
+
+    /**
      * Registra un sistema en el motor.
      * 
      * @param system - Sistema a registrar

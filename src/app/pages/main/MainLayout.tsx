@@ -18,6 +18,7 @@ import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
 import MenuSystem from "@/app/features/hud/components/MenuSystem";
 import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
 import { useUserSettings } from "@/app/features/userSettings";
+import { initThemeService } from "@/app/features/dark-mode/services/themeService";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
@@ -26,26 +27,31 @@ export default function MainLayout() {
   const handler = useHudHandler();
   const engine = useEngineAPI();
 
-  // Obtener configuración del usuario con tema aplicado
+  // Obtener configuración del usuario (skinId base sin tema)
   const { roomId, skinId, loading } = useUserSettings();
 
   // Ref para saber si ya se cargó la sala inicial
   const initialRoomLoaded = useRef(false);
 
-  useEffect(() => {
-    if (!roomId || !skinId || loading) return;
+  // Ref para saber si ya se inicializó el themeService
+  const themeServiceInitialized = useRef(false);
 
-    // Primer render: cargar sala completa
-    if (!initialRoomLoaded.current) {
-      console.log("[MainLayout] Carga inicial - setRoom:", roomId, skinId);
-      engine.setRoom(roomId, skinId);
-      initialRoomLoaded.current = true;
+  // Inicializar el themeService con el engine (solo una vez)
+  useEffect(() => {
+    if (!themeServiceInitialized.current) {
+      initThemeService(engine);
+      themeServiceInitialized.current = true;
     }
-    // Renders subsecuentes: solo cambiar skin
-    else {
-      console.log("[MainLayout] Cambio de tema - setSkin:", skinId);
-      engine.setSkin(skinId);
-    }
+  }, [engine]);
+
+  // Cargar sala inicial (solo una vez)
+  useEffect(() => {
+    if (!roomId || !skinId || loading || initialRoomLoaded.current) return;
+
+    console.log("[MainLayout] Carga inicial - setRoom:", roomId, skinId);
+    // setRoom aplicará el tema del store automáticamente
+    engine.setRoom(roomId, skinId);
+    initialRoomLoaded.current = true;
   }, [roomId, skinId, loading, engine]);
 
   return (
