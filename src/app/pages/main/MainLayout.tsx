@@ -17,35 +17,24 @@ import BadgeCard from "@/app/features/hud/components/badges/BadgeCard";
 import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
 import MenuSystem from "@/app/features/hud/components/MenuSystem";
 import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
+import { useUserSettings } from "@/app/features/userSettings";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
   // const { fetchDreams } = useDreams();
   const { isDreamSystemActive } = useEngineStore();
   const handler = useHudHandler();
-
   const engine = useEngineAPI();
 
-  const backendSettings = { roomId: "oniria", skinId: "oniria" };
-  const { roomId, skinId } = backendSettings;
+  // Obtener configuración del usuario con tema aplicado
+  const { roomId, skinId, loading } = useUserSettings();
 
   useEffect(() => {
-    console.log("[Home] Calling engine.setRoom:", roomId, skinId);
+    if (!roomId || !skinId || loading) return;
+
+    console.log("[MainLayout] Calling engine.setRoom:", roomId, skinId);
     engine.setRoom(roomId, skinId);
-  }, []);
-
-  // const handleInterpretar = async (dream: string) => {
-  //   await engine.camera.viewNodes();
-  //   const response = await fetchDreams(dream);
-  //   if (!response) return;
-  //   engine.node?.onReady((nodeController) => {
-  //     setDream(response as Dream);
-  //     nodeController.idle();
-  //   });
-
-  //navegar a otra pagina con el resultado
-  //navigate("/interpretacion");
-  //};
+  }, [roomId, skinId, loading, engine]);
 
   return (
     <main className="relative w-full h-dvh ">

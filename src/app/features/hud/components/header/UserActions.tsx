@@ -3,6 +3,7 @@ import MobileMenuButton from "@/app/features/hud/components/header/MobileMenuBut
 import UserProfile from "@/app/features/hud/components/header/UserProfile";
 import { useAuth } from "../../../auth/hooks/useAuth";
 import UserLike from "./UserLike";
+import { ThemeToggle } from "@/app/features/dark-mode";
 
 type UserActionsProps = {
   onNotificationClick?: () => void;
@@ -27,6 +28,7 @@ export default function UserActions({
 
   return (
     <div className="header-actions items-centeru gap-4">
+      <ThemeToggle />
       <UserLike />
       <NotificationButton onClick={onNotificationClick} />
       <UserProfile

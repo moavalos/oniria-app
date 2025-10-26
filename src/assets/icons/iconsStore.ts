@@ -22,6 +22,8 @@ import SpinnerIcon from "./store/SpinnerIcon";
 import ImageIcon from "./store/ImageIcon";
 import DownloadIcon from "./store/DownloadIcon";
 import PaletteIcon from "./store/PaletteIcon";
+import SunIcon from "./store/SunIcon";
+import MoonIcon from "./store/MoonIcon";
 
 
 export type IconName =
@@ -47,7 +49,10 @@ export type IconName =
     | "spinner"
     | "image"
     | "download"
-    | "palette";
+    | "palette"
+    | "sun"
+    | "moon"
+    ;
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -74,5 +79,7 @@ export const iconsStore: Record<IconName, IconComponent> = {
     spinner: SpinnerIcon,
     image: ImageIcon,
     download: DownloadIcon,
-    palette: PaletteIcon
+    palette: PaletteIcon,
+    sun: SunIcon,
+    moon: MoonIcon
 };
