@@ -97,14 +97,6 @@ export default function RoomScene() {
 
       // 3. Escuchar cuando RoomManager tiene room lista
       const handleReady = ({ room }: { room: Room }) => {
-        console.log("[RoomScene] *** handleReady EJECUTADO ***");
-        console.log("[RoomScene] Room ready:", room.get_Id());
-        console.log("[RoomScene] Room scene exists:", !!room.get_Scene());
-        console.log(
-          "[RoomScene] Room scene children count:",
-          room.get_Scene()?.children.length || 0
-        );
-
         setRoom(room);
 
         const portal = room.getPortal();
@@ -128,11 +120,8 @@ export default function RoomScene() {
       core.on("room:ready.roomscene", handleReady);
       core.on("room:unloading.roomscene", handleUnload);
 
-      console.log("[RoomScene] ✅ Listeners registrados");
-
       // Cleanup function para todos los listeners
       return () => {
-        console.log("[RoomScene] 🧹 Limpiando listeners");
         core.off("room:change:requested.roomscene");
         core.off("room:ready.roomscene");
         core.off("room:unloading.roomscene");

@@ -40,7 +40,7 @@ export default function MainLayout() {
       console.log("[MainLayout] Carga inicial - setRoom:", roomId, skinId);
       engine.setRoom(roomId, skinId);
       initialRoomLoaded.current = true;
-    } 
+    }
     // Renders subsecuentes: solo cambiar skin
     else {
       console.log("[MainLayout] Cambio de tema - setSkin:", skinId);

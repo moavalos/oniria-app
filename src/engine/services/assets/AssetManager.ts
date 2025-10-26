@@ -37,6 +37,16 @@ export class AssetManager {
         this.callbacks.onStart?.();
 
         const promises = urls.map(async (u, i) => {
+            // Verificar cache para texturas KTX2
+            if (u.type === 'ktx2' && this.textureCache.has(u.url)) {
+                console.log(`[AssetManager]: Usando textura ${u.url} desde cache`);
+                items[i].progress = 100;
+                items[i].loaded = true;
+                results[u.url] = this.textureCache.get(u.url);
+                this.callbacks.onItemProgress?.(items[i]);
+                return results[u.url];
+            }
+
             const loader = this.loaders.get(u.type);
             if (!loader) throw new Error(`No loader for ${u.type}`);
             const asset = await loader.load(u.url, (p) => {
@@ -47,6 +57,13 @@ export class AssetManager {
             });
             items[i].loaded = true;
             results[u.url] = asset;
+
+            // Cachear texturas KTX2
+            if (u.type === 'ktx2') {
+                this.textureCache.set(u.url, asset);
+                console.log(`[AssetManager]: Textura ${u.url} almacenada en cache`);
+            }
+
             return asset;
         });
 
@@ -86,6 +103,45 @@ export class AssetManager {
 
         await Promise.all(loadPromises);
         console.log(`[AssetManager]: Precarga completa de ${textureUrls.length} texturas`);
+    }
+
+    /**
+     * Precarga las texturas KTX2 de una skin en segundo plano
+     * @param skinId - ID de la skin a precargar
+     * @returns Promise que se resuelve cuando la precarga está completa
+     */
+    public async preloadSkin(skinId: string): Promise<void> {
+        console.log(`[AssetManager]: Precargando skin: ${skinId}`);
+
+        const ktx2Loader = this.loaders.get('ktx2') as Ktx2LoaderService;
+        if (!ktx2Loader) {
+            console.warn('[AssetManager]: Ktx2Loader no disponible, saltando precarga');
+            return;
+        }
+
+        const skinAssets = [
+            `skins/${skinId}/object.ktx2`,
+            `skins/${skinId}/wall.ktx2`
+        ];
+
+        const loadPromises = skinAssets.map(async (url) => {
+            if (this.textureCache.has(url)) {
+                console.log(`[AssetManager]: Skin texture ${url} ya está en cache`);
+                return;
+            }
+
+            try {
+                const texture = await ktx2Loader.load(url, () => { }) as THREE.Texture;
+                this.textureCache.set(url, texture);
+                console.log(`[AssetManager]: Skin texture ${url} precargada`);
+            } catch (error) {
+                console.error(`[AssetManager]: Error precargando skin texture ${url}:`, error);
+                // No lanzar error, solo advertir - el preload es opcional
+            }
+        });
+
+        await Promise.all(loadPromises);
+        console.log(`[AssetManager]: Precarga completa de skin: ${skinId}`);
     }
 
     /**

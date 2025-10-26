@@ -113,6 +113,38 @@ export class RoomManager implements Injectable {
   }
 
   /**
+   * Obtiene el ID de la skin alternativa (light <-> dark)
+   * @param skinId - ID de la skin actual
+   * @returns ID de la skin alternativa
+   */
+  private getAlternateSkinId(skinId: string): string {
+    if (skinId.endsWith('_dark')) {
+      // Si es dark, retornar la versión light (sin _dark)
+      return skinId.replace('_dark', '');
+    } else {
+      // Si es light, retornar la versión dark
+      return `${skinId}_dark`;
+    }
+  }
+
+  /**
+   * Precarga la skin alternativa en segundo plano
+   * @param currentSkinId - ID de la skin actual
+   */
+  private async preloadAlternateSkin(currentSkinId: string): Promise<void> {
+    const alternateSkinId = this.getAlternateSkinId(currentSkinId);
+    console.log(`[RoomManager]: Precargando skin alternativa: ${alternateSkinId}`);
+    
+    try {
+      await this.assetManager?.preloadSkin(alternateSkinId);
+      console.log(`[RoomManager]: Skin alternativa ${alternateSkinId} precargada exitosamente`);
+    } catch (error) {
+      console.warn(`[RoomManager]: Error precargando skin alternativa ${alternateSkinId}:`, error);
+      // No lanzar error - el preload es opcional
+    }
+  }
+
+  /**
    * Prepara la lista de assets necesarios para una sala
    * 
    * @param roomId - ID de la sala a cargar
@@ -226,24 +258,17 @@ export class RoomManager implements Injectable {
             objectTexture,
             environmentTexture,
           });
-          console.log("[RoomManager]: Texturas aplicadas a sala:", newRoom.get_Id());
         }
       }
 
       // Aplicar materiales
       const materialService = this._core.getService(MaterialService);
-      console.log("[RoomManager]: Antes de applyMaterialsToRoom");
       await materialService.applyMaterialsToRoom(newRoom);
-      console.log("[RoomManager]: Después de applyMaterialsToRoom");
 
       // Aplicar video al screen del monitor
-      console.log("[RoomManager]: Buscando monitor");
       const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
-      console.log("[RoomManager]: Monitor encontrado:", !!monitor);
       if (monitor) {
         const screen = monitor.getObjectByName("screen") as THREE.Mesh;
-        console.log("[RoomManager]: Screen encontrado:", !!screen);
-        console.log("[RoomManager]: Aplicando video texture");
         materialService.applyVideoTexture(
           screen,
           '/screen/screen_oniria.mp4',
@@ -255,17 +280,21 @@ export class RoomManager implements Injectable {
             offset: { x: 0, y: 1 }   // Ajustar offset en Y
           }
         );
-        console.log("[RoomManager]: Video texture aplicado");
       }
 
       // Actualizar estado
-      console.log("[RoomManager]: Actualizando estado de room");
       this.updateRoomState(newRoom, skin?.id);
 
       // Emitir evento de sala lista
-      console.log("[RoomManager]: Emitiendo room:ready");
       this._core.emit("room:ready", { room: newRoom });
-      console.log("[RoomManager]: room:ready emitido");
+
+      // Precargar skin alternativa en segundo plano (no esperar)
+      if (skin?.id) {
+        this.preloadAlternateSkin(skin.id).catch(err => 
+          console.warn("[RoomManager]: Error en precarga de skin alternativa:", err)
+        );
+      }
+
       return newRoom;
 
     } catch (error) {
@@ -290,7 +319,7 @@ export class RoomManager implements Injectable {
 
     try {
       console.log("[RoomManager]: Iniciando cambio de skin a:", skin.id);
-      
+
       // Emitir evento de inicio de cambio de skin
       this._core.emit("skin:change:start", { skin, room: this.currentRoom });
 
