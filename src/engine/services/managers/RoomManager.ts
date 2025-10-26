@@ -134,7 +134,7 @@ export class RoomManager implements Injectable {
   private async preloadAlternateSkin(currentSkinId: string): Promise<void> {
     const alternateSkinId = this.getAlternateSkinId(currentSkinId);
     console.log(`[RoomManager]: Precargando skin alternativa: ${alternateSkinId}`);
-    
+
     try {
       await this.assetManager?.preloadSkin(alternateSkinId);
       console.log(`[RoomManager]: Skin alternativa ${alternateSkinId} precargada exitosamente`);
@@ -261,9 +261,9 @@ export class RoomManager implements Injectable {
         }
       }
 
-      // Aplicar materiales
+      // Aplicar materiales SIN fade (primera carga)
       const materialService = this._core.getService(MaterialService);
-      await materialService.applyMaterialsToRoom(newRoom);
+      await materialService.applyMaterialsToRoom(newRoom, false);
 
       // Aplicar video al screen del monitor
       const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
@@ -290,7 +290,7 @@ export class RoomManager implements Injectable {
 
       // Precargar skin alternativa en segundo plano (no esperar)
       if (skin?.id) {
-        this.preloadAlternateSkin(skin.id).catch(err => 
+        this.preloadAlternateSkin(skin.id).catch(err =>
           console.warn("[RoomManager]: Error en precarga de skin alternativa:", err)
         );
       }
@@ -357,10 +357,10 @@ export class RoomManager implements Injectable {
       this.currentRoom.applySkin(skinInstance);
       this.currentSkin = skin.id;
 
-      // Actualizar materiales con las nuevas texturas
+      // Actualizar materiales con las nuevas texturas CON fade
       const materialService = this._core.getService(MaterialService);
-      console.log("[RoomManager]: Aplicando materiales con nuevas texturas");
-      await materialService.applyMaterialsToRoom(this.currentRoom);
+      console.log("[RoomManager]: Aplicando materiales con fade");
+      await materialService.applyMaterialsToRoom(this.currentRoom, true);
 
       console.log("[RoomManager]: Cambio de skin completado");
 

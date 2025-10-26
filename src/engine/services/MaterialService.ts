@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import gsap from "gsap";
 
 import type { Room } from "@engine/entities/Room";
 import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
@@ -10,6 +11,8 @@ import nebulaFragmentShader from "@engine/shaders/nebula/fragmenShader.glsl";
 import nebulaVertexShader from "@engine/shaders/nebula/vertexShader.glsl";
 import imageRevealFragmentShader from "@engine/shaders/imageReveral/fragmentShader.glsl";
 import imageRevealVertexShader from "@engine/shaders/imageReveral/vertexShader.glsl";
+import roomFragmentShader from "@engine/shaders/room/fragmentShader.glsl";
+import roomVertexShader from "@engine/shaders/room/vertexShader.glsl";
 
 /**
  * Servicio para gestión de materiales y texturas en el motor 3D
@@ -24,14 +27,20 @@ export class MaterialService {
 
     private materialMap: Record<string, THREE.Material> = {};
 
+    // Referencias a los materiales con shader para poder animar el fade
+    private objectsMaterial: THREE.ShaderMaterial | null = null;
+
+    private wallsMaterial: THREE.ShaderMaterial | null = null;
+
     constructor() { }
 
     /**
      * Aplica materiales básicos con texturas usando carga bajo demanda
      * 
      * @param room - La sala a la que aplicar los materiales
+     * @param withFade - Si debe aplicar animación de fade entre texturas (default: false)
      */
-    async applyMaterialsToRoom(room: Room): Promise<void> {
+    async applyMaterialsToRoom(room: Room, withFade: boolean = false): Promise<void> {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.get_Scene()!;
 
@@ -47,9 +56,97 @@ export class MaterialService {
             return colorMaterials.get(hex)!;
         };
 
+        // Obtener texturas actuales
+        const currentObjectTexture = room.getObjectTexture();
+        const currentWallTexture = room.getEnvironmentTexture();
+
+        if (withFade) {
+            console.log("[MaterialService]: Aplicando materiales con fade");
+
+            // Si ya existen los materiales con shader, hacer fade
+            if (this.objectsMaterial && this.wallsMaterial) {
+                // Intercambiar texturas: la actual va a B, la nueva a A
+                this.objectsMaterial.uniforms.uTextureB.value = this.objectsMaterial.uniforms.uTextureA.value;
+                this.objectsMaterial.uniforms.uTextureA.value = currentObjectTexture;
+                this.objectsMaterial.uniforms.uMixFactor.value = 1.0; // Empezar mostrando B
+
+                this.wallsMaterial.uniforms.uTextureB.value = this.wallsMaterial.uniforms.uTextureA.value;
+                this.wallsMaterial.uniforms.uTextureA.value = currentWallTexture;
+                this.wallsMaterial.uniforms.uMixFactor.value = 1.0; // Empezar mostrando B
+
+                // Animar de 1.0 (textureB) a 0.0 (textureA)
+                const uniforms = { mixFactor: 1.0 };
+
+                gsap.to(uniforms, {
+                    mixFactor: 0.0,
+                    duration: 0.8,
+                    ease: "power2.inOut",
+                    onUpdate: () => {
+                        if (this.objectsMaterial) {
+                            this.objectsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
+                        }
+                        if (this.wallsMaterial) {
+                            this.wallsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
+                        }
+                    },
+                    onComplete: () => {
+                        console.log("[MaterialService]: Fade completado");
+                    }
+                });
+            } else {
+                // Primera vez, crear materiales directamente sin fade
+                this.objectsMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTextureA: { value: currentObjectTexture },
+                        uTextureB: { value: currentObjectTexture }, // Misma textura
+                        uMixFactor: { value: 0.0 }
+                    },
+                    vertexShader: roomVertexShader,
+                    fragmentShader: roomFragmentShader,
+                });
+                this.objectsMaterial.toneMapped = false;
+
+                this.wallsMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTextureA: { value: currentWallTexture },
+                        uTextureB: { value: currentWallTexture }, // Misma textura
+                        uMixFactor: { value: 0.0 }
+                    },
+                    vertexShader: roomVertexShader,
+                    fragmentShader: roomFragmentShader,
+                });
+                this.wallsMaterial.toneMapped = false;
+            }
+        } else {
+            console.log("[MaterialService]: Aplicando materiales sin fade");
+
+            // Crear o actualizar materiales sin animación
+            this.objectsMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTextureA: { value: currentObjectTexture },
+                    uTextureB: { value: currentObjectTexture },
+                    uMixFactor: { value: 0.0 }
+                },
+                vertexShader: roomVertexShader,
+                fragmentShader: roomFragmentShader,
+            });
+            this.objectsMaterial.toneMapped = false;
+
+            this.wallsMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTextureA: { value: currentWallTexture },
+                    uTextureB: { value: currentWallTexture },
+                    uMixFactor: { value: 0.0 }
+                },
+                vertexShader: roomVertexShader,
+                fragmentShader: roomFragmentShader,
+            });
+            this.wallsMaterial.toneMapped = false;
+        }
+
         this.materialMap = {
-            objects: new THREE.MeshBasicMaterial({ map: room.getObjectTexture() }),
-            walls: new THREE.MeshBasicMaterial({ map: room.getEnvironmentTexture() }),
+            objects: this.objectsMaterial,
+            walls: this.wallsMaterial,
         };
 
         // Cargar objetos coloreables bajo demanda
