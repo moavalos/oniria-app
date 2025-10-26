@@ -289,10 +289,12 @@ export class RoomManager implements Injectable {
     }
 
     try {
+      console.log("[RoomManager]: Iniciando cambio de skin a:", skin.id);
+      
       // Emitir evento de inicio de cambio de skin
       this._core.emit("skin:change:start", { skin, room: this.currentRoom });
 
-      // Preparar solo los assets de skin
+      // Preparar assets de skin (object y wall)
       const skinAssets = [
         { url: `skins/${skin.id}/object.ktx2`, type: "ktx2" as const },
         { url: `skins/${skin.id}/wall.ktx2`, type: "ktx2" as const }
@@ -308,10 +310,30 @@ export class RoomManager implements Injectable {
         throw new Error(`No se pudieron cargar los assets de la skin: ${skin.id}`);
       }
 
-      // Aplicar la skin a la sala actual
-      const texture = assets[`skins/${skin.id}/object.ktx2`];
-      this.currentRoom.applySkin(texture);
+      // Obtener texturas
+      const objectTexture = assets[`skins/${skin.id}/object.ktx2`];
+      const environmentTexture = assets[`skins/${skin.id}/wall.ktx2`];
+
+      if (!objectTexture || !environmentTexture) {
+        throw new Error(`Texturas faltantes para skin: ${skin.id}`);
+      }
+
+      console.log("[RoomManager]: Texturas cargadas, aplicando a sala");
+
+      // Aplicar texturas a la sala
+      this.currentRoom.setTextures({ objectTexture, environmentTexture });
+
+      // Aplicar skin
+      const skinInstance = new Skin(skin.id);
+      this.currentRoom.applySkin(skinInstance);
       this.currentSkin = skin.id;
+
+      // Actualizar materiales con las nuevas texturas
+      const materialService = this._core.getService(MaterialService);
+      console.log("[RoomManager]: Aplicando materiales con nuevas texturas");
+      await materialService.applyMaterialsToRoom(this.currentRoom);
+
+      console.log("[RoomManager]: Cambio de skin completado");
 
       // Emitir evento de cambio completado
       this._core.emit("skin:change:complete", {

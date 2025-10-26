@@ -44,6 +44,22 @@ export class EngineAPI {
     }
 
     /**
+     * Cambia la skin de la sala actual sin recargar toda la escena.
+     * 
+     * @param skinId - Identificador del skin a aplicar
+     */
+    setSkin(skinId: string) {
+        console.log("[EngineAPI] setSkin llamado:", skinId, "core:", !!this._core);
+
+        if (!this._core) {
+            console.warn("[EngineAPI]: Core no disponible para setSkin");
+            return;
+        }
+
+        this._core.emit("engine:setSkin", { skin: { id: skinId } });
+    }
+
+    /**
      * Mueve la cámara para mirar a un objeto específico por nombre
      * 
      * @param target - Nombre del objeto a mirar

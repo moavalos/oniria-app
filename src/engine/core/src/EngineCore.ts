@@ -176,12 +176,14 @@ export class EngineCore extends EventEmitter {
 
     /**
      * Maneja el evento de inicio de cambio de skin.
+     * NO cambia el estado del engine porque no queremos desmontar los sistemas.
      * 
      * @param data - Datos del skin a cambiar
      */
     private onSkinChangeStart(data: { skin: any, room: Room }) {
         console.log("[EngineCore]: Iniciando cambio de skin:", data.skin.id);
-        this.setState(EngineState.LOADING_ASSETS);
+        // NO cambiar estado - mantener READY para que los sistemas no se desmonten
+        // this.setState(EngineState.LOADING_ASSETS);
     }
 
     /**
@@ -192,7 +194,8 @@ export class EngineCore extends EventEmitter {
     private onSkinChangeComplete(data: { skin: any, room: Room }) {
         console.log("[EngineCore]: Cambio de skin completado:", data.skin.id);
         this.skinId = data.skin.id;
-        this.setState(EngineState.READY);
+        // El estado ya debería ser READY, no necesitamos cambiarlo
+        // this.setState(EngineState.READY);
     }
 
     /**

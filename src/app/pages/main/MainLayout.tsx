@@ -6,7 +6,7 @@ import {
   LoaderSystem,
   useEngineStore,
 } from "@/engine";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 //import useDreams from "@/app/features/dreams/hooks/useDreams";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 //import type { Dream } from "@/engine/core/store/engineStore";
@@ -29,11 +29,23 @@ export default function MainLayout() {
   // Obtener configuración del usuario con tema aplicado
   const { roomId, skinId, loading } = useUserSettings();
 
+  // Ref para saber si ya se cargó la sala inicial
+  const initialRoomLoaded = useRef(false);
+
   useEffect(() => {
     if (!roomId || !skinId || loading) return;
 
-    console.log("[MainLayout] Calling engine.setRoom:", roomId, skinId);
-    engine.setRoom(roomId, skinId);
+    // Primer render: cargar sala completa
+    if (!initialRoomLoaded.current) {
+      console.log("[MainLayout] Carga inicial - setRoom:", roomId, skinId);
+      engine.setRoom(roomId, skinId);
+      initialRoomLoaded.current = true;
+    } 
+    // Renders subsecuentes: solo cambiar skin
+    else {
+      console.log("[MainLayout] Cambio de tema - setSkin:", skinId);
+      engine.setSkin(skinId);
+    }
   }, [roomId, skinId, loading, engine]);
 
   return (
