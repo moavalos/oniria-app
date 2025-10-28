@@ -111,9 +111,6 @@ export function Camera({
     // engineState, // Removido: ya está incluido implícitamente en isEngineReady
   ]);
 
-  // TODO: Integrar con la API del motor cuando esté disponible
-  // Registrar acciones viewNodes y viewReset para transiciones
-
   // Configuración de eventos de la cámara
   useEffect(() => {
     if (!isEngineReady || !cameraService) return;

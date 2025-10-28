@@ -12,7 +12,7 @@ import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 //import type { Dream } from "@/engine/core/store/engineStore";
 import HudSystem from "@/app/features/hud/components/Hudsystem";
 import UserActions from "@/app/features/hud/components/topBar/UserActions";
-import HeaderLogo from "@/app/features/hud/components/topBar/HeaderLogo";
+import HeaderLogo from "@/app/features/logo/HeaderLogo";
 import BadgeCard from "@/app/features/badges/BadgeCard";
 import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
 import MenuSystem from "@/app/features/menuSystem/MenuSystem";
@@ -58,7 +58,7 @@ export default function MainLayout() {
     <main className="relative w-full h-dvh ">
       <HudSystem.Container>
         <HudSystem.TopBar>
-          <HeaderLogo text={"oniria"} />
+          <HeaderLogo text={"Oniria"} />
           <UserActions />
         </HudSystem.TopBar>
         <HudSystem.Body footerHeight="h-24">

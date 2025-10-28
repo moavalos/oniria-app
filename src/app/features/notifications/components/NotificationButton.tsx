@@ -1,4 +1,4 @@
-import BellIcon from "./BellIcon";
+import Icon from "@/assets/icons/Icon";
 
 type NotificationButtonProps = {
   onClick?: () => void;
@@ -13,7 +13,7 @@ export default function NotificationButton({
       className="flex header-button bg-gray-700/45 h-full aspect-square items-center justify-center backdrop-blur-2xl"
       aria-label="Notificaciones"
     >
-      <BellIcon className="header-button-icon" />
+      <Icon name="bell" className="h-5 w-5" />
     </button>
   );
 }
