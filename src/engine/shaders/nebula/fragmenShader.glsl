@@ -14,6 +14,7 @@ varying vec2 vUv;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
+uniform vec3 uNebulaColor;  // Color de la nebula (personalizable)
 uniform sampler2D uTexture0;  // iChannel0 - textura
 uniform sampler2D uTexture1;  // iChannel1 - keyboard (puedes usar otra textura o remover)
 uniform sampler2D uTexture2;  // iChannel2 - textura
@@ -194,9 +195,9 @@ void main()
         
         float timeScale = 1.; // Ajustar la escala de tiempo para controlar la velocidad
         vec3 randomOffset = vec3(
-            sin(uTime * 1.) * 0.2, // desplazamiento en x
-            cos(uTime +0.2) * 0.2, // desplazamiento en y
-            sin(uTime +1.5) * uTime*0.01 + 0.2  // desplazamiento en z
+            sin(uTime * 1.) * 0.5, // Radio orbital en X
+            cos(uTime + 0.2) * 0.8, // Radio orbital en Y
+            sin(uTime * 0.5 + 1.5) * 0.2  // desplazamiento en z (sin acumulación)
         );
 
         // Aplicar el desplazamiento a la posición de la estrella
@@ -208,11 +209,14 @@ void main()
         //vec3 ldst = vec3(0.0)-pos;
         float lDist = max(length(ldst), 0.001);
 
-        // el color de la luz
-        vec3 lightColor=vec3(0.9,0.5,0.5);
+        // usar el color uniforme en lugar de hardcodeado
+        vec3 lightColor = uNebulaColor;
         
-         sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
-        sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!
+        // sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
+       // sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!
+
+		  sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // ← FIJO: sin parpadeo
+        sum.rgb+=(lightColor/exp(lDist*lDist*lDist*0.08)/20.);
         
 		if (d<h) 
 		{
@@ -251,11 +255,11 @@ void main()
     // dispersión simple
 	//sum *= 1. / exp( ld * 0.2 ) * 0.6;
     
-     if (uTime <= 20.) {
-        sum *= clamp(uTime * 0.05, 0.0, .6) / exp(ld * 0.2) * 0.6;
-    } else {
-        sum = (sum / exp(ld * 0.1 + .32) * .5);
-    }
+    //  if (uTime <= 20.) {
+         sum *= clamp(uTime * 0.05, 0.0, .6) / exp(ld * 0.2) * 0.6;
+    // } else {
+      //  sum = (sum / exp(ld * 0.1 + .32) * .5);
+    //}
         
    	sum = clamp( sum, 0.0, 1.0 );
     sum.xyz = sum.xyz*sum.xyz*(3.0-2.0*sum.xyz);

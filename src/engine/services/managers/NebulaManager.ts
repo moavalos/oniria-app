@@ -25,6 +25,13 @@ export class NebulaManager {
 
     private domElement: HTMLElement | null = null;
 
+    // Color uniforms para transiciones suaves
+    private currentColor: THREE.Color = new THREE.Color(0.9, 0.5, 0.5); // Color por defecto (rojizo)
+
+    private targetColor: THREE.Color = new THREE.Color(0.9, 0.5, 0.5);
+
+    private colorTransitionSpeed: number = 2.0; // Velocidad de transición
+
     /**
      * Crea una nueva instancia del gestor de nebula
      * 
@@ -148,6 +155,36 @@ export class NebulaManager {
         if (material.uniforms.uMouse) {
             material.uniforms.uMouse.value.copy(this.mouse);
         }
+
+        // Transición suave de color
+        if (material.uniforms.uNebulaColor) {
+            this.currentColor.lerp(this.targetColor, deltaTime * this.colorTransitionSpeed);
+            material.uniforms.uNebulaColor.value.copy(this.currentColor);
+        }
+    }
+
+    /**
+     * Establece un nuevo color objetivo para la nebula con transición suave
+     * 
+     * @param color - Color objetivo (THREE.Color o hex string o rgb object)
+     */
+    setNebulaColor(color: THREE.Color | string | { r: number; g: number; b: number }): void {
+        if (color instanceof THREE.Color) {
+            this.targetColor.copy(color);
+        } else if (typeof color === 'string') {
+            this.targetColor.set(color);
+        } else {
+            this.targetColor.setRGB(color.r, color.g, color.b);
+        }
+    }
+
+    /**
+     * Obtiene el color actual de la nebula
+     * 
+     * @returns Color actual
+     */
+    getNebulaColor(): THREE.Color {
+        return this.currentColor.clone();
     }
 
     /**
@@ -201,6 +238,9 @@ export class NebulaManager {
             },
             uMouse: {
                 value: new THREE.Vector2(0, 0),
+            },
+            uNebulaColor: {
+                value: this.currentColor.clone(),
             },
             uTexture0: { value: noiseSmallTexture }, // Textura 0 - la asignaremos después si es necesaria
             uTexture1: { value: null }, // Textura 1 - keyboard (puede ser null)

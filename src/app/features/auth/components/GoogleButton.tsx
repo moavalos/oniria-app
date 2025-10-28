@@ -6,7 +6,7 @@ export default function GoogleButton() {
   const { t } = useTranslation();
   return (
     <button
-      className="w-full flex items-center justify-center gap-2 bg-white py-2 rounded mt-4"
+      className="w-full flex items-center justify-center gap-2 bg-white py-2 px-4 rounded-md mt-4 text-sm font-medium"
       onClick={signInWithGoogle}
     >
       <img src={googleIcon} alt="Google" className="w-5 h-5" />

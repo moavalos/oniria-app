@@ -8,6 +8,7 @@ interface NebulaSceneProps {
   position?: [number, number, number];
   rotation?: [number, number, number];
   scale?: number;
+  color?: { r: number; g: number; b: number } | string;
 }
 
 /**
@@ -15,6 +16,7 @@ interface NebulaSceneProps {
  * Gestiona la renderización de un simple plano con shader procedural.
  */
 export default function NebulaScene(props: NebulaSceneProps) {
+  const { color, ...meshProps } = props;
   const [nebulaMesh, setNebulaMesh] = useState<Mesh | null>(null);
 
   const core = useEngineCore();
@@ -23,6 +25,21 @@ export default function NebulaScene(props: NebulaSceneProps) {
   useEffect(() => {
     if (isEngineReady) {
       const nebulaManager = core.getService(NebulaManager);
+
+      // Validación adicional
+      if (!nebulaManager) {
+        console.error("[NebulaScene] NebulaManager no está disponible");
+        return;
+      }
+
+      if (typeof nebulaManager.createNebula !== "function") {
+        console.error(
+          "[NebulaScene] createNebula no es una función",
+          nebulaManager
+        );
+        return;
+      }
+
       const mesh = nebulaManager.createNebula();
       if (mesh) {
         setNebulaMesh(mesh);
@@ -37,5 +54,15 @@ export default function NebulaScene(props: NebulaSceneProps) {
     }
   }, [core, isEngineReady]);
 
-  return <>{nebulaMesh && <primitive {...props} object={nebulaMesh} />}</>;
+  // Establecer color cuando cambie la prop o cuando la nebula esté lista
+  useEffect(() => {
+    if (isEngineReady && color) {
+      const nebulaManager = core.getService(NebulaManager);
+      if (nebulaManager) {
+        nebulaManager.setNebulaColor(color);
+      }
+    }
+  }, [core, isEngineReady, color]);
+
+  return <>{nebulaMesh && <primitive {...meshProps} object={nebulaMesh} />}</>;
 }

@@ -110,7 +110,8 @@ export function MenuItem({
 export function MenuContainer({
   className,
   children,
-}: PropsWithChildren<{ className?: string }>) {
+  disableAnimation = false,
+}: PropsWithChildren<{ className?: string; disableAnimation?: boolean }>) {
   const { isClosing } = useMenuContext();
 
   // Si className incluye h-full, no añadir h-fit
@@ -120,7 +121,9 @@ export function MenuContainer({
     <div
       className={`flex flex-col gap-2 rounded-[8px] px-4 py-1.5 ${heightClass} border border-gray-500/20 cursor-pointer backdrop-blur-md bg-gray-600/30 pointer-events-none ${className}`}
       style={{
-        animation: isClosing
+        animation: disableAnimation
+          ? "none"
+          : isClosing
           ? "fadeOutSlide 0.3s ease-in forwards"
           : "fadeInSlide 0.5s ease-out",
       }}
@@ -155,11 +158,14 @@ export function MenuContainer({
 export function MenuHeader({
   className,
   children,
-}: PropsWithChildren<{ className?: string }>) {
+  baseline = true,
+}: PropsWithChildren<{ className?: string; baseline?: boolean }>) {
   return (
     <div className={`pointer-events-auto ${className}`}>
       <div className="flex w-full py-2">{children}</div>
-      <div className="w-full h-[1px] bg-gradient-to-r from-primary to-gray-500" />
+      {baseline && (
+        <div className="w-full h-[1px] bg-gradient-to-r from-primary to-gray-500" />
+      )}
     </div>
   );
 }
