@@ -1,8 +1,8 @@
 import NotificationButton from "@/assets/icons/store/NotificationButton";
-import MobileMenuButton from "@/app/features/hud/components/header/MobileMenuButton";
-import UserProfile from "@/app/features/hud/components/header/UserProfile";
+import MobileMenuButton from "@/app/features/hud/components/topBar/MobileMenuButton";
+import UserProfile from "@/app/features/hud/components/topBar/UserProfile";
 import { useAuth } from "../../../auth/hooks/useAuth";
-import UserLike from "./UserLike";
+import UserLike from "../../../like/UserLike";
 import { ThemeToggle } from "@/app/features/dark-mode";
 
 type UserActionsProps = {

@@ -1,5 +1,5 @@
 import HudMenu from "@/app/shared/components/menu/CardMenu";
-import type { MenuProps } from "../../types/menu.types";
+import type { MenuProps } from "../../hud/types/menu.types";
 import type { IconName } from "@/assets/icons/iconsStore";
 
 export interface MenuConfig {
@@ -14,7 +14,7 @@ export interface MenuConfig {
 
 export interface BaseMenuProps extends MenuProps {
   menu: MenuConfig;
-  onItemClick: (itemIndex: number) => void;
+  onItemClick: (_itemIndex: number) => void;
 }
 
 /**

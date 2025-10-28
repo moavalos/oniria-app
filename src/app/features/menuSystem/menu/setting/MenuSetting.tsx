@@ -2,7 +2,7 @@ import BaseMenu from "../BaseMenu";
 import menuFactory from "../menuFactory";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@/engine";
-import type { MenuProps } from "../../../types/menu.types";
+import type { MenuProps } from "../../../hud/types/menu.types";
 
 export default function MenuSetting({ onClose, isClosing = false }: MenuProps) {
   const menu = menuFactory.monitor;

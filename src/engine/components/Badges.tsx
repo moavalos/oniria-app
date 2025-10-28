@@ -7,7 +7,7 @@ import type { ObjectEventArray } from "@engine/config/room.type";
 import {
   objectsDescriptions,
   type BadgeData,
-} from "@/app/features/hud/components/badges/badgeStore";
+} from "@/app/features/badges/badgeStore";
 
 interface EventArgs<T = any, D = any> {
   target: T;

@@ -11,12 +11,12 @@ import { useEffect, useRef } from "react";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 //import type { Dream } from "@/engine/core/store/engineStore";
 import HudSystem from "@/app/features/hud/components/Hudsystem";
-import UserActions from "@/app/features/hud/components/header/UserActions";
-import HeaderLogo from "@/app/features/hud/components/header/HeaderLogo";
-import BadgeCard from "@/app/features/hud/components/badges/BadgeCard";
+import UserActions from "@/app/features/hud/components/topBar/UserActions";
+import HeaderLogo from "@/app/features/hud/components/topBar/HeaderLogo";
+import BadgeCard from "@/app/features/badges/BadgeCard";
 import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
-import MenuSystem from "@/app/features/hud/components/MenuSystem";
-import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
+import MenuSystem from "@/app/features/menuSystem/MenuSystem";
+import DreamSystem from "@/app/features/dreams/DreamSystem";
 import { useUserSettings } from "@/app/features/userSettings";
 import { initThemeService } from "@/app/features/dark-mode/services/themeService";
 

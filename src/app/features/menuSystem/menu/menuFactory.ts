@@ -1,4 +1,4 @@
-import type { MenuFactory } from "../../types/menu.types";
+import type { MenuFactory } from "../../hud/types/menu.types";
 
 
 const menuFactory: MenuFactory = {

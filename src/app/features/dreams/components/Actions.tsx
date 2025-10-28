@@ -4,7 +4,7 @@ import Icon from "@/assets/icons/Icon";
 export type SaveState = "idle" | "saving" | "saved";
 export type ImageGenerationState = "idle" | "generating" | "generated";
 
-type ModalActionsProps = {
+type ActionsProps = {
   onSave: () => void | Promise<void>;
   onReinterpret: () => void;
   onGenerateImage?: () => void;
@@ -14,7 +14,7 @@ type ModalActionsProps = {
   imageState?: ImageGenerationState;
 };
 
-export default function ModalActions({
+export default function Actions({
   onSave,
   onReinterpret,
   onGenerateImage,
@@ -22,7 +22,7 @@ export default function ModalActions({
   visibility = true,
   saveState,
   imageState = "idle",
-}: ModalActionsProps) {
+}: ActionsProps) {
   const { t } = useTranslation();
 
   const handleSave = async () => {
