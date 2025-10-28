@@ -9,7 +9,7 @@ export { DefaultEngineIndicator } from "./components/DefaultEngineIndicator";
 export { EngineCore } from './src/EngineCore';
 
 // Hooks principales del core
-export { useEngineCore } from "./context/EngineCoreProvider";
+export { useEngineCore } from "./context/EngineCoreContext";
 export { useEngineState } from "./hooks/useEngineState";
 
 // Entidades principales

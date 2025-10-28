@@ -60,10 +60,6 @@ export class RoomManager implements Injectable {
     this.setupEventListeners();
   }
 
-  // ===========================================
-  // SETUP METHODS - Responsabilidad única: configuración
-  // ===========================================
-
   /**
    * Configura los callbacks de progreso del AssetManager con el store
    */
@@ -110,6 +106,38 @@ export class RoomManager implements Injectable {
       const { skin } = data;
       await this.changeSkin(skin);
     });
+  }
+
+  /**
+   * Obtiene el ID de la skin alternativa (light <-> dark)
+   * @param skinId - ID de la skin actual
+   * @returns ID de la skin alternativa
+   */
+  private getAlternateSkinId(skinId: string): string {
+    if (skinId.endsWith('_dark')) {
+      // Si es dark, retornar la versión light (sin _dark)
+      return skinId.replace('_dark', '');
+    } else {
+      // Si es light, retornar la versión dark
+      return `${skinId}_dark`;
+    }
+  }
+
+  /**
+   * Precarga la skin alternativa en segundo plano
+   * @param currentSkinId - ID de la skin actual
+   */
+  private async preloadAlternateSkin(currentSkinId: string): Promise<void> {
+    const alternateSkinId = this.getAlternateSkinId(currentSkinId);
+    console.log(`[RoomManager]: Precargando skin alternativa: ${alternateSkinId}`);
+
+    try {
+      await this.assetManager?.preloadSkin(alternateSkinId);
+      console.log(`[RoomManager]: Skin alternativa ${alternateSkinId} precargada exitosamente`);
+    } catch (error) {
+      console.warn(`[RoomManager]: Error precargando skin alternativa ${alternateSkinId}:`, error);
+      // No lanzar error - el preload es opcional
+    }
   }
 
   /**
@@ -226,13 +254,13 @@ export class RoomManager implements Injectable {
             objectTexture,
             environmentTexture,
           });
-          console.log("[RoomManager]: Texturas aplicadas a sala:", newRoom.get_Id());
         }
       }
 
-      // Aplicar materiales
+      // Aplicar materiales SIN fade (primera carga)
       const materialService = this._core.getService(MaterialService);
-      await materialService.applyMaterialsToRoom(newRoom);
+      const currentTheme = useEngineStore.getState().theme;
+      await materialService.applyMaterialsToRoom(newRoom, false, currentTheme);
 
       // Aplicar video al screen del monitor
       const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
@@ -256,6 +284,14 @@ export class RoomManager implements Injectable {
 
       // Emitir evento de sala lista
       this._core.emit("room:ready", { room: newRoom });
+
+      // Precargar skin alternativa en segundo plano (no esperar)
+      if (skin?.id) {
+        this.preloadAlternateSkin(skin.id).catch(err =>
+          console.warn("[RoomManager]: Error en precarga de skin alternativa:", err)
+        );
+      }
+
       return newRoom;
 
     } catch (error) {
@@ -279,10 +315,12 @@ export class RoomManager implements Injectable {
     }
 
     try {
+      console.log("[RoomManager]: Iniciando cambio de skin a:", skin.id);
+
       // Emitir evento de inicio de cambio de skin
       this._core.emit("skin:change:start", { skin, room: this.currentRoom });
 
-      // Preparar solo los assets de skin
+      // Preparar assets de skin (object y wall)
       const skinAssets = [
         { url: `skins/${skin.id}/object.ktx2`, type: "ktx2" as const },
         { url: `skins/${skin.id}/wall.ktx2`, type: "ktx2" as const }
@@ -298,10 +336,31 @@ export class RoomManager implements Injectable {
         throw new Error(`No se pudieron cargar los assets de la skin: ${skin.id}`);
       }
 
-      // Aplicar la skin a la sala actual
-      const texture = assets[`skins/${skin.id}/object.ktx2`];
-      this.currentRoom.applySkin(texture);
+      // Obtener texturas
+      const objectTexture = assets[`skins/${skin.id}/object.ktx2`];
+      const environmentTexture = assets[`skins/${skin.id}/wall.ktx2`];
+
+      if (!objectTexture || !environmentTexture) {
+        throw new Error(`Texturas faltantes para skin: ${skin.id}`);
+      }
+
+      console.log("[RoomManager]: Texturas cargadas, aplicando a sala");
+
+      // Aplicar texturas a la sala
+      this.currentRoom.setTextures({ objectTexture, environmentTexture });
+
+      // Aplicar skin
+      const skinInstance = new Skin(skin.id);
+      this.currentRoom.applySkin(skinInstance);
       this.currentSkin = skin.id;
+
+      // Actualizar materiales con las nuevas texturas CON fade
+      const materialService = this._core.getService(MaterialService);
+      const currentTheme = useEngineStore.getState().theme;
+      console.log("[RoomManager]: Aplicando materiales con fade, tema:", currentTheme);
+      await materialService.applyMaterialsToRoom(this.currentRoom, true, currentTheme);
+
+      console.log("[RoomManager]: Cambio de skin completado");
 
       // Emitir evento de cambio completado
       this._core.emit("skin:change:complete", {

@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 
-/* Fuente Orbitron Variable */
+/* ============================================
+   FUENTES
+   ============================================ */
 @font-face {
     font-family: 'Orbitron';
     src: url('/fonts/Orbitron/Orbitron-VariableFont_wght.ttf') format('truetype-variations');
@@ -9,6 +11,9 @@
     font-display: swap;
 }
 
+/* ============================================
+   BASE STYLES
+   ============================================ */
 #root {
     width: 100%;
     height: 100vh;
@@ -21,57 +26,49 @@
     display: block;
     border-radius: 15px;
     background-color: black !important;
-    /* Evitar flash blanco durante inicialización */
     opacity: 1;
     transition: opacity 0.1s ease-in-out;
 }
 
-/* Asegurar que el canvas siempre tenga fondo negro */
 .canvas-webgl canvas {
     background-color: rgb(0, 0, 0) !important;
 }
 
+/* ============================================
+   DESIGN TOKENS - VARIABLES CSS
+   ============================================ */
 @theme {
     /* Container */
-     --container-max: 1840px;
-    /* Brand */
+    --container-max: 1840px;
+
+    /* Brand Colors */
     --color-primary: #A84BFA;
     --color-primary-dark: #4B3780;
+    --color-highlight: #fdba74;
 
-    /* App background */
+    /* App Background */
     --bg-1: #1b0f2a;
     --bg-2: #0b0810;
     --bg-3: #06050b;
     --app-bg: radial-gradient(60% 80% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
-
-    /* Canvas */
     --canvas-bg: #000000;
 
-    /* Text (consolidado) */
+    /* Text Colors */
     --color-light: rgba(255, 255, 255, 1);
-    /* blanco puro */
     --text-80: rgba(255, 255, 255, 0.80);
-    /* títulos secundarios */
     --color-text-muted: rgba(255, 255, 255, 0.60);
-    /* descripción / hints */
     --placeholder-text: rgba(255, 255, 255, 0.40);
-    /* placeholders */
 
     /* Surfaces */
     --surface-subtle: rgba(255, 255, 255, 0.05);
-    /* bg-white/5 */
     --surface-weak: rgba(255, 255, 255, 0.10);
-    /* bg-white/10 */
 
     /* Borders */
     --border-subtle: rgba(255, 255, 255, 0.15);
-    /* white/15 */
     --border-strong: rgba(0, 0, 0, 0.15);
-    /* black/15 */
 
     /* Timeline */
     --color-active-bar: rgba(232, 121, 249, 0.7);
-    /* fuchsia-400/70 */
     --color-timeline-ring: rgba(255, 255, 255, 0.3);
     --color-timeline-ring-focus: rgba(232, 121, 249, 0.5);
     --color-timeline-active-bg: rgb(232, 121, 249);
@@ -82,37 +79,30 @@
     --color-timeline-progress-to: rgb(240, 171, 252);
     --color-timeline-progress-shadow: 0 0 10px rgba(232, 121, 249, 0.5);
 
+    /* Scrollbar */
     --color-scroll-thumb: rgba(255, 255, 255, 0.5);
 
-    /* Primary button / CTA */
+    /* Primary Button / CTA */
     --btn-primary-from: rgb(162, 28, 175);
-    /* fuchsia-700 */
     --btn-primary-to: rgb(192, 38, 211);
-    /* fuchsia-600 */
     --btn-primary-border: rgba(232, 121, 249, 0.30);
     --btn-primary-glow: 0 0 22px rgba(217, 70, 239, 0.35);
     --btn-primary-hover-from: var(--btn-primary-to);
     --btn-primary-hover-to: var(--btn-primary-to);
     --btn-shadow-strong: 0 0 25px rgba(217, 70, 239, 0.35);
     --btn-star: #f5d0fe;
-    /* fuchsia-200 */
 
     /* Inputs */
     --input-bg: rgba(0, 0, 0, 0.20);
-    /* textarea/light input */
     --input-bg-strong: rgba(0, 0, 0, 0.60);
-    /* input oscuro */
     --input-border: rgba(75, 85, 99, 1);
-    /* gray-600 */
     --input-border-focus: rgb(168, 85, 247);
-    /* purple-500 */
     --focus-ring: rgba(232, 121, 249, 0.50);
 
     /* States */
     --danger-300: rgb(252, 165, 165);
-    /* red-300 */
 
-    /* User Profile */
+    /* User Profile & Header Components */
     --user-bg: var(--surface-subtle);
     --user-border: var(--border-subtle);
     --user-hover-bg: rgba(232, 121, 249, 0.2);
@@ -141,7 +131,7 @@
     --quote-box-border: rgba(232, 121, 249, 0.25);
     --quote-text: #f5d0fe;
 
-    /* Refresh button (mapea a primary) */
+    /* Refresh Button */
     --btn-refresh-from: var(--btn-primary-from);
     --btn-refresh-to: var(--btn-primary-to);
     --btn-refresh-border: var(--btn-primary-border);
@@ -150,79 +140,71 @@
     /* Cards */
     --card-tilte-size: 14px;
 
-    /* Typography - Fuentes */
+    /* Typography */
     --font-orbitron: 'Orbitron', sans-serif;
     --font-sans: system-ui, -apple-system, sans-serif;
-}
-
-/* Agregar Orbitron como familia de fuente en Tailwind */
-@theme {
     --font-family-orbitron: var(--font-orbitron);
 }
 
+/* ============================================
+   UTILITIES
+   ============================================ */
 @utility container {
-  margin-inline: auto;
-  width: 100%;
-  padding-inline: 8px;
+    margin-inline: auto;
+    width: 100%;
+    padding-inline: 8px;
+    max-width: var(--container-max);
 
-  @media (min-width: 768px) {
-    padding-inline: 12px;
-  }
+    @media (min-width: 768px) {
+        padding-inline: 12px;
+    }
 
-  @media (min-width: 1024px) {
-    padding-inline: 24px;
-  }
-
-  max-width: var(--container-max);
+    @media (min-width: 1024px) {
+        padding-inline: 24px;
+    }
 }
-
 
 @utility container-header {
-  margin-inline: auto;
-  width: 100%;
-  padding-inline: 24px;
+    margin-inline: auto;
+    width: 100%;
+    padding-inline: 24px;
+    max-width: var(--container-max);
 
-  @media (min-width: 768px) {
-    padding-inline: 32px;
-  }
+    @media (min-width: 768px) {
+        padding-inline: 32px;
+    }
 
-  @media (min-width: 1024px) {
-    padding-inline: 48px;
-  }
-
-  max-width: var(--container-max);
+    @media (min-width: 1024px) {
+        padding-inline: 48px;
+    }
 }
 
-/* Scrollbar base */
 @utility scrollbar {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: var(--color-scroll-thumb) transparent; /* thumb y track */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scroll-thumb) transparent;
 
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: rgb(156 163 175); /* gray-400 */
-    border-radius: 9999px;
-  }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgb(156 163 175);
+        border-radius: 9999px;
+    }
 
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(107 114 128); /* gray-500 */
-  }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgb(107 114 128);
+    }
 }
 
-/* Animación para el cursor de typing */
-@keyframes blinkCursor {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
+/* ============================================
+   HEADER COMPONENTS
+   ============================================ */
 .header {
     position: relative;
     z-index: 12;
@@ -231,10 +213,7 @@
     justify-content: space-between;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-  
 }
-
-
 
 .header-logo {
     display: flex;
@@ -252,10 +231,8 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-}
 
-@media (min-width: 1024px) {
-    .header-actions {
+    @media (min-width: 1024px) {
         gap: 1.5rem;
     }
 }
@@ -265,11 +242,11 @@
     padding: 0.5rem;
     border: 1px solid rgb(255 255 255 / 0.1);
     transition: all 0.2s ease-out;
-}
 
-.header-button:hover {
-    background-color: rgb(192 38 211 / 0.2);
-    border-color: rgb(217 70 239 / 0.3);
+    &:hover {
+        background-color: var(--user-hover-bg);
+        border-color: var(--user-hover-border);
+    }
 }
 
 .header-button-icon {
@@ -281,8 +258,9 @@
     color: rgb(240 171 252);
 }
 
-
-
+/* ============================================
+   MODAL COMPONENTS
+   ============================================ */
 .modal-overlay {
     position: absolute;
     inset: 0;
@@ -290,10 +268,8 @@
     display: grid;
     place-items: center;
     padding: 1rem 1.5rem;
-}
 
-@media (min-width: 640px) {
-    .modal-overlay {
+    @media (min-width: 640px) {
         padding: 1.5rem;
     }
 }
@@ -313,7 +289,7 @@
 }
 
 .modal-title {
-    font-size: 1.rem;
+    font-size: 1rem;
     font-weight: 600;
     color: rgb(255 255 255 / 0.9);
 }
@@ -324,10 +300,10 @@
     background-color: rgb(255 255 255 / 0.1);
     border: 1px solid rgb(255 255 255 / 0.15);
     transition: background-color 0.2s;
-}
 
-.modal-close-button:hover {
-    background-color: rgb(255 255 255 / 0.15);
+    &:hover {
+        background-color: rgb(255 255 255 / 0.15);
+    }
 }
 
 .modal-content {
@@ -341,48 +317,65 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-}
 
-@media (min-width: 640px) {
-    .modal-actions {
+    @media (min-width: 640px) {
         flex-direction: row;
     }
 }
 
 .modal-button {
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  background-color: var(--color-primary);
-  transition: background-color 200ms;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    background-color: rgb(107 114 128); /* gray-500 */
-  }
-  
-  &:hover:not(:disabled) {
-    background-color: rgb(147 51 234); /* purple-600 */
-  }
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: var(--color-primary);
+    transition: background-color 200ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: rgb(107 114 128);
+    }
+
+    &:hover:not(:disabled) {
+        background-color: rgb(147 51 234);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
 }
 
 .modal-button-save {
     background: linear-gradient(to right, rgb(204, 87, 200), rgb(186, 30, 152));
     box-shadow: 0 0 22px rgba(217, 70, 239, 0.35);
+
+    &:hover {
+        background-color: rgb(186, 30, 152);
+        box-shadow: 0 0 28px rgba(217, 70, 239, 0.5);
+    }
 }
 
-.modal-button-save:hover {
-  
-    background-color:  rgb(186, 30, 152);
-    box-shadow: 0 0 28px rgba(217, 70, 239, 0.5);
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes blinkCursor {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
 }
 
-.modal-button:active {
-    transform: scale(0.98);
+@keyframes heart-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.45); }
+    60% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+.animate-heart-pop {
+    animation: heart-pop 0.3s ease;
 }

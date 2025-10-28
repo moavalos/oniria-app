@@ -83,8 +83,10 @@ type EngineStore = {
     // Room/Skin state
     roomId: string | null;
     skinId: string | null;
+    theme: 'light' | 'dark';
     setRoomId: (_id: string) => void;
     setSkinId: (_id: string) => void;
+    setTheme: (_theme: 'light' | 'dark') => void;
 
     // Nodo uniforms state para debug
     nodeUniforms: {
@@ -182,12 +184,29 @@ type EngineStore = {
     resetLoading: () => void;
 };
 
+// Función para leer el tema inicial del localStorage
+const getInitialTheme = (): 'light' | 'dark' => {
+    try {
+        const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            return savedTheme;
+        }
+        // Si no hay tema guardado, usar la preferencia del sistema
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return prefersDark ? 'dark' : 'light';
+    } catch {
+        return 'light';
+    }
+};
+
 export const useEngineStore = create<EngineStore>((set, get) => ({
     // Room/Skin state
     roomId: null,
     skinId: null,
+    theme: getInitialTheme(),
     setRoomId: (id) => set({ roomId: id }),
     setSkinId: (id) => set({ skinId: id }),
+    setTheme: (theme) => set({ theme }),
 
     // Dream state
     dream: null,

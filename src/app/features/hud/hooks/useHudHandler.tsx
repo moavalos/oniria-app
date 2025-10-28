@@ -1,7 +1,7 @@
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 import { useEngineStore } from "@/engine/core/store/engineStore";
 import { useCallback } from "react";
-import { menuRegistry } from "../components/menuRegistry";
+import { menuRegistry } from "../../menuSystem/menuRegistry";
 
 export default function useHudHandler() {
   const engine = useEngineAPI();

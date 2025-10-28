@@ -6,52 +6,59 @@ import {
   LoaderSystem,
   useEngineStore,
 } from "@/engine";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 //import useDreams from "@/app/features/dreams/hooks/useDreams";
 import { useEngineAPI } from "@/engine/core/context/EngineApiProvider";
 //import type { Dream } from "@/engine/core/store/engineStore";
 import HudSystem from "@/app/features/hud/components/Hudsystem";
-import UserActions from "@/app/features/hud/components/header/UserActions";
-import HeaderLogo from "@/app/features/hud/components/header/HeaderLogo";
-import BadgeCard from "@/app/features/hud/components/badges/BadgeCard";
+import UserActions from "@/app/features/hud/components/topBar/UserActions";
+import HeaderLogo from "@/app/features/logo/HeaderLogo";
+import BadgeCard from "@/app/features/badges/BadgeCard";
 import useHudHandler from "@/app/features/hud/hooks/useHudHandler";
-import MenuSystem from "@/app/features/hud/components/MenuSystem";
-import DreamSystem from "@/app/features/hud/components/dreams/DreamSystem";
+import MenuSystem from "@/app/features/menuSystem/MenuSystem";
+import DreamSystem from "@/app/features/dreams/DreamSystem";
+import { useUserSettings } from "@/app/features/userSettings";
+import { initThemeService } from "@/app/features/dark-mode/services/themeService";
 
 export default function MainLayout() {
   //const { t } = useTranslation();
   // const { fetchDreams } = useDreams();
   const { isDreamSystemActive } = useEngineStore();
   const handler = useHudHandler();
-
   const engine = useEngineAPI();
 
-  const backendSettings = { roomId: "oniria", skinId: "oniria" };
-  const { roomId, skinId } = backendSettings;
+  // Obtener configuración del usuario (skinId base sin tema)
+  const { roomId, skinId, loading } = useUserSettings();
 
+  // Ref para saber si ya se cargó la sala inicial
+  const initialRoomLoaded = useRef(false);
+
+  // Ref para saber si ya se inicializó el themeService
+  const themeServiceInitialized = useRef(false);
+
+  // Inicializar el themeService con el engine (solo una vez)
   useEffect(() => {
-    console.log("[Home] Calling engine.setRoom:", roomId, skinId);
+    if (!themeServiceInitialized.current) {
+      initThemeService(engine);
+      themeServiceInitialized.current = true;
+    }
+  }, [engine]);
+
+  // Cargar sala inicial (solo una vez)
+  useEffect(() => {
+    if (!roomId || !skinId || loading || initialRoomLoaded.current) return;
+
+    console.log("[MainLayout] Carga inicial - setRoom:", roomId, skinId);
+    // setRoom aplicará el tema del store automáticamente
     engine.setRoom(roomId, skinId);
-  }, []);
-
-  // const handleInterpretar = async (dream: string) => {
-  //   await engine.camera.viewNodes();
-  //   const response = await fetchDreams(dream);
-  //   if (!response) return;
-  //   engine.node?.onReady((nodeController) => {
-  //     setDream(response as Dream);
-  //     nodeController.idle();
-  //   });
-
-  //navegar a otra pagina con el resultado
-  //navigate("/interpretacion");
-  //};
+    initialRoomLoaded.current = true;
+  }, [roomId, skinId, loading, engine]);
 
   return (
     <main className="relative w-full h-dvh ">
       <HudSystem.Container>
         <HudSystem.TopBar>
-          <HeaderLogo text={"oniria"} />
+          <HeaderLogo text={"Oniria"} />
           <UserActions />
         </HudSystem.TopBar>
         <HudSystem.Body footerHeight="h-24">

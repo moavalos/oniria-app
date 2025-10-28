@@ -18,7 +18,7 @@ export const HighlightShader = {
     varying vec3 vWorldPos;
 
     void main() {
-    vLocalPos = position;                   // 👈 coordenadas locales del objeto
+    vLocalPos = position;                 
     vec4 worldPos = modelMatrix * vec4(position, 1.0);
     vWorldPos = worldPos.xyz;
     gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -47,13 +47,13 @@ export const HighlightShader = {
 
 
     float localY = vLocalPos.y  ;  // 0 en base, 1 en tope
-    float distToLine = abs(vLocalPos.y - uScanPos);       // ahora uScanPos debe estar entre 0–1
+    float distToLine = abs(vLocalPos.y - uScanPos);   
     float scan = smoothstep(uScanWidth, 0.0, distToLine);
 
       float glow = max(fresnel, scan);
       vec3 color = uColor * glow * uIntensity;
 
-      gl_FragColor = vec4(color, 0.2 * glow);
+      gl_FragColor = vec4(color, 0.4 * glow);
     }
   `,
     transparent: true,

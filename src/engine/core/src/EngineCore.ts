@@ -87,9 +87,14 @@ export class EngineCore extends EventEmitter {
 
         // Registrar servicios principales
         this.registry.registerService(AssetManager, new AssetManager(this._gl!));
-        this.registry.registerService(MaterialService, new MaterialService());
+        const materialService = new MaterialService();
+        this.registry.registerService(MaterialService, materialService);
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
-        this.registry.registerService(AnimationService, new AnimationService(this._scene));
+        const animationService = new AnimationService(this._scene);
+        this.registry.registerService(AnimationService, animationService);
+
+        // Inyectar AnimationService en MaterialService
+        materialService.setAnimationService(animationService);
 
         this.registry.registerService(InteractionService, new InteractionService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
 
@@ -176,12 +181,14 @@ export class EngineCore extends EventEmitter {
 
     /**
      * Maneja el evento de inicio de cambio de skin.
+     * NO cambia el estado del engine porque no queremos desmontar los sistemas.
      * 
      * @param data - Datos del skin a cambiar
      */
     private onSkinChangeStart(data: { skin: any, room: Room }) {
         console.log("[EngineCore]: Iniciando cambio de skin:", data.skin.id);
-        this.setState(EngineState.LOADING_ASSETS);
+        // NO cambiar estado - mantener READY para que los sistemas no se desmonten
+        // this.setState(EngineState.LOADING_ASSETS);
     }
 
     /**
@@ -192,7 +199,8 @@ export class EngineCore extends EventEmitter {
     private onSkinChangeComplete(data: { skin: any, room: Room }) {
         console.log("[EngineCore]: Cambio de skin completado:", data.skin.id);
         this.skinId = data.skin.id;
-        this.setState(EngineState.READY);
+        // El estado ya debería ser READY, no necesitamos cambiarlo
+        // this.setState(EngineState.READY);
     }
 
     /**
@@ -294,6 +302,16 @@ export class EngineCore extends EventEmitter {
     setRoom(roomId: string, skinId?: string) {
         console.log("[EngineCore]: Solicitando cambio de sala:", roomId, "skin:", skinId);
         this.emit("room:change:requested", { roomId, skinId });
+    }
+
+    /**
+     * Establece el tema del motor y actualiza el store.
+     * 
+     * @param theme - Tema a aplicar ('light' | 'dark')
+     */
+    setTheme(theme: 'light' | 'dark') {
+        console.log("[EngineCore]: Estableciendo tema:", theme);
+        this.store.setTheme(theme);
     }
 
     /**
