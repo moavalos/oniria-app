@@ -23,6 +23,21 @@ export default function NebulaScene(props: NebulaSceneProps) {
   useEffect(() => {
     if (isEngineReady) {
       const nebulaManager = core.getService(NebulaManager);
+
+      // Validación adicional
+      if (!nebulaManager) {
+        console.error("[NebulaScene] NebulaManager no está disponible");
+        return;
+      }
+
+      if (typeof nebulaManager.createNebula !== "function") {
+        console.error(
+          "[NebulaScene] createNebula no es una función",
+          nebulaManager
+        );
+        return;
+      }
+
       const mesh = nebulaManager.createNebula();
       if (mesh) {
         setNebulaMesh(mesh);

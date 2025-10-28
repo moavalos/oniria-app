@@ -24,6 +24,9 @@ import DownloadIcon from "./store/DownloadIcon";
 import PaletteIcon from "./store/PaletteIcon";
 import SunIcon from "./store/SunIcon";
 import MoonIcon from "./store/MoonIcon";
+import EyeOpenIcon from "./store/EyeOpenIcon";
+import EyeCloseIcon from "./store/EyeCloseIcon";
+import ArrowIcon from "./store/ArrowIcon";
 
 
 export type IconName =
@@ -52,6 +55,9 @@ export type IconName =
     | "palette"
     | "sun"
     | "moon"
+    | "eye-open"
+    | "eye-close"
+    | "arrow"
     ;
 
 export type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
@@ -81,5 +87,8 @@ export const iconsStore: Record<IconName, IconComponent> = {
     download: DownloadIcon,
     palette: PaletteIcon,
     sun: SunIcon,
-    moon: MoonIcon
+    moon: MoonIcon,
+    "eye-open": EyeOpenIcon,
+    "eye-close": EyeCloseIcon,
+    arrow: ArrowIcon,
 };

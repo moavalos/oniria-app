@@ -2,12 +2,17 @@
 import '@testing-library/jest-dom'
 
 // Configuración global para tests de Three.js
-global.ResizeObserver = class ResizeObserver {
-    observe() { }
+// Compatible con Node.js y navegador
+const globalThis = typeof global !== 'undefined' ? global : window;
 
-    unobserve() { }
+if (!globalThis.ResizeObserver) {
+    globalThis.ResizeObserver = class ResizeObserver {
+        observe() { }
 
-    disconnect() { }
+        unobserve() { }
+
+        disconnect() { }
+    }
 }
 
 // Mock global para WebGL context

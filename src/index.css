@@ -379,3 +379,35 @@
 .animate-heart-pop {
     animation: heart-pop 0.3s ease;
 }
+
+@keyframes blob-float-1 {
+    0%, 100% { 
+        transform:  scale(1);
+    }
+    33% { 
+        transform:  scale(1.1);
+    }
+    66% { 
+        transform:  scale(0.9);
+    }
+}
+
+@keyframes blob-float-2 {
+    0%, 100% { 
+        transform: scale(1);
+    }
+    33% { 
+        transform:  scale(0.9);
+    }
+    66% { 
+        transform: scale(1.05);
+    }
+}
+
+.animate-blob-1 {
+    animation: blob-float-1 7s ease-in-out infinite;
+}
+
+.animate-blob-2 {
+    animation: blob-float-2 5s ease-in-out infinite;
+}

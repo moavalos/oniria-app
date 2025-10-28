@@ -194,9 +194,9 @@ void main()
         
         float timeScale = 1.; // Ajustar la escala de tiempo para controlar la velocidad
         vec3 randomOffset = vec3(
-            sin(uTime * 1.) * 0.2, // desplazamiento en x
-            cos(uTime +0.2) * 0.2, // desplazamiento en y
-            sin(uTime +1.5) * uTime*0.01 + 0.2  // desplazamiento en z
+            sin(uTime * 1.) * 0.5, // Radio orbital en X
+            cos(uTime + 0.2) * 0.8, // Radio orbital en Y
+            sin(uTime * 0.5 + 1.5) * 0.2  // desplazamiento en z (sin acumulación)
         );
 
         // Aplicar el desplazamiento a la posición de la estrella
@@ -211,8 +211,11 @@ void main()
         // el color de la luz
         vec3 lightColor=vec3(0.9,0.5,0.5);
         
-         sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
-        sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!
+        // sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
+       // sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!
+
+		  sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // ← FIJO: sin parpadeo
+        sum.rgb+=(lightColor/exp(lDist*lDist*lDist*0.08)/20.);
         
 		if (d<h) 
 		{
@@ -251,11 +254,11 @@ void main()
     // dispersión simple
 	//sum *= 1. / exp( ld * 0.2 ) * 0.6;
     
-     if (uTime <= 20.) {
-        sum *= clamp(uTime * 0.05, 0.0, .6) / exp(ld * 0.2) * 0.6;
-    } else {
-        sum = (sum / exp(ld * 0.1 + .32) * .5);
-    }
+    //  if (uTime <= 20.) {
+         sum *= clamp(uTime * 0.05, 0.0, .6) / exp(ld * 0.2) * 0.6;
+    // } else {
+      //  sum = (sum / exp(ld * 0.1 + .32) * .5);
+    //}
         
    	sum = clamp( sum, 0.0, 1.0 );
     sum.xyz = sum.xyz*sum.xyz*(3.0-2.0*sum.xyz);

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import Button from "@/app/shared/components/Button";
+import ModalButton from "@/app/shared/components/ModalButton";
+import Icon from "@/assets/icons/Icon";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@features/auth/hooks/useAuth";
 
@@ -8,6 +9,8 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const { t } = useTranslation();
@@ -37,37 +40,60 @@ export default function RegisterForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-30">
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder={t("register.username")}
-          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
         />
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t("register.email")}
-          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder={t("register.password")}
-          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder={t("register.confirmPassword")}
-          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
+        
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t("register.password")}
+            className="w-full px-4 py-2 pr-12 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-gray-300 transition-colors"
+          >
+            <Icon name={showPassword ? "eye-close" : "eye-open"} size={20} />
+          </button>
+        </div>
+
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder={t("register.confirmPassword")}
+            className="w-full px-4 py-2 pr-12 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-gray-300 transition-colors"
+          >
+            <Icon name={showConfirmPassword ? "eye-close" : "eye-open"} size={20} />
+          </button>
+        </div>
+
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button type="submit">{t("register.button")}</Button>
+        <ModalButton type="submit" icon={<Icon name="arrow" size={18} />}>
+          {t("register.button")}
+        </ModalButton>
       </form>
 
       {isSuccess && (
