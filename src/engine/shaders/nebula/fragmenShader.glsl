@@ -14,6 +14,7 @@ varying vec2 vUv;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform vec2 uMouse;
+uniform vec3 uNebulaColor;  // Color de la nebula (personalizable)
 uniform sampler2D uTexture0;  // iChannel0 - textura
 uniform sampler2D uTexture1;  // iChannel1 - keyboard (puedes usar otra textura o remover)
 uniform sampler2D uTexture2;  // iChannel2 - textura
@@ -208,8 +209,8 @@ void main()
         //vec3 ldst = vec3(0.0)-pos;
         float lDist = max(length(ldst), 0.001);
 
-        // el color de la luz
-        vec3 lightColor=vec3(0.9,0.5,0.5);
+        // usar el color uniforme en lugar de hardcodeado
+        vec3 lightColor = uNebulaColor;
         
         // sum.rgb+=(vec3(0.3,0.1*sin(uTime/2.)+0.2,.2)/(lDist*lDist*1.)/80.); // la estrella en sí !!!!!!!!!!!!
        // sum.rgb+=(lightColor/exp(lDist*lDist*lDist*clamp(1.-uTime*0.1, 0.08, 1.))/20.); // bloom !!!!!!!!!!!!!

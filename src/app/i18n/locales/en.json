@@ -33,11 +33,15 @@
     "password": "Password",
     "confirmPassword": "Confirm password",
     "button": "Sign Up",
+    "or": "or sign up with",
     "errorPasswordMatch": "Passwords do not match",
     "text": "Already have an account?",
     "textLink": "Log In",
     "success": "Account created successfully. Please check your email to confirm your account.",
-    "error": "Error creating account"
+    "error": "Error creating account",
+    "successTitle": "Thanks for signing up!",
+    "successMessage": "You're now part of our community! Now just check your email inbox to verify your account.",
+    "goToLogin": "Log In"
   },
   "notFound": {
     "message": "Page not found",

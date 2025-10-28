@@ -44,7 +44,7 @@ export default function Register() {
             <div className="flex items-center gap-2 mt-1 text-gray-400">
               <div className="flex-1 h-px bg-gray-600" />
               <span className="text-light/70 font-light text-sm">
-                {t("login.or")}
+                {t("register.or")}
               </span>
               <div className="flex-1 h-px bg-gray-600" />
             </div>
@@ -88,6 +88,7 @@ export default function Register() {
                 scale={2.5}
                 position={[0, 0.3, 0]}
                 rotation={[0, 0, 0]}
+                color={{ r: 0.6, g: 0.3, b: 0.9 }}
               />
             </Engine.Core>
           </Engine.Canvas>
