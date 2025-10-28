@@ -30,13 +30,17 @@ export type ObjectEventArray = ObjectEvent[];
 
 // Configuración de un objeto en la room
 export interface RoomObjectConfig {
-    color?: string;
+    color?: string; // Deprecated: usar light/dark
+    light?: string; // Color para tema claro
+    dark?: string;  // Color para tema oscuro
     animation?: AnimationAction;
     interceptable?: boolean;
     event?: ObjectEvent;
     lookAtOffset?: [number, number, number]; // offset para la cámara al hacer lookAt
     resalted?: boolean; // si el objeto debe tener highlight al hacer hover
-    colorResalted?: string; // color del highlight (hex string)
+    colorResalted?: string; // Deprecated: usar colorResalted_light/dark
+    colorResalted_light?: string; // Color del highlight para tema claro
+    colorResalted_dark?: string;  // Color del highlight para tema oscuro
 }
 
 export type LookatableObject = {

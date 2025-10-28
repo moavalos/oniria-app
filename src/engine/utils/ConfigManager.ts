@@ -124,39 +124,39 @@ export class ConfigManager {
     /**
      * Obtiene objetos con colores
      */
-    async getColorableObjects(roomId: string): Promise<Record<string, string>> {
+    async getColorableObjects(roomId: string, theme: 'light' | 'dark' = 'light'): Promise<Record<string, string>> {
         const config = await this.getConfig(roomId);
-        return this.extractColorableObjects(config);
+        return this.extractColorableObjects(config, theme);
     }
 
     /**
      * Obtiene objetos con colores (versión síncrona - asume que la config ya está cargada)
      */
-    getColorableObjectsSync(): Record<string, string> {
+    getColorableObjectsSync(theme: 'light' | 'dark' = 'light'): Record<string, string> {
         if (!this.currentConfig) {
             console.warn('[ConfigManager] No config loaded, returning empty colorables');
             return {};
         }
-        return this.extractColorableObjects(this.currentConfig);
+        return this.extractColorableObjects(this.currentConfig, theme);
     }
 
     /**
      * Obtiene objetos resaltables
      */
-    async getResaltableObjects(roomId: string): Promise<Record<string, string | undefined>> {
+    async getResaltableObjects(roomId: string, theme: 'light' | 'dark' = 'light'): Promise<Record<string, string | undefined>> {
         const config = await this.getConfig(roomId);
-        return this.extractResaltableObjects(config);
+        return this.extractResaltableObjects(config, theme);
     }
 
     /**
      * Obtiene objetos resaltables (versión síncrona - asume que la config ya está cargada)
      */
-    getResaltableObjectsSync(): Record<string, string | undefined> {
+    getResaltableObjectsSync(theme: 'light' | 'dark' = 'light'): Record<string, string | undefined> {
         if (!this.currentConfig) {
             console.warn('[ConfigManager] No config loaded, returning empty resaltables');
             return {};
         }
-        return this.extractResaltableObjects(this.currentConfig);
+        return this.extractResaltableObjects(this.currentConfig, theme);
     }
 
     /**
@@ -225,11 +225,17 @@ export class ConfigManager {
         return mapped;
     }
 
-    private extractColorableObjects(config: RoomConfig): Record<string, string> {
+    private extractColorableObjects(config: RoomConfig, theme: 'light' | 'dark' = 'light'): Record<string, string> {
         const colorables: Record<string, string> = {};
 
         for (const [name, obj] of Object.entries(config.objects)) {
-            if (obj.color) {
+            // Priorizar light/dark sobre color deprecated
+            if (theme === 'dark' && obj.dark) {
+                colorables[name] = obj.dark;
+            } else if (theme === 'light' && obj.light) {
+                colorables[name] = obj.light;
+            } else if (obj.color) {
+                // Fallback a la propiedad antigua 'color'
                 colorables[name] = obj.color;
             }
         }
@@ -237,12 +243,22 @@ export class ConfigManager {
         return colorables;
     }
 
-    private extractResaltableObjects(config: RoomConfig): Record<string, string | undefined> {
+    private extractResaltableObjects(config: RoomConfig, theme: 'light' | 'dark' = 'light'): Record<string, string | undefined> {
         const resaltables: Record<string, string | undefined> = {};
 
         for (const [name, obj] of Object.entries(config.objects)) {
             if (obj.resalted) {
-                resaltables[name] = obj.colorResalted;
+                // Priorizar colorResalted_light/dark sobre colorResalted deprecated
+                if (theme === 'dark' && obj.colorResalted_dark) {
+                    resaltables[name] = obj.colorResalted_dark;
+                } else if (theme === 'light' && obj.colorResalted_light) {
+                    resaltables[name] = obj.colorResalted_light;
+                } else if (obj.colorResalted) {
+                    // Fallback a la propiedad antigua
+                    resaltables[name] = obj.colorResalted;
+                } else {
+                    resaltables[name] = undefined;
+                }
             }
         }
 

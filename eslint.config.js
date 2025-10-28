@@ -29,7 +29,17 @@ export default defineConfig([
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/ban-types": "off",
     },
-  }, // Configuración específica para archivos de test y mock
+  },
+  // Configuración específica para componentes del engine con Three.js
+  {
+    files: ["**/engine/components/**/*.tsx", "**/engine/scenes/**/*.tsx"],
+    rules: {
+      // Desactivar exhaustive-deps ya que agregar todas las dependencias
+      // puede causar re-renders infinitos en componentes de Three.js
+      "react-hooks/exhaustive-deps": "off",
+    },
+  },
+  // Configuración específica para archivos de test y mock
   {
     files: [
       "**/*.test.{ts,tsx}",

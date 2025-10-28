@@ -17,7 +17,12 @@ export class Ktx2LoaderService implements IAssetLoader {
         return new Promise((resolve, reject) => {
             this.loader.load(
                 url,
-                (tex) => resolve(tex),
+                (tex) => {
+                    // Asegurar que la textura use el espacio de color sRGB
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    tex.needsUpdate = true;
+                    resolve(tex);
+                },
                 (evt) => {
                     if (evt.lengthComputable) onProgress((evt.loaded / evt.total) * 100);
                 },

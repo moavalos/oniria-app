@@ -7,6 +7,7 @@ import { Sparkles } from "@react-three/drei";
 import NodeScene from "./NodeScene";
 import NebulaScene from "./NebulaScene";
 import ImageScene from "./ImageScene";
+import { useEngineStore } from "@engine/core/store/engineStore";
 
 /**
  * Escena principal para renderizar salas 3D.
@@ -84,11 +85,33 @@ export default function RoomScene() {
           skinId
         );
 
+        // Aplicar tema al skinId si está presente
+        let finalSkinId = skinId;
+        if (skinId) {
+          // Obtener el tema actual del store
+          const currentTheme = useEngineStore.getState().theme;
+
+          // Si el tema es dark y el skinId no termina en _dark, agregar sufijo
+          if (currentTheme === "dark" && !skinId.endsWith("_dark")) {
+            finalSkinId = `${skinId}_dark`;
+            console.log(
+              `[RoomScene] Aplicando tema dark: ${skinId} -> ${finalSkinId}`
+            );
+          }
+          // Si el tema es light y el skinId termina en _dark, quitar sufijo
+          else if (currentTheme === "light" && skinId.endsWith("_dark")) {
+            finalSkinId = skinId.replace("_dark", "");
+            console.log(
+              `[RoomScene] Aplicando tema light: ${skinId} -> ${finalSkinId}`
+            );
+          }
+        }
+
         try {
           // RoomScene es responsable de cargar la room
           await roomManager.loadRoom({
             room: { id: roomId },
-            skin: skinId ? { id: skinId } : undefined,
+            skin: finalSkinId ? { id: finalSkinId } : undefined,
           });
         } catch (error) {
           console.error("[RoomScene] Error cargando room:", error);
@@ -96,14 +119,7 @@ export default function RoomScene() {
       };
 
       // 3. Escuchar cuando RoomManager tiene room lista
-      const handleReady = ({ room }: { room: Room; skin?: any }) => {
-        console.log("[RoomScene] Room ready:", room.get_Id());
-        console.log("[RoomScene] Room scene exists:", !!room.get_Scene());
-        console.log(
-          "[RoomScene] Room scene children count:",
-          room.get_Scene()?.children.length || 0
-        );
-
+      const handleReady = ({ room }: { room: Room }) => {
         setRoom(room);
 
         const portal = room.getPortal();
@@ -120,21 +136,44 @@ export default function RoomScene() {
         setRoom(null);
       };
 
-      // Configurar listeners del Core
-      core.on("room:change:requested", handleRoomChangeRequested);
+      // Configurar listeners del Core con namespace 'roomscene'
+      core.on("room:change:requested.roomscene", handleRoomChangeRequested);
 
-      // Configurar listeners del RoomManager
-      core.on("room:ready", handleReady);
-      core.on("room:unloading", handleUnload);
+      // Configurar listeners del RoomManager con namespace 'roomscene'
+      core.on("room:ready.roomscene", handleReady);
+      core.on("room:unloading.roomscene", handleUnload);
 
       // Cleanup function para todos los listeners
       return () => {
-        core.off("room:change:requested");
-        core.off("room:ready");
-        core.off("room:unloading");
+        core.off("room:change:requested.roomscene");
+        core.off("room:ready.roomscene");
+        core.off("room:unloading.roomscene");
       };
     }
   }, [core]);
+
+  // Escuchar cambios de tema y actualizar la skin
+  useEffect(() => {
+    if (!core || !room) return;
+
+    const theme = useEngineStore.getState().theme;
+    const currentSkinId = room.get_Skin()?.id;
+
+    if (!currentSkinId) return;
+
+    // Calcular el skinId que debería tener según el tema actual
+    const baseSkinId = currentSkinId.replace("_dark", "");
+    const expectedSkinId = theme === "dark" ? `${baseSkinId}_dark` : baseSkinId;
+
+    // Si el skin actual no coincide con el esperado, cambiarlo
+    if (currentSkinId !== expectedSkinId) {
+      console.log(
+        `[RoomScene] Tema cambió a ${theme}, aplicando skin:`,
+        expectedSkinId
+      );
+      core.emit("engine:setSkin", { skin: { id: expectedSkinId } });
+    }
+  }, [useEngineStore((state) => state.theme), core, room]);
 
   //listener para nodos
   useEffect(() => {
