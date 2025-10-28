@@ -17,6 +17,9 @@ jobs:
       - name: Instalando dependencias
         run: npm install
 
+      - name: Instalando Playwright browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Ejecutando pruebas del frontend
         run: npm test
 
