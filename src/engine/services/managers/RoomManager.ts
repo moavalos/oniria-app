@@ -60,10 +60,6 @@ export class RoomManager implements Injectable {
     this.setupEventListeners();
   }
 
-  // ===========================================
-  // SETUP METHODS - Responsabilidad única: configuración
-  // ===========================================
-
   /**
    * Configura los callbacks de progreso del AssetManager con el store
    */
@@ -263,7 +259,8 @@ export class RoomManager implements Injectable {
 
       // Aplicar materiales SIN fade (primera carga)
       const materialService = this._core.getService(MaterialService);
-      await materialService.applyMaterialsToRoom(newRoom, false);
+      const currentTheme = useEngineStore.getState().theme;
+      await materialService.applyMaterialsToRoom(newRoom, false, currentTheme);
 
       // Aplicar video al screen del monitor
       const monitor = newRoom.getObjectByName("monitor") as THREE.Object3D;
@@ -359,8 +356,9 @@ export class RoomManager implements Injectable {
 
       // Actualizar materiales con las nuevas texturas CON fade
       const materialService = this._core.getService(MaterialService);
-      console.log("[RoomManager]: Aplicando materiales con fade");
-      await materialService.applyMaterialsToRoom(this.currentRoom, true);
+      const currentTheme = useEngineStore.getState().theme;
+      console.log("[RoomManager]: Aplicando materiales con fade, tema:", currentTheme);
+      await materialService.applyMaterialsToRoom(this.currentRoom, true, currentTheme);
 
       console.log("[RoomManager]: Cambio de skin completado");
 

@@ -48,7 +48,7 @@ export class AssetManager {
             }
 
             const loader = this.loaders.get(u.type);
-            if (!loader) throw new Error(`No loader for ${u.type}`);
+            if (!loader) throw new Error(`No hay loader para ${u.type}`);
             const asset = await loader.load(u.url, (p) => {
                 items[i].progress = p;
                 this.callbacks.onItemProgress?.(items[i]);

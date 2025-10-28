@@ -1,27 +1,52 @@
 {
   "objects": {
-    "led_1": { "color": "#FF00FF" },
-    "led_2": { "color": "#FFFFFF" },
-    "led_ball": { "color": "#FFFFFF" },
-    "light_bed": { "color": "#FFFFFF" },
-    "floor_led": { "color": "#FFFFFF" },
-    "pc_emissive": { "color": "#1AFFFF" },
+    "led_1": {
+      "light": "#FF00FF",
+      "dark": "#fa6bfa"
+    },
+    "led_2": {
+      "light": "#FFFFFF",
+      "dark": "#e6decc"
+    },
+    "led_ball": {
+      "light": "#FFFFFF",
+      "dark": "#DDDDDD"
+    },
+    "light_bed": {
+      "light": "#FFFFFF",
+      "dark": "#e6decc"
+    },
+    "floor_led": {
+      "light": "#FFFFFF",
+      "dark": "#BBBBBB"
+    },
+    "pc_emissive": {
+      "light": "#1AFFFF",
+      "dark": "#0099AA"
+    },
     "portal": {
-      "color": "#FFFFFF",
+      "light": "#FFFFFF",
+      "dark": "#CCCCCC",
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
       "lookAtOffset": [-1, 0.5, 4],
       "resalted": true,
-      "colorResalted": "#FF0000"
+      "colorResalted_light": "#FF0000",
+      "colorResalted_dark": "#ff9d00"
     },
     "monitor": {
       "interceptable": true,
       "event": { "type": "none", "name": "none" },
       "lookAtOffset": [-1.5, 0.1, 1],
       "resalted": true,
-      "colorResalted": "#FF0000"
+      "colorResalted_light": "#FF0000",
+      "colorResalted_dark": "#ff9d00"
     },
-    "neon_text": { "color": "#FFFFFF", "lookAtOffset": [-1.2, -1.0, 3] },
+    "neon_text": {
+      "light": "#FFFFFF",
+      "dark": "#e6decc",
+      "lookAtOffset": [-1.2, -1.0, 3]
+    },
     "dog_handler": {
       "animation": {
         "target": "dog_handler",

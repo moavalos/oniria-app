@@ -1226,93 +1226,93 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":85651,
+			"byteLength":85680,
 			"byteOffset":0
 		},
 		{
 			"buffer":0,
 			"byteLength":2259,
-			"byteOffset":85652
+			"byteOffset":85680
 		},
 		{
 			"buffer":0,
 			"byteLength":1946,
-			"byteOffset":87912
+			"byteOffset":87940
 		},
 		{
 			"buffer":0,
 			"byteLength":1537,
-			"byteOffset":89860
+			"byteOffset":89888
 		},
 		{
 			"buffer":0,
 			"byteLength":27602,
-			"byteOffset":91400
+			"byteOffset":91428
 		},
 		{
 			"buffer":0,
 			"byteLength":1768,
-			"byteOffset":119004
+			"byteOffset":119032
 		},
 		{
 			"buffer":0,
 			"byteLength":814,
-			"byteOffset":120772
+			"byteOffset":120800
 		},
 		{
 			"buffer":0,
 			"byteLength":358,
-			"byteOffset":121588
+			"byteOffset":121616
 		},
 		{
 			"buffer":0,
 			"byteLength":2504,
-			"byteOffset":121948
+			"byteOffset":121976
 		},
 		{
 			"buffer":0,
 			"byteLength":767,
-			"byteOffset":124452
+			"byteOffset":124480
 		},
 		{
 			"buffer":0,
 			"byteLength":44002,
-			"byteOffset":125220
+			"byteOffset":125248
 		},
 		{
 			"buffer":0,
 			"byteLength":248,
-			"byteOffset":169224
+			"byteOffset":169252
 		},
 		{
 			"buffer":0,
 			"byteLength":1660,
-			"byteOffset":169472
+			"byteOffset":169500
 		},
 		{
 			"buffer":0,
 			"byteLength":956,
-			"byteOffset":171132
+			"byteOffset":171160
 		},
 		{
 			"buffer":0,
 			"byteLength":201,
-			"byteOffset":172088
+			"byteOffset":172116
 		},
 		{
 			"buffer":0,
 			"byteLength":377,
-			"byteOffset":172292
+			"byteOffset":172320
 		},
 		{
 			"buffer":0,
 			"byteLength":1349,
-			"byteOffset":172672
+			"byteOffset":172700
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":174024,
+			"byteLength":174052,
 			"uri":"room.bin"
 		}
 	]

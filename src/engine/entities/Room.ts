@@ -254,19 +254,21 @@ export class Room {
     /**
      * Obtiene todos los objetos coloreables de la Room.
      * 
+     * @param theme - Tema a aplicar ('light' | 'dark')
      * @returns Record con objetos coloreables y sus colores
      */
-    async getColorableObjects(): Promise<Record<string, string>> {
-        return this._configManager.getColorableObjects(this._id);
+    async getColorableObjects(theme: 'light' | 'dark' = 'light'): Promise<Record<string, string>> {
+        return this._configManager.getColorableObjects(this._id, theme);
     }
 
     /**
      * Obtiene todos los objetos resaltables de la Room.
      * 
+     * @param theme - Tema actual ('light' | 'dark') para seleccionar color de highlight
      * @returns Record con objetos resaltables y sus colores de highlight
      */
-    async getResaltableObjects(): Promise<Record<string, string | undefined>> {
-        return this._configManager.getResaltableObjects(this._id);
+    async getResaltableObjects(theme: 'light' | 'dark' = 'light'): Promise<Record<string, string | undefined>> {
+        return this._configManager.getResaltableObjects(this._id, theme);
     }
 
     /**

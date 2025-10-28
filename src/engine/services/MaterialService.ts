@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import gsap from "gsap";
 
 import type { Room } from "@engine/entities/Room";
+import type { AnimationService } from "./AnimationService";
 import portalVertexShader from "@engine/shaders/portal/vertexShader.glsl";
 import portalFragmentShader from "@engine/shaders/portal/fragmentShader.glsl";
 import blobFragmentShader from "@engine/shaders/nodes/blob/fragmentShader.glsl";
@@ -32,15 +32,29 @@ export class MaterialService {
 
     private wallsMaterial: THREE.ShaderMaterial | null = null;
 
+    // Guardar los colores actuales para hacer fade
+    private currentColors: Record<string, string> = {};
+
+    // Referencia al servicio de animaciones
+    private animationService: AnimationService | null = null;
+
     constructor() { }
+
+    /**
+     * Establece el servicio de animaciones para usar en las transiciones
+     */
+    setAnimationService(animationService: AnimationService): void {
+        this.animationService = animationService;
+    }
 
     /**
      * Aplica materiales básicos con texturas usando carga bajo demanda
      * 
      * @param room - La sala a la que aplicar los materiales
      * @param withFade - Si debe aplicar animación de fade entre texturas (default: false)
+     * @param theme - Tema a aplicar para los colores ('light' | 'dark')
      */
-    async applyMaterialsToRoom(room: Room, withFade: boolean = false): Promise<void> {
+    async applyMaterialsToRoom(room: Room, withFade: boolean = false, theme: 'light' | 'dark' = 'light'): Promise<void> {
         const colorMaterials = new Map<string, THREE.MeshBasicMaterial>();
         this.scene = room.get_Scene()!;
 
@@ -61,7 +75,7 @@ export class MaterialService {
         const currentWallTexture = room.getEnvironmentTexture();
 
         if (withFade) {
-            console.log("[MaterialService]: Aplicando materiales con fade");
+            console.log("[MaterialService]: Aplicando materiales con fade, tema:", theme);
 
             // Si ya existen los materiales con shader, hacer fade
             if (this.objectsMaterial && this.wallsMaterial) {
@@ -77,22 +91,27 @@ export class MaterialService {
                 // Animar de 1.0 (textureB) a 0.0 (textureA)
                 const uniforms = { mixFactor: 1.0 };
 
-                gsap.to(uniforms, {
-                    mixFactor: 0.0,
-                    duration: 0.8,
-                    ease: "power2.inOut",
-                    onUpdate: () => {
-                        if (this.objectsMaterial) {
-                            this.objectsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
+                if (this.animationService) {
+                    const timeline = this.animationService.createCustomTimeline();
+                    timeline.to(uniforms, {
+                        mixFactor: 0.0,
+                        duration: 0.8,
+                        ease: "power2.inOut",
+                        onUpdate: () => {
+                            if (this.objectsMaterial) {
+                                this.objectsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
+                            }
+                            if (this.wallsMaterial) {
+                                this.wallsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
+                            }
+                        },
+                        onComplete: () => {
+                            console.log("[MaterialService]: Fade completado");
                         }
-                        if (this.wallsMaterial) {
-                            this.wallsMaterial.uniforms.uMixFactor.value = uniforms.mixFactor;
-                        }
-                    },
-                    onComplete: () => {
-                        console.log("[MaterialService]: Fade completado");
-                    }
-                });
+                    });
+                } else {
+                    console.warn("[MaterialService]: AnimationService no disponible, aplicando sin fade");
+                }
             } else {
                 // Primera vez, crear materiales directamente sin fade
                 this.objectsMaterial = new THREE.ShaderMaterial({
@@ -149,15 +168,66 @@ export class MaterialService {
             walls: this.wallsMaterial,
         };
 
-        // Cargar objetos coloreables bajo demanda
+        // Cargar objetos coloreables bajo demanda con el tema correcto
         try {
-            const colorableObjects = await room.getColorableObjects();
+            const colorableObjects = await room.getColorableObjects(theme);
 
-            for (const [name, color] of Object.entries(colorableObjects)) {
-                if (color) {
-                    this.materialMap[name] = getColorMaterial(color);
+            if (withFade && Object.keys(this.currentColors).length > 0) {
+                // Hay colores previos, animar el cambio
+                for (const [name, newColor] of Object.entries(colorableObjects)) {
+                    if (!newColor) continue;
+
+                    const oldColor = this.currentColors[name];
+
+                    if (oldColor && oldColor !== newColor) {
+                        // Existe color anterior diferente, verificar si ya tenemos material
+                        let material = this.materialMap[name] as THREE.MeshBasicMaterial;
+
+                        if (!material) {
+                            // Crear material si no existe
+                            material = getColorMaterial(oldColor);
+                            this.materialMap[name] = material;
+                        }
+
+                        // Animar de color antiguo a nuevo
+                        const oldColorObj = new THREE.Color(oldColor);
+                        const newColorObj = new THREE.Color(newColor);
+
+                        if (this.animationService) {
+                            const timeline = this.animationService.createCustomTimeline();
+                            timeline.to(oldColorObj, {
+                                r: newColorObj.r,
+                                g: newColorObj.g,
+                                b: newColorObj.b,
+                                duration: 0.8,
+                                ease: "power2.inOut",
+                                onUpdate: () => {
+                                    material.color.copy(oldColorObj);
+                                }
+                            });
+                        } else {
+                            // Sin AnimationService, aplicar directamente
+                            material.color.copy(newColorObj);
+                        }
+                    } else if (!oldColor) {
+                        // No hay color anterior, crear material nuevo
+                        this.materialMap[name] = getColorMaterial(newColor);
+                    }
+                    // Si oldColor === newColor, no hacer nada
+                }
+            } else {
+                // Sin fade o primera vez, aplicar colores directamente
+                console.log("[MaterialService]: Aplicando colores sin fade");
+                for (const [name, color] of Object.entries(colorableObjects)) {
+                    if (color) {
+                        this.materialMap[name] = getColorMaterial(color);
+                    }
                 }
             }
+
+            // Guardar los colores actuales para el próximo fade
+            this.currentColors = { ...colorableObjects };
+
         } catch (error) {
             console.warn("[MaterialService]: Error al cargar objetos coloreables para materiales:", error);
         }

@@ -40,7 +40,9 @@ export default function ThemeToggle() {
         }`}
         style={{
           transform: isDark ? "translateX(40px)" : "translateX(0)",
-          backgroundColor: isDark ? "rgb(253 186 116)" : "var(--color-primary)",
+          backgroundColor: isDark
+            ? "var(--color-highlight)"
+            : "var(--color-primary)",
         }}
       />
 

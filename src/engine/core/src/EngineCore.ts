@@ -87,9 +87,14 @@ export class EngineCore extends EventEmitter {
 
         // Registrar servicios principales
         this.registry.registerService(AssetManager, new AssetManager(this._gl!));
-        this.registry.registerService(MaterialService, new MaterialService());
+        const materialService = new MaterialService();
+        this.registry.registerService(MaterialService, materialService);
         this.registry.registerService(CameraService, new CameraService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
-        this.registry.registerService(AnimationService, new AnimationService(this._scene));
+        const animationService = new AnimationService(this._scene);
+        this.registry.registerService(AnimationService, animationService);
+
+        // Inyectar AnimationService en MaterialService
+        materialService.setAnimationService(animationService);
 
         this.registry.registerService(InteractionService, new InteractionService(this._camera as THREE.PerspectiveCamera, this._gl!.domElement));
 

@@ -107,6 +107,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     // Highlight overlay service
     private highlightService!: HighlightService;
 
+    // Suscripción al store para cambios de tema
+    private unsubscribeTheme?: () => void;
+
     // Estado anterior para detectar cambios
     private _previousRoomState: {
         hoveredObjects: Set<string>;
@@ -148,6 +151,9 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         // Suscribirse a eventos del core para cambios de room y node
         this.subscribeToEvents();
+
+        // Suscribirse a cambios de tema
+        this.subscribeToThemeChanges();
 
         // Cargar estado inicial si existe
         const initialRoom = core.getCurrentRoom();
@@ -519,6 +525,43 @@ export class InteractionSystem extends BaseSystem implements Injectable {
     }
 
     /**
+     * Suscribe a cambios de tema del store
+     */
+    private subscribeToThemeChanges(): void {
+        this.unsubscribeTheme = useEngineStore.subscribe(
+            async (state) => {
+                // Recargar colores de highlight cuando cambia el tema
+                if (this._currentRoom) {
+                    const resaltables = await this._currentRoom.getResaltableObjects(state.theme);
+                    this._resaltableObjects = resaltables;
+
+                    // Actualizar highlight de objetos actualmente resaltados
+                    this.updateHighlightColorsForHoveredObjects();
+                }
+            }
+        );
+    }
+
+    /**
+     * Actualiza los colores de highlight de objetos actualmente resaltados
+     */
+    private updateHighlightColorsForHoveredObjects(): void {
+        if (!this._currentRoom || !this.highlightService) return;
+
+        // Recorrer objetos que están actualmente hover
+        this._previousRoomState.hoveredObjects.forEach((objectName) => {
+            const obj = this._currentRoom!.getObjectByName(objectName);
+            if (obj && this._resaltableObjects[objectName] !== undefined) {
+                const colorHex = this._resaltableObjects[objectName];
+                const colorValue = colorHex ? parseInt(colorHex.replace('#', ''), 16) : undefined;
+
+                // Re-aplicar el highlight con el nuevo color
+                this.highlightService.addToObject(obj, { color: colorValue });
+            }
+        });
+    }
+
+    /**
      * Desuscribe de eventos del core
      */
     private unsubscribeFromEvents(): void {
@@ -565,7 +608,8 @@ export class InteractionSystem extends BaseSystem implements Injectable {
             const interceptables = await room.getInteractableObjects();
             this._interceptableObjects = interceptables;
 
-            const resaltables = await room.getResaltableObjects();
+            const theme = useEngineStore.getState().theme;
+            const resaltables = await room.getResaltableObjects(theme);
             this._resaltableObjects = resaltables;
         } catch (error) {
             console.error("[InteractionSystem] Error cargando interceptables:", error);
@@ -643,6 +687,11 @@ export class InteractionSystem extends BaseSystem implements Injectable {
 
         // Desuscribirse de eventos del core
         this.unsubscribeFromEvents();
+
+        // Desuscribirse de cambios de tema
+        if (this.unsubscribeTheme) {
+            this.unsubscribeTheme();
+        }
 
         // Limpiar estado interno
         this._interceptableObjects = {};
