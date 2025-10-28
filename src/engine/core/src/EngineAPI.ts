@@ -633,4 +633,48 @@ export class EngineAPI {
         if (!this._core) return null;
         return this._core.getService(ImageManager);
     }
+
+    /**
+     * Establece el color de la nebula con transición suave
+     * 
+     * @param color - Color objetivo (THREE.Color, hex string, o objeto RGB)
+     * @example
+     * api.setNebulaColor('#ff0000') // Rojo
+     * api.setNebulaColor({ r: 0.5, g: 0.2, b: 0.8 }) // Violeta
+     * api.setNebulaColor(new THREE.Color(0.9, 0.5, 0.5)) // Rojizo
+     */
+    setNebulaColor(color: THREE.Color | string | { r: number; g: number; b: number }): void {
+        if (!this._core) {
+            console.warn("[EngineAPI] Core no disponible para setNebulaColor");
+            return;
+        }
+
+        const nebulaManager = this._core.getService(NebulaManager);
+        if (!nebulaManager) {
+            console.warn("[EngineAPI] NebulaManager no disponible");
+            return;
+        }
+
+        nebulaManager.setNebulaColor(color);
+    }
+
+    /**
+     * Obtiene el color actual de la nebula
+     * 
+     * @returns Color actual de la nebula
+     */
+    getNebulaColor(): THREE.Color | null {
+        if (!this._core) {
+            console.warn("[EngineAPI] Core no disponible para getNebulaColor");
+            return null;
+        }
+
+        const nebulaManager = this._core.getService(NebulaManager);
+        if (!nebulaManager) {
+            console.warn("[EngineAPI] NebulaManager no disponible");
+            return null;
+        }
+
+        return nebulaManager.getNebulaColor();
+    }
 }

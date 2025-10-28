@@ -9,9 +9,9 @@ export default function AuthLinks({ href, section }: AuthLinksProps) {
   const { t } = useTranslation();
 
   return (
-    <p className="text-gray-300 text-sm mt-6">
-      {t(`${section}.text`)}{" "}
-      <a href={href} className="text-pink-600 font-bold hover:underline">
+    <p className="text-gray-200 text-sm mt-2 font-light flex items-center gap-1">
+      <span>{t(`${section}.text`)}</span>
+      <a href={href} className="text-purple-300 font-light hover:underline">
         {t(`${section}.textLink`)}
       </a>
     </p>
