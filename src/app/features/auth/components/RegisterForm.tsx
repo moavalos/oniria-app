@@ -55,7 +55,7 @@ export default function RegisterForm() {
           placeholder={t("register.email")}
           className="w-full px-4 py-2 rounded-lg bg-black/40 border border-white/30 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
         />
-        
+
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -86,7 +86,10 @@ export default function RegisterForm() {
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-gray-300 transition-colors"
           >
-            <Icon name={showConfirmPassword ? "eye-close" : "eye-open"} size={20} />
+            <Icon
+              name={showConfirmPassword ? "eye-close" : "eye-open"}
+              size={20}
+            />
           </button>
         </div>
 
