@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { button, useControls } from "leva";
-import { useEngineCore } from "../Engine";
-import { useEngineStore } from "../store/engineStore";
-import { useTransitions } from "../hooks";
-import { EngineState } from "../types";
 import * as THREE from "three";
 
+import { useEngineCore, useEngineState } from "@engine/core";
+import { useEngineAPI } from "@engine/core/context/EngineApiProvider";
+import { useEngineStore } from "@engine/core/store/engineStore";
+import { EngineState } from "@engine/core/types/engine.types";
+import { CameraService } from "../services";
+
+/**
+ * Configuración de paneles disponibles en el sistema de debug
+ */
 export interface DebugSystemProps {
   enabled?: boolean;
   panels?: {
@@ -16,9 +21,17 @@ export interface DebugSystemProps {
     scene?: boolean;
     performance?: boolean;
     node?: boolean;
+    portal?: boolean;
   };
 }
 
+/**
+ * Sistema de debug del motor 3D que proporciona paneles de inspección
+ * en tiempo real para desarrolladores. Permite monitorear y controlar
+ * diferentes aspectos del motor como cámara, nodos, portales y estado general.
+ *
+ * Utiliza Leva para crear interfaces de debug interactivas.
+ */
 export default function DebugSystem({
   enabled = true,
   panels = {
@@ -29,10 +42,10 @@ export default function DebugSystem({
     scene: true,
     performance: true,
     node: true,
+    portal: true,
   },
 }: DebugSystemProps) {
-  const core = useEngineCore();
-  const { engineState } = core;
+  const engineState = useEngineState();
 
   // Solo mostrar cuando el engine esté listo (para debug)
   const isEngineReady = engineState === EngineState.READY;
@@ -41,71 +54,19 @@ export default function DebugSystem({
 
   return (
     <>
-      {panels.engine && <EngineDebugPanel />}
       {isEngineReady && panels.camera && <CameraDebugPanel />}
-      {isEngineReady && panels.animation && <AnimationDebugPanel />}
-      {isEngineReady && panels.interaction && <InteractionDebugPanel />}
-      {isEngineReady && panels.scene && <SceneDebugPanel />}
-      {isEngineReady && panels.performance && <PerformanceDebugPanel />}
       {isEngineReady && panels.node && <NodeDebugPanel />}
+      {isEngineReady && panels.portal && <PortalDebugPanel />}
     </>
   );
-}
-
-// Panel de Engine General
-function EngineDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom, engineState } = core;
-
-  // Crear un objeto de controles que se actualice reactivamente
-  const controls = React.useMemo(
-    () => ({
-      engineState: {
-        value: engineState,
-        disabled: true,
-        label: "Engine State",
-      },
-      activeRoom: {
-        value: activeRoom?.constructor.name || "none",
-        disabled: true,
-        label: "Active Room",
-      },
-      loopRunning: {
-        value: "running",
-        disabled: true,
-        label: "Loop Status",
-      },
-      restartEngine: button(() => {
-        console.log("🔄 Restarting engine...");
-      }),
-      exportState: button(() => {
-        const state = {
-          room: activeRoom?.constructor.name,
-          engineState: engineState,
-          scene: activeRoom?.getScene()?.children.length,
-          timestamp: Date.now(),
-        };
-        console.log("📤 Engine State:", state);
-      }),
-    }),
-    [engineState, activeRoom]
-  );
-
-  console.log(controls);
-
-  useControls("🔧 Engine", controls, [engineState, activeRoom]);
-
-  return null;
 }
 
 // Panel de Cámara
 function CameraDebugPanel() {
   const core = useEngineCore();
-  const { activeRoom, engineState } = core;
-  const cameraService = core.getCameraService();
-  const { viewNodes } = useTransitions();
-
-  console.log(engineState);
+  const engineAPI = useEngineAPI();
+  const engineState = useEngineState();
+  const cameraService = core.getService(CameraService);
 
   // Estado para lookAtables (usando patrón async como AnimationSystem)
   const [lookAtables, setLookAtables] = useState<Record<string, any>>({});
@@ -114,15 +75,20 @@ function CameraDebugPanel() {
 
   // Cargar lookAtables de forma asíncrona
   useEffect(() => {
-    if (!isEngineReady || !activeRoom) {
+    if (!isEngineReady) {
       setLookAtables({});
       return;
     }
 
     const loadLookAtables = async () => {
       try {
-        const roomLookAtables = await activeRoom.getLookAtableObjects();
-        console.log(roomLookAtables);
+        const room = engineAPI.getRoom();
+        if (!room) {
+          setLookAtables({});
+          return;
+        }
+
+        const roomLookAtables = await room.getLookAtableObjects();
         setLookAtables(roomLookAtables || {});
       } catch (error) {
         console.error("Error cargando objetos lookAtables:", error);
@@ -131,7 +97,7 @@ function CameraDebugPanel() {
     };
 
     loadLookAtables();
-  }, [activeRoom, isEngineReady]);
+  }, [isEngineReady, engineAPI]);
 
   const options = React.useMemo(() => Object.keys(lookAtables), [lookAtables]);
 
@@ -172,261 +138,23 @@ function CameraDebugPanel() {
         );
       }),
       viewNodesBtn: button(() => {
-        cameraService?.setLookAt(
-          new THREE.Vector3(-3.5, 3, 6),
-          new THREE.Vector3(0, 1.8, 0),
-          true
-        );
-        viewNodes();
+        engineAPI.camera.viewNodes();
       }),
     }),
-    [options, cameraService, viewNodes]
+    [options, cameraService, engineAPI]
   );
 
   const { target } = useControls("📷 Camera", cameraControls, [options]);
 
-  // Efecto para cambiar target
+  // Efecto para cambiar target usando engineAPI.lookAt
   React.useEffect(() => {
-    if (!target || !cameraService || target === "scene") return;
+    if (!target || target === "scene") return;
 
-    const objPos = activeRoom
-      ?.getObjectByName(target)
-      ?.getWorldPosition(new THREE.Vector3());
-    const from = lookAtables[target];
-
-    if (from && objPos) {
-      cameraService.setLookAt(from, objPos, true);
-    }
-  }, [target, cameraService, lookAtables, activeRoom]);
-
-  return null;
-}
-
-// Panel de Animaciones
-function AnimationDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom } = core;
-
-  useControls("🎬 Animation", {
-    totalClips: {
-      value: activeRoom?.getScene()?.animations?.length || 0,
-      disabled: true,
-      label: "Total Clips",
-    },
-    playAll: button(() => {
-      console.log("▶️ Playing all animations");
-    }),
-    pauseAll: button(() => {
-      console.log("⏸️ Pausing all animations");
-    }),
-    stopAll: button(() => {
-      console.log("⏹️ Stopping all animations");
-    }),
-  });
-
-  return null;
-}
-
-// Panel de Interacciones
-function InteractionDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom, engineState } = core;
-
-  // Estado para interactables (usando patrón async como AnimationSystem)
-  const [interactables, setInteractables] = useState<Record<string, any>>({});
-
-  const isEngineReady = engineState === EngineState.READY;
-
-  // Cargar interactables de forma asíncrona
-  useEffect(() => {
-    if (!isEngineReady || !activeRoom) {
-      setInteractables({});
-      return;
-    }
-
-    const loadInteractables = async () => {
-      try {
-        const roomInteractables = await activeRoom.getInteractableObjects();
-        setInteractables(roomInteractables || {});
-      } catch (error) {
-        console.error("Error cargando objetos interactables:", error);
-        setInteractables({});
-      }
-    };
-
-    loadInteractables();
-  }, [activeRoom, isEngineReady]);
-
-  const interactablesList = Object.keys(interactables);
-
-  // Crear controles reactivos
-  const interactionControls = React.useMemo(
-    () => ({
-      totalInteractables: {
-        value: interactablesList.length,
-        disabled: true,
-        label: "Total Interactables",
-      },
-      interactableObjects: {
-        value: interactablesList.join(", ") || "none",
-        disabled: true,
-        label: "Objects",
-      },
-      simulateHover: button(() => {
-        if (interactablesList[0]) {
-          console.log(`Hover: ${interactablesList[0]}`);
-        }
-      }),
-      logInteractables: button(() => {
-        console.log("📋 Interactables:", interactables);
-      }),
-    }),
-    [interactablesList, interactables]
-  );
-
-  useControls("🎯 Interaction", interactionControls);
-
-  return null;
-}
-
-// Panel de Escena
-function SceneDebugPanel() {
-  const core = useEngineCore();
-  const { activeRoom } = core;
-
-  const sceneInfo = React.useMemo(() => {
-    const scene = activeRoom?.getScene();
-    if (!scene) return { objects: 0, lights: 0, meshes: 0 };
-
-    let objects = 0;
-    let lights = 0;
-    let meshes = 0;
-
-    scene.traverse((child) => {
-      objects++;
-      if (child.type.includes("Light")) lights++;
-      if (child.type === "Mesh") meshes++;
+    // Usar engineAPI.lookAt en lugar de lógica manual
+    engineAPI.lookAt(target).catch((error) => {
+      console.error("Error en lookAt:", error);
     });
-
-    return { objects, lights, meshes };
-  }, [activeRoom]);
-
-  const [wireframeMode, setWireframeMode] = React.useState(false);
-
-  useControls("🌍 Scene", {
-    totalObjects: {
-      value: sceneInfo.objects,
-      disabled: true,
-      label: "Total Objects",
-    },
-    lights: {
-      value: sceneInfo.lights,
-      disabled: true,
-      label: "Lights",
-    },
-    meshes: {
-      value: sceneInfo.meshes,
-      disabled: true,
-      label: "Meshes",
-    },
-    logScene: button(() => {
-      const scene = activeRoom?.getScene();
-      if (scene) {
-        console.log("🌳 Scene Graph:", scene);
-        scene.traverse((child) => {
-          console.log(`- ${child.name} (${child.type})`);
-        });
-      }
-    }),
-    toggleWireframe: button(() => {
-      const scene = activeRoom?.getScene();
-      scene?.traverse((child) => {
-        if (child.type === "Mesh") {
-          const mesh = child as THREE.Mesh;
-          if (mesh.material) {
-            const material = Array.isArray(mesh.material)
-              ? mesh.material[0]
-              : mesh.material;
-            if ("wireframe" in material) {
-              material.wireframe = !material.wireframe;
-            }
-          }
-        }
-      });
-      setWireframeMode(!wireframeMode);
-    }),
-  });
-
-  return null;
-}
-
-// Panel de Performance
-function PerformanceDebugPanel() {
-  const [frameRate, setFrameRate] = React.useState(0);
-  const [memoryUsage, setMemoryUsage] = React.useState(0);
-  const [isProfileling, setIsProfiiling] = React.useState(false);
-
-  React.useEffect(() => {
-    let frameCount = 0;
-    let lastTime = performance.now();
-
-    const updateStats = () => {
-      frameCount++;
-      const currentTime = performance.now();
-
-      if (currentTime - lastTime >= 1000) {
-        setFrameRate(frameCount);
-        frameCount = 0;
-        lastTime = currentTime;
-
-        // Memory usage (si está disponible)
-        if ("memory" in performance) {
-          const memory = (performance as any).memory;
-          setMemoryUsage(Math.round(memory.usedJSHeapSize / 1024 / 1024));
-        }
-      }
-
-      requestAnimationFrame(updateStats);
-    };
-
-    updateStats();
-  }, []);
-
-  useControls("⚡ Performance", {
-    frameRate: {
-      value: `${frameRate} FPS`,
-      disabled: true,
-      label: "Frame Rate",
-    },
-    memoryUsage: {
-      value: `${memoryUsage} MB`,
-      disabled: true,
-      label: "Memory Usage",
-    },
-    startProfiling: button(() => {
-      console.log("🔍 Starting performance profiling...");
-      console.time("Performance Profile");
-      setIsProfiiling(true);
-    }),
-    endProfiling: button(() => {
-      console.timeEnd("Performance Profile");
-      console.log("✅ Performance profiling ended");
-      setIsProfiiling(false);
-    }),
-    forceGC: button(() => {
-      if ("gc" in window && typeof (window as any).gc === "function") {
-        (window as any).gc();
-        console.log("🗑️ Garbage collection forced");
-      } else {
-        console.log("⚠️ GC not available");
-      }
-    }),
-    profilingStatus: {
-      value: isProfileling ? "Running" : "Stopped",
-      disabled: true,
-      label: "Profiling Status",
-    },
-  });
+  }, [target, engineAPI]);
 
   return null;
 }
@@ -732,6 +460,105 @@ function NodeDebugPanel() {
       }),
     },
     []
+  );
+
+  return null;
+}
+
+// Panel de Portal Debug
+function PortalDebugPanel() {
+  const { portalUniforms, setPortalUniforms, resetPortalUniforms } =
+    useEngineStore();
+
+  useControls(
+    "🌀 Portal Effects",
+    {
+      // === CONTROLES BÁSICOS ===
+      "Portal Alpha": {
+        value: portalUniforms.uPortalAlpha,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uPortalAlpha: value }),
+      },
+      Density: {
+        value: portalUniforms.uDensity,
+        min: 0,
+        max: 10,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uDensity: value }),
+      },
+      Radius: {
+        value: portalUniforms.uRadius,
+        min: 0.1,
+        max: 3,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uRadius: value }),
+      },
+      Angle: {
+        value: portalUniforms.uAngle,
+        min: 0,
+        max: Math.PI * 2,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uAngle: value }),
+      },
+
+      // === CONTROLES DE COLOR ===
+      Hue: {
+        value: portalUniforms.uHue,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uHue: value }),
+      },
+      Saturation: {
+        value: portalUniforms.uSaturation,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        onChange: (value: number) => setPortalUniforms({ uSaturation: value }),
+      },
+
+      // === CONTROLES AVANZADOS ===
+      "Radius Factor": {
+        value: portalUniforms.uRadiusFactor,
+        min: 0.1,
+        max: 5,
+        step: 0.1,
+        onChange: (value: number) =>
+          setPortalUniforms({ uRadiusFactor: value }),
+      },
+      "Gain Offset": {
+        value: portalUniforms.uGainOffset,
+        min: 0,
+        max: 2,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uGainOffset: value }),
+      },
+      "Gain Scale": {
+        value: portalUniforms.uGainScale,
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        onChange: (value: number) => setPortalUniforms({ uGainScale: value }),
+      },
+
+      // === ACCIONES ===
+      "Reset Portal": button(() => {
+        resetPortalUniforms();
+      }),
+    },
+    [
+      portalUniforms.uPortalAlpha,
+      portalUniforms.uDensity,
+      portalUniforms.uRadius,
+      portalUniforms.uAngle,
+      portalUniforms.uHue,
+      portalUniforms.uSaturation,
+      portalUniforms.uRadiusFactor,
+      portalUniforms.uGainOffset,
+      portalUniforms.uGainScale,
+    ]
   );
 
   return null;

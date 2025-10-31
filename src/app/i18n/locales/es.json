@@ -1,0 +1,136 @@
+{
+  "home": {
+    "link": "Inicio",
+    "title": "Bienvenido a Oniria",
+    "description": "Explora el mundo de los sueños con Oniria.",
+    "likeApp": "¿Te gusta la app?"
+  },
+  "login": {
+    "link": "Iniciá sesión",
+    "subtitle": "Que gusto que estes acá! Te damos la Bienvenida.",
+    "subtitle2": "Iniciá sesión para continuar.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "button": "Ingresar",
+    "forgot": "Olvidé mi contraseña",
+    "or": "o ingresá con",
+    "google": "Continuar con Google",
+    "text": "¿Todavía no tenés cuenta?",
+    "textLink": "Registrate",
+    "error": "Credenciales inválidas",
+    "footer": "Al iniciar sesión o crear una cuenta, aceptas los",
+    "terms": "Términos y Condiciones",
+    "and": "y la",
+    "privacy": "Política de Privacidad",
+    "ofOniria": "de Oniria."
+  },
+  "register": {
+    "link": "Registrate",
+    "subtitle": "Creá tu cuenta fácil y rápido",
+    "subtitle2": "Unite a la comunidad de Oniria.",
+    "username": "Nombre de usuario",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "button": "Registrarse",
+    "or": "o registrate con",
+    "errorPasswordMatch": "Las contraseñas no coinciden",
+    "text": "¿Ya tenés una cuenta?",
+    "textLink": "Iniciá sesión",
+    "error": "Error al registrarse",
+    "success": "Registro exitoso. Revisa tu email para verificar la cuenta.",
+    "successTitle": "¡Gracias por registrarte!",
+    "successMessage": "¡Ya eres parte de nuestra comunidad! Ahora solo revisa tu casilla de email para verificar la cuenta.",
+    "goToLogin": "Iniciar sesión"
+  },
+  "notFound": {
+    "link": "Ir al inicio",
+    "message": "Página no encontrada"
+  },
+  "historial": {
+    "link": "Historial",
+    "verSuenos": "Ver tus sueños guardados",
+    "title": "Explora tus Nodos",
+    "description": "Selecciona entre las plantillas que más te gusten",
+    "oniriaPro": "Probá Oniria PRO",
+    "visibility": "Visibilidad",
+    "public": "Público",
+    "insignia": "Insignias",
+    "emocion": "Emoción",
+    "soporte": "Soporte",
+    "atajos": "Atajos",
+    "salir": "Salir"
+  },
+  "node": {
+    "descriptionLabel": "Descubri el significado de tus sueños con nuestra IA.",
+    "placeholderNode": "Hoy soñe …",
+    "character1": "Te pasaste del máximo de ",
+    "character2": "caracteres",
+    "interpretar": "Interpretar",
+    "myroom": "Mi habitación",
+    "myroomDesc": "Gestiona tu espacio.",
+    "personalizar": "Personalizar",
+    "toque": "Dale tu toque al espacio",
+    "insignia": "Mis insignias",
+    "descriptionInsignia": "Gestioná tus logros dentro de Oniria.",
+    "suenoDelNodo": "Sueño del nodo",
+    "cerrar": "Cerrar",
+    "guardar": "Guardar",
+    "reinterpretar": "Reinterpretar",
+    "acaAparecera": "Acá aparecerá el contenido del sueño...",
+    "interpretando": "Interpretando...",
+    "menu": {
+      "portal": "El Portal",
+      "labelPortal": "¿Qué soñaste?",
+      "descriptionPortal": "Acá podés registrar tus sueños, explorar tu historial y descubrir los patrones que habitan en tu mente.",
+      "descriptPortalPanel": "El Portal de los Sueños es el punto de acceso a tu universo interior. Desde aquí podés registrar un sueño, interpretarlo o explorar tu historia onírica. Cada elección abre un nuevo camino dentro de tu mente.",
+      "oniriaAiFunction": "Oniria AI te dará una interpretación simbólica de tu sueño.",
+      "historialLabel": "Mi historia onírica",
+      "historialDescription": "Accede a tu diario de sueños y explora las interpretaciones pasadas.",
+      "monitor": {
+        "title": "Centro de control",
+        "description": "Ajusta las preferencias de la aplicación y personaliza tu experiencia.",
+        "items": {
+          "labelPerfil": "Perfil",
+          "descPerfil": "Gestiona tu perfil y preferencias personales.",
+          "labelNotificaciones": "Notificaciones",
+          "descNotificaciones": "Configura tus preferencias de notificación.",
+          "labelPersonalizacion": "Personalización",
+          "descPersonalizacion": "Personaliza tu habitación."
+        }
+      }
+    },
+    "portal": {
+      "saludo": "Hola ",
+      "saludoDos": " ¿Qué imágenes quedaron en tu sueño?",
+      "description": "Escribí libremente, sin preocuparte por el orden. Oniria se encargará de interpretarlo.",
+      "placeholder": "Hoy soñé...",
+      "descriptionPanel": "Estás en la Vitácora Onírica, el lugar donde tus sueños toman forma. Cada palabra que escribas deja una huella en tu mapa interior, conectando recuerdos, símbolos y emociones. Este es tu espacio para registrar lo que el subconsciente te mostró mientras dormías.",
+      "tassSeguro": "¿Estás seguro de cerrar sin guardar la interpretación?",
+      "cerrarG": "Cerrar sin guardar",
+      "cancelar": "Cancelar"
+    },
+    "panelImage": {
+      "title": "Nueva funcionalidad",
+      "description": "¿Sabías que ahora nuestra IA te genera una imagen de la interpretación para que tus sueños puedan cobrar aún más vida?",
+      "saberMas": "Saber más",
+      "imagenLista": "¡Tu imagen ya está lista!",
+      "generandoImagen": "Generando imagen...",
+      "interpretacionGuardada": "¡Interpretación guardada!",
+      "imagenTransform": "Tu interpretación ha sido transformada en una imagen única.",
+      "imagenVisual": "Estamos creando una imagen visual de tu sueño. Esto puede tomar unos momentos...",
+      "tranformacionUnica": "Tu interpretación ha sido transformada en una experiencia visual única.",
+      "generarImagen": "Generar imagen",
+      "generando": "Generando...",
+      "download": "Descargar imagen",
+      "guardando": "Guardando..."
+    }
+  },
+  "header": {
+    "loading": "Cargando...",
+    "guest": "Invitado"
+  },
+  "private_route": {
+    "loading": "Cargando..."
+  }
+}

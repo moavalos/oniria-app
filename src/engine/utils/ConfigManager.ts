@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+
 import type { RoomConfig, AnimationAction, ObjectEventArray } from '../config/room.type';
 import { loadRoomConfig } from './ConfigLoader';
 
@@ -10,34 +11,27 @@ export interface ProcessedRoomObjects {
     animatable: Record<string, AnimationAction>;
     interactable: Record<string, ObjectEventArray>;
     colorable: Record<string, string>;
+    resaltable: Record<string, string | undefined>; // objectName -> color hex (opcional)
 }
 
 /**
- * Gestor de configuraciones de habitaciones - carga bajo demanda
- * Solo mantiene la configuración de la habitación activa
+ * Gestor de configuraciones de habitaciones - carga bajo demanda.
+ * Solo mantiene la configuración de la habitación activa.
  */
 export class ConfigManager {
-    private static instance: ConfigManager | null = null;
 
     private currentConfig: RoomConfig | null = null;
 
     private currentRoomId: string | null = null;
 
-    private constructor() { }
-
-    static getInstance(): ConfigManager {
-        if (!ConfigManager.instance) {
-            ConfigManager.instance = new ConfigManager();
-        }
-        return ConfigManager.instance;
-    }
-
     /**
-     * Obtiene la configuración de una habitación
+     * Obtiene la configuración de una habitación.
+     * @param roomId - ID de la habitación
+     * @returns Configuración de la habitación
      */
     async getConfig(roomId: string): Promise<RoomConfig> {
         if (!roomId?.trim()) {
-            throw new Error('Room ID cannot be empty');
+            throw new Error('El ID de la habitación no puede estar vacío');
         }
 
         // Si es la misma habitación que ya tenemos cargada, devolverla
@@ -65,7 +59,8 @@ export class ConfigManager {
             lookAtable: scene ? this.extractLookAtableObjects(config, scene) : {},
             animatable: this.extractAnimatableObjects(config),
             interactable: scene ? this.extractInteractableObjects(config, scene) : {},
-            colorable: this.extractColorableObjects(config)
+            colorable: this.extractColorableObjects(config),
+            resaltable: this.extractResaltableObjects(config)
         };
     }
 
@@ -129,20 +124,39 @@ export class ConfigManager {
     /**
      * Obtiene objetos con colores
      */
-    async getColorableObjects(roomId: string): Promise<Record<string, string>> {
+    async getColorableObjects(roomId: string, theme: 'light' | 'dark' = 'light'): Promise<Record<string, string>> {
         const config = await this.getConfig(roomId);
-        return this.extractColorableObjects(config);
+        return this.extractColorableObjects(config, theme);
     }
 
     /**
      * Obtiene objetos con colores (versión síncrona - asume que la config ya está cargada)
      */
-    getColorableObjectsSync(): Record<string, string> {
+    getColorableObjectsSync(theme: 'light' | 'dark' = 'light'): Record<string, string> {
         if (!this.currentConfig) {
             console.warn('[ConfigManager] No config loaded, returning empty colorables');
             return {};
         }
-        return this.extractColorableObjects(this.currentConfig);
+        return this.extractColorableObjects(this.currentConfig, theme);
+    }
+
+    /**
+     * Obtiene objetos resaltables
+     */
+    async getResaltableObjects(roomId: string, theme: 'light' | 'dark' = 'light'): Promise<Record<string, string | undefined>> {
+        const config = await this.getConfig(roomId);
+        return this.extractResaltableObjects(config, theme);
+    }
+
+    /**
+     * Obtiene objetos resaltables (versión síncrona - asume que la config ya está cargada)
+     */
+    getResaltableObjectsSync(theme: 'light' | 'dark' = 'light'): Record<string, string | undefined> {
+        if (!this.currentConfig) {
+            console.warn('[ConfigManager] No config loaded, returning empty resaltables');
+            return {};
+        }
+        return this.extractResaltableObjects(this.currentConfig, theme);
     }
 
     /**
@@ -187,34 +201,68 @@ export class ConfigManager {
     private extractInteractableObjects(config: RoomConfig, scene: THREE.Group<THREE.Object3DEventMap>): Record<string, ObjectEventArray> {
         const interactables: Record<string, ObjectEventArray> = {};
 
-
         for (const [name, obj] of Object.entries(config.objects)) {
-
             if (obj.interceptable && obj.event) {
-
                 // Asegurar que event es siempre un array
                 const eventArray = Array.isArray(obj.event) ? obj.event : [obj.event];
                 interactables[name] = eventArray;
+
+                // Si el objeto tiene hijos, también marcarlos como interceptables
+                const object3D = scene.getObjectByName(name);
+                if (object3D && object3D.children.length > 0) {
+                    object3D.traverse((child) => {
+                        // Solo agregar hijos con nombre (skip objetos sin nombre)
+                        if (child !== object3D && child.name) {
+                            interactables[child.name] = eventArray;
+                        }
+                    });
+                }
             }
         }
 
-
         const mapped = this.mapHandlersToChildObjects(scene, interactables);
-
 
         return mapped;
     }
 
-    private extractColorableObjects(config: RoomConfig): Record<string, string> {
+    private extractColorableObjects(config: RoomConfig, theme: 'light' | 'dark' = 'light'): Record<string, string> {
         const colorables: Record<string, string> = {};
 
         for (const [name, obj] of Object.entries(config.objects)) {
-            if (obj.color) {
+            // Priorizar light/dark sobre color deprecated
+            if (theme === 'dark' && obj.dark) {
+                colorables[name] = obj.dark;
+            } else if (theme === 'light' && obj.light) {
+                colorables[name] = obj.light;
+            } else if (obj.color) {
+                // Fallback a la propiedad antigua 'color'
                 colorables[name] = obj.color;
             }
         }
 
         return colorables;
+    }
+
+    private extractResaltableObjects(config: RoomConfig, theme: 'light' | 'dark' = 'light'): Record<string, string | undefined> {
+        const resaltables: Record<string, string | undefined> = {};
+
+        for (const [name, obj] of Object.entries(config.objects)) {
+            if (obj.resalted) {
+                // Priorizar colorResalted_light/dark sobre colorResalted deprecated
+                if (theme === 'dark' && obj.colorResalted_dark) {
+                    resaltables[name] = obj.colorResalted_dark;
+                } else if (theme === 'light' && obj.colorResalted_light) {
+                    resaltables[name] = obj.colorResalted_light;
+                } else if (obj.colorResalted) {
+                    // Fallback a la propiedad antigua
+                    resaltables[name] = obj.colorResalted;
+                } else {
+                    resaltables[name] = undefined;
+                }
+            }
+        }
+
+        return resaltables;
     }
 
     private mapHandlersToChildObjects(
@@ -240,6 +288,10 @@ export class ConfigManager {
     private isHandlerObject(name: string): boolean {
         return name.includes("_handler");
     }
+
+
+
+
 
     private getChildObjectName(scene: THREE.Group<THREE.Object3DEventMap>, handlerName: string): string | null {
         const handler = scene.getObjectByName(handlerName);

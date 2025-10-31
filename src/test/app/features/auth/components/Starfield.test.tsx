@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render } from "@testing-library/react";
-import Starfield from "@/shared/components/Starfield";
+import Starfield from "@/app/shared/components/Starfield";
 
 describe("Starfield", () => {
   beforeEach(() => {

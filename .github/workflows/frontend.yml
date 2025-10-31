@@ -4,7 +4,7 @@ on:
   pull_request:
 
 jobs:
-  test-backend:
+  test-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,8 +17,11 @@ jobs:
       - name: Instalando dependencias
         run: npm install
 
-      - name: Ejecutando pruebas del backend
+      - name: Instalando Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Ejecutando pruebas del frontend
         run: npm test
 
-      - name: Ejecutando linter del backend
+      - name: Ejecutando linter del frontend
         run: npm run lint

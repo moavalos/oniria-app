@@ -15,11 +15,11 @@
       "@pages/*": ["./src/app/pages/*"],
       "@features/*": ["./src/app/features/*"],
       "@assets/*": ["./src/assets/*"],
-      "@shared/*": ["./src/shared/*"],
+      "@shared/*": ["./app/shared/*"],
       "@config/*": ["./src/config/*"],
       "@engine/*": ["./src/engine/*"],
       "@styles/*": ["./src/styles/*"],
-      "@utils/*": ["./src/shared/utils/*"],
+      "@utils/*": ["./app/shared/utils/*"],
       "@locales/*": ["./src/i18n/locales/*"]
   },
 
@@ -39,5 +39,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "src/app/features/hud/components/dreams/.old.tsx"]
 }

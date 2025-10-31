@@ -1,25 +1,54 @@
-import * as THREE from "three";
-import { NodeRenderer } from "../systems/renderer/NodeRenderer";
-import { useRef, useEffect } from "react";
-import { useEngineCore } from "../Engine";
+import { useEffect, useState } from "react";
+import { Node, useEngineCore } from "@engine/core";
+import { useEngineState } from "@engine/core/hooks";
+import { NodeManager } from "../services/managers/NodeManager";
+import { Float } from "@react-three/drei";
 
-export default function NodeScene() {
-  const nodeRef = useRef<THREE.Group<THREE.Object3DEventMap> | null>(null);
+interface NodeSceneProps {
+  position?: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+}
+
+/**
+ * Escena para renderizar nodos 3D.
+ * Gestiona la renderización de nodos especiales en la escena.
+ */
+export default function NodeScene(props: NodeSceneProps) {
+  const [node, setNode] = useState<Node | null>(null);
+
   const core = useEngineCore();
+  const isEngineReady = useEngineState();
 
-  // Registrar el nodo cuando la referencia esté disponible
   useEffect(() => {
-    if (nodeRef.current) {
-      // Registrar el nodo con un ID por defecto o dinámico
-      //despues lo vemos despues
+    if (isEngineReady) {
+      const nodeManager = core.getService(NodeManager);
+      const nodeCreated = nodeManager.createNode();
+      if (nodeCreated) {
+        setNode(nodeCreated);
+      }
 
-      core.registerNode("default-node", nodeRef.current);
+      // Cleanup: destruir el nodo cuando NodeScene se desmonta
+      return () => {
+        console.log("[NodeScene] Cleaning up node");
+        nodeManager.destroyNode();
+        setNode(null);
+      };
     }
-  }, [core, nodeRef]);
+  }, [core, isEngineReady]);
 
   return (
     <>
-      <NodeRenderer ref={nodeRef} />
+      {node && (
+        <Float
+          speed={7}
+          floatingRange={[-0.05, 0]}
+          rotationIntensity={0.01}
+          floatIntensity={0.6}
+        >
+          <primitive {...props} object={node.getGroup()!} />
+        </Float>
+      )}
     </>
   );
 }

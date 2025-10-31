@@ -1,0 +1,135 @@
+{
+  "home": {
+    "link": "Home",
+    "title": "Welcome to Oniria",
+    "description": "Explore the world of dreams with Oniria.",
+    "likeApp": "Do you like the app?"
+  },
+  "login": {
+    "link": "Log In",
+    "subtitle": "We're glad to see you here! Welcome.",
+    "subtitle2": "Log in to continue.",
+    "email": "Email",
+    "password": "Password",
+    "button": "Log In",
+    "forgot": "I forgot my password",
+    "or": "or log in with",
+    "google": "Continue with Google",
+    "text": "Don't have an account?",
+    "textLink": "Sign Up",
+    "error": "Invalid credentials",
+    "footer": "By logging in or creating an account, you accept the",
+    "terms": "Terms and Conditions",
+    "and": "and the",
+    "privacy": "Privacy Policy",
+    "ofOniria": "of Oniria."
+  },
+  "register": {
+    "link": "Sign Up",
+    "subtitle": "Create your account easily and quickly",
+    "subtitle2": "Join the Oniria community.",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "button": "Sign Up",
+    "or": "or sign up with",
+    "errorPasswordMatch": "Passwords do not match",
+    "text": "Already have an account?",
+    "textLink": "Log In",
+    "success": "Account created successfully. Please check your email to confirm your account.",
+    "error": "Error creating account",
+    "successTitle": "Thanks for signing up!",
+    "successMessage": "You're now part of our community! Now just check your email inbox to verify your account.",
+    "goToLogin": "Log In"
+  },
+  "notFound": {
+    "message": "Page not found",
+    "link": "Back to Home"
+  },
+  "historial": {
+    "link": "History",
+    "verSuenos": "See your saved dreams",
+    "title": "Explore your Nodes",
+    "description": "Select from the templates you like best",
+    "oniriaPro": "Try Oniria PRO",
+    "visibility": "Visibility",
+    "public": "Public",
+    "insignia": "Badges",
+    "emocion": "Emotion",
+    "soporte": "Support",
+    "atajos": "Shortcuts",
+    "salir": "Exit"
+  },
+  "node": {
+    "descriptionLabel": "Write your dream",
+    "placeholderNode": "Write your dream here…",
+    "character1": "You exceeded the maximum of ",
+    "character2": "characters",
+    "interpretar": "Interpreter",
+    "myroom": "My room",
+    "personalizar": "Customize",
+    "toque": "Add your touch to the space",
+    "insignia": "My badges",
+    "descriptionInsignia": "Manage your achievements within Oniria.",
+    "suenoDelNodo": "Node's dream",
+    "cerrar": "Close",
+    "guardar": "Save",
+    "reinterpretar": "Reinterpret",
+    "acaAparecera": "Here will appear the content of the dream...",
+    "interpretando": "Interpreting...",
+    "menu": {
+      "portal": "The Portal",
+      "labelPortal": "What did you dream?",
+      "descriptionPortal": "Here you can record your dreams, explore your history, and discover the patterns that inhabit your mind.",
+      "descriptPortalPanel": "The Dream Portal is the gateway to your inner universe. From here you can record a dream, interpret it, or explore your dream history. Each choice opens a new path within your mind.",
+      "oniriaAiFunction": "Oniria AI will give you a symbolic interpretation of your dream.",
+      "historialLabel": "My Dream History",
+      "historialDescription": "Access your dream journal and explore past interpretations.",
+      "monitor": {
+        "title": "Control Center",
+        "description": "Adjust application preferences and customize your experience.",
+        "items": {
+          "labelPerfil": "Profile",
+          "descPerfil": "Manage your profile and personal preferences.",
+          "labelNotificaciones": "Notifications",
+          "descNotificaciones": "Set your notification preferences.",
+          "labelPersonalizacion": "Customization",
+          "descPersonalizacion": "Customize your room."
+        }
+      }
+    },
+    "portal": {
+      "saludo": "Hello ",
+      "saludoDos": " What images remained in your dream?",
+      "description": "Write freely, without worrying about the order. Oniria will take care of interpreting it.",
+      "placeholder": "Today I dreamed...",
+      "descriptionPanel": "You are in the Dream Journal, the place where your dreams take shape. Every word you write leaves a mark on your inner map, connecting memories, symbols, and emotions. This is your space to record what the subconscious showed you while you slept.",
+      "tassSeguro": "Are you sure you want to close without saving the interpretation?",
+      "cerrarG": "Close without saving",
+      "cancelar": "Cancel"
+    },
+    "panelImage": {
+      "title": "New Feature",
+      "description": "Did you know that our AI now generates an image of the interpretation so that your dreams can come to life even more?",
+      "saberMas": "Learn more",
+      "imagenLista": "Your image is ready!",
+      "generandoImagen": "Generating image...",
+      "interpretacionGuardada": "Interpretation saved!",
+      "imagenTransform": "Your interpretation has been transformed into a unique image.",
+      "imagenVisual": "We are creating a visual image of your dream. This may take a moment...",
+      "tranformacionUnica": "Your interpretation has been transformed into a unique visual experience.",
+      "generarImagen": "Generate image",
+      "generando": "Generating...",
+      "download": "Download image",
+      "guardando": "Saving..."
+    }
+  },
+  "header": {
+    "loading": "Loading...",
+    "guest": "Guest"
+  },
+  "private_route": {
+    "loading": "Loading..."
+  }
+}

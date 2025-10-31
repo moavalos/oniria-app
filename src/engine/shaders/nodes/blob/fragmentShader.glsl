@@ -31,6 +31,10 @@ uniform vec3 uGlassFrequency;    // Frecuencia (velocidad de cambio)
 uniform vec3 uGlassPhase;        // Fase (desfase de canales RGB)
 uniform vec3 uGlassTint;         // Tinte del vidrio
 
+// Control de dirección del humo/flujo
+uniform float uSmokeDirectionOffset;  // Offset de dirección (animación del flujo) 0.15
+uniform float uSmokeTurbulence;       // Turbulencia del flujo (variación ale
+
 // Control de gamma
 uniform float uGammaCorrection;  // Corrección gamma
 
@@ -76,7 +80,7 @@ vec3 glassLayer(vec2 uv,float t){
 
   // Noise turbulento para textura del vidrio
   float nx=fbm(uv*3.0+t*0.2+58.69,8);
-  float ny=fbm(uv*3.0+t*0.1+26.31,5);
+  float ny=fbm(uv*3.0+t*uSmokeTurbulence+26.31,5);
   float n=fbm(uv*3.0+2.0*vec2(nx,ny)+sin(t)*0.5,4);
   n=pow(n,1.1);
 
@@ -84,7 +88,7 @@ vec3 glassLayer(vec2 uv,float t){
   vec3 col = uGlassColorBase * (n*0.6+0.45);
   
   // Variación de color rotacional (paleta procedural)
-  float a=atan(uv.y,uv.x)/TAU+t*0.15;
+  float a=atan(uv.y,uv.x)/TAU+t*uSmokeDirectionOffset;
   col*=pal(a, uGlassOffset, uGlassAmplitude, uGlassFrequency, uGlassPhase);
   col*=uGlassTint; // Tinte configurable
 
@@ -99,8 +103,8 @@ vec3 glassLayer(vec2 uv,float t){
 
   // Fresnel final - borde brillante del contenedor
   col=c+col*pow((1.0-smoothstep(1.0,uFresnelWidth,l)
-                -pow(max(0.0,length(uv)-1.0),uFresnelBrightWidth))*uFresnelBright,2.0);
-  col+=abs(norm)*(1.0-d)*sm*0.55;
+                -pow(max(0.0,length(uv)-1.0),uFresnelBrightWidth))*uFresnelBright,2.5);
+  col+=abs(norm)*(1.0-d)*sm*0.45;
 
   return col;
 }
@@ -134,7 +138,7 @@ vec3 plasmaLayer(vec2 p,float t){
 // === FUNCIÓN PRINCIPAL ===
 void main() {
   // Coordenadas centradas y escaladas
-  vec2 uv = (vUv - 0.5) * 4.0;
+  vec2 uv = (vUv - 0.5) * 5.0;
   float r = length(uv);
   float t = uTime;
 
@@ -159,5 +163,22 @@ void main() {
   // Corrección gamma para mejor visualización (configurable)
   color = pow(color, vec3(uGammaCorrection));
 
-  gl_FragColor = vec4(color, 1.0);
+    // === CÁLCULO DE TRANSPARENCIA DIFERENCIADA ===
+  
+  // Alpha para el nodo central (más opaco)
+  float plasmaAlpha = length(colPlasma);
+  plasmaAlpha = smoothstep(0.1, 0.8, plasmaAlpha);
+  
+  // Alpha para el humo (más transparente)
+  float smokeAlpha = length(colGlass) * 0.6; // Factor 0.6 para más transparencia
+  smokeAlpha = smoothstep(0.05, 0.4, smokeAlpha);
+  
+  // Combinar alphas: usar el máximo para que el nodo sea visible
+  float finalAlpha = max(plasmaAlpha, smokeAlpha);
+  
+  // Si estás muy lejos del centro, hacer más transparente
+  float distanceFade = smoothstep(3.0, 1.5, r);
+  finalAlpha *= distanceFade;
+
+  gl_FragColor = vec4(color, finalAlpha);
 }
